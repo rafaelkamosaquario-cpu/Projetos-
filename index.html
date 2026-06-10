@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico CPK | Redução de Custos de Frota</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #2563EB;
+      --blue-light: #EFF6FF;
+      --blue-mid: #3B82F6;
+      --orange: #F97316;
+      --orange-light: #FFF7ED;
+      --purple: #7C3AED;
+      --purple-light: #F5F3FF;
+      --green: #059669;
+      --green-light: #ECFDF5;
+      --red: #DC2626;
+      --red-light: #FEF2F2;
+      --amber: #D97706;
+      --amber-light: #FFFBEB;
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-400: #9CA3AF;
+      --gray-600: #4B5563;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --white: #FFFFFF;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── LANDING ── */
+    #landing {
+      padding: 0 0 40px;
+    }
+
+    .landing-hero {
+      background: var(--white);
+      text-align: center;
+      padding: 36px 24px 28px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .landing-hero h1 {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.25;
+      color: var(--gray-900);
+      margin-bottom: 8px;
+    }
+    .landing-hero p {
+      color: var(--gray-600);
+      font-size: 14px;
+    }
+
+    .section {
+      background: var(--white);
+      margin: 16px;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 12px;
+    }
+    .section p { color: var(--gray-700); font-size: 14px; }
+    .section p strong { color: var(--gray-900); }
+
+    .pillar-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+    .pillar-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+    }
+    .pillar-card.fuel   { background: var(--orange-light); border-color: #FED7AA; }
+    .pillar-card.maint  { background: var(--blue-light);   border-color: #BFDBFE; }
+    .pillar-card.tire   { background: var(--purple-light); border-color: #DDD6FE; }
+    .pillar-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .pillar-card.fuel  .pillar-icon { background: #FDBA74; }
+    .pillar-card.maint .pillar-icon { background: #93C5FD; }
+    .pillar-card.tire  .pillar-icon { background: #C4B5FD; }
+    .pillar-card h3 { font-size: 14px; font-weight: 700; color: var(--gray-900); }
+    .pillar-card p  { font-size: 12px; color: var(--gray-600); margin-top: 2px; }
+
+    .discover-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .discover-list li {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 14px; color: var(--gray-700);
+    }
+    .discover-list li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .info-items { display: flex; flex-direction: column; gap: 14px; }
+    .info-item { display: flex; align-items: flex-start; gap: 12px; }
+    .info-icon {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .info-icon.time   { background: #DBEAFE; }
+    .info-icon.result { background: var(--green-light); }
+    .info-item h4 { font-size: 14px; font-weight: 700; color: var(--gray-900); }
+    .info-item p  { font-size: 13px; color: var(--gray-600); margin-top: 2px; }
+
+    .start-btn {
+      display: block;
+      margin: 20px 16px 0;
+      padding: 16px;
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      width: calc(100% - 32px);
+      transition: background .2s;
+    }
+    .start-btn:hover { background: #1D4ED8; }
+
+    /* ── FORM STEPS ── */
+    #form-screen {
+      padding: 0 0 40px;
+    }
+
+    .progress-bar-wrap {
+      background: var(--white);
+      padding: 14px 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--gray-600);
+      margin-bottom: 8px;
+    }
+    .progress-meta strong { color: var(--gray-900); }
+    .progress-track {
+      height: 4px;
+      background: var(--gray-200);
+      border-radius: 99px;
+      margin-bottom: 14px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--blue);
+      border-radius: 99px;
+      transition: width .4s ease;
+    }
+
+    .step-card {
+      background: var(--white);
+      margin: 16px;
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .step-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .step-icon.fuel   { background: var(--orange-light); }
+    .step-icon.maint  { background: var(--blue-light); }
+    .step-icon.tire   { background: var(--purple-light); }
+    .step-icon.id     { background: var(--gray-100); }
+    .step-icon.volume { background: #F0FDF4; }
+    .step-icon.driver { background: #FEF9C3; }
+    .step-header h2 {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--gray-900);
+      padding-top: 4px;
+    }
+
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 6px;
+    }
+    .field label .req { color: var(--red); margin-left: 2px; }
+    .field input[type="text"],
+    .field input[type="email"],
+    .field input[type="tel"],
+    .field input[type="number"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      background: var(--white);
+      color: var(--gray-900);
+      outline: none;
+      transition: border-color .2s;
+      -webkit-appearance: none;
+    }
+    .field input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+    }
+    .field input::placeholder { color: var(--gray-400); }
+    .field .hint {
+      margin-top: 5px;
+      font-size: 12px;
+      color: var(--gray-600);
+    }
+
+    .checkbox-group, .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .checkbox-group.vertical,
+    .radio-group.vertical {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .custom-check, .custom-radio {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--gray-700);
+      user-select: none;
+    }
+    .custom-check input,
+    .custom-radio input { display: none; }
+
+    .check-box {
+      width: 20px; height: 20px;
+      border: 2px solid var(--gray-300);
+      border-radius: 4px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .custom-check input:checked + .check-box {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+    .custom-check input:checked + .check-box::after {
+      content: '✓';
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .radio-dot {
+      width: 20px; height: 20px;
+      border: 2px solid var(--gray-300);
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .custom-radio input:checked + .radio-dot {
+      border-color: var(--blue);
+    }
+    .custom-radio input:checked + .radio-dot::after {
+      content: '';
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--blue);
+    }
+
+    .alert-box {
+      display: flex;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      line-height: 1.45;
+      margin-bottom: 18px;
+    }
+    .alert-box.info  { background: var(--blue-light);  color: #1D4ED8; border: 1px solid #BFDBFE; }
+    .alert-box.warn  { background: var(--amber-light); color: #92400E; border: 1px solid #FDE68A; }
+    .alert-box.error { background: var(--red-light);   color: #991B1B; border: 1px solid #FECACA; }
+    .alert-box-icon { flex-shrink: 0; font-size: 15px; margin-top: 1px; }
+    .alert-box strong { font-weight: 700; }
+
+    .divider {
+      height: 1px;
+      background: var(--gray-200);
+      margin: 20px 0;
+    }
+
+    .section-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 12px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .btn-back {
+      padding: 14px 20px;
+      background: var(--gray-100);
+      color: var(--gray-700);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-back:hover { background: var(--gray-200); }
+    .btn-next {
+      flex: 1;
+      padding: 14px 20px;
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-next:hover { background: #1D4ED8; }
+    .btn-next:disabled { background: var(--gray-300); cursor: not-allowed; }
+
+    /* ── RESULT ── */
+    #result-screen { padding: 0 0 40px; }
+
+    .result-hero {
+      background: var(--white);
+      text-align: center;
+      padding: 36px 24px 28px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .result-check {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--green-light);
+      border: 3px solid var(--green);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 16px;
+    }
+    .result-hero h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--gray-900);
+      margin-bottom: 6px;
+    }
+    .result-hero p { font-size: 14px; color: var(--gray-600); }
+
+    .cpk-card {
+      background: var(--white);
+      margin: 16px;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-md);
+      border: 2px solid var(--blue);
+    }
+    .cpk-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-600);
+      margin-bottom: 8px;
+    }
+    .cpk-value {
+      font-size: 44px;
+      font-weight: 900;
+      color: var(--blue);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .cpk-desc { font-size: 12px; color: var(--gray-600); text-align: center; }
+
+    .saving-cards { display: flex; flex-direction: column; gap: 10px; margin: 0 16px; }
+    .saving-card {
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .saving-icon { font-size: 20px; }
+    .saving-label { font-size: 13px; font-weight: 600; color: var(--gray-700); }
+    .saving-value { font-size: 20px; font-weight: 800; color: var(--green); }
+    .saving-sub { font-size: 11px; color: var(--gray-400); margin-top: 1px; }
+
+    .economy-total {
+      background: var(--green-light);
+      margin: 16px;
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid #6EE7B7;
+    }
+    .economy-total h3 { font-size: 13px; font-weight: 600; color: var(--green); margin-bottom: 12px; }
+    .economy-row { margin-bottom: 10px; }
+    .economy-row label { font-size: 12px; color: var(--gray-600); }
+    .economy-row .economy-num { font-size: 26px; font-weight: 900; color: var(--green); }
+    .economy-note {
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--green);
+      padding-top: 10px;
+      border-top: 1px solid #A7F3D0;
+    }
+    .economy-bar {
+      height: 6px;
+      background: #A7F3D0;
+      border-radius: 99px;
+      margin: 12px 0;
+    }
+
+    .attention-section {
+      margin: 16px;
+    }
+    .attention-section h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--gray-900);
+      margin-bottom: 14px;
+    }
+
+    .attention-group {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+    }
+    .attention-group-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 12px;
+    }
+
+    .attention-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 0;
+      border-top: 1px solid var(--gray-100);
+      font-size: 13px;
+      color: var(--gray-700);
+      line-height: 1.4;
+    }
+    .attention-item .ai-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+
+    .cta-section {
+      background: var(--white);
+      margin: 16px;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-md);
+      text-align: center;
+    }
+    .cta-section p {
+      font-size: 14px;
+      color: var(--gray-700);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .btn-pdf {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 13px;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      color: var(--gray-700);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: all .2s;
+    }
+    .btn-pdf:hover { border-color: var(--gray-400); }
+    .btn-specialist {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 15px;
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background .2s;
+    }
+    .btn-specialist:hover { background: #1D4ED8; }
+    .btn-restart {
+      background: none;
+      border: none;
+      color: var(--gray-600);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 8px;
+      text-decoration: underline;
+    }
+    .btn-restart:hover { color: var(--gray-900); }
+
+    /* ── VALIDATION ── */
+    .field input.invalid {
+      border-color: var(--red);
+    }
+    .field .error-msg {
+      color: var(--red);
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+    .field.has-error .error-msg { display: block; }
+    .field.has-error input { border-color: var(--red); }
+
+    /* ── DYNAMIC ALERT (maint risk) ── */
+    #alert-maint-ratio { display: none; }
+    #alert-maint-plan  { display: none; }
+
+    /* ── ANIMATIONS ── */
+    .screen.active {
+      animation: fadeIn .3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Hide steps */
+    .step { display: none; }
+    .step.active { display: block; }
+
+    @media (min-width: 480px) {
+      .landing-hero h1 { font-size: 30px; }
+      .result-hero h1  { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     LANDING PAGE
+════════════════════════════════════════════ -->
+<div id="landing" class="screen active">
+  <div class="landing-hero">
+    <h1>Diagnóstico Profissional de Redução de Custos CPK</h1>
+    <p>Sistema especializado para transportadoras</p>
+  </div>
+
+  <div class="section">
+    <p class="section-title">Como funciona o diagnóstico?</p>
+    <p>Este diagnóstico analisa os <strong>três pilares de custo</strong> da sua operação e calcula o <strong>CPK (Custo Por Quilômetro)</strong> atual da sua frota.</p>
+
+    <div class="pillar-cards">
+      <div class="pillar-card fuel">
+        <div class="pillar-icon">⛽</div>
+        <div>
+          <h3>Combustível</h3>
+          <p>Consumo e políticas de economia</p>
+        </div>
+      </div>
+      <div class="pillar-card maint">
+        <div class="pillar-icon">🔧</div>
+        <div>
+          <h3>Manutenção</h3>
+          <p>Preventiva vs. Corretiva</p>
+        </div>
+      </div>
+      <div class="pillar-card tire">
+        <div class="pillar-icon">⊙</div>
+        <div>
+          <h3>Pneus</h3>
+          <p>Maior impacto no CPK</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-title">O que você vai descobrir:</p>
+    <ul class="discover-list">
+      <li>Seu CPK (Custo Por Quilômetro) atual</li>
+      <li>Estimativa real de economia mensal e anual</li>
+      <li>Alertas de risco operacional</li>
+      <li>Pontos críticos para redução de custos</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <p class="section-title">Informações importantes</p>
+    <div class="info-items">
+      <div class="info-item">
+        <div class="info-icon time">⏱</div>
+        <div>
+          <h4>Tempo estimado: 5-7 minutos</h4>
+          <p>São 6 etapas rápidas com perguntas objetivas</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon result">📈</div>
+        <div>
+          <h4>Resultado imediato</h4>
+          <p>Você verá números claros e ações práticas ao final</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startForm()">Iniciar Diagnóstico</button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FORM SCREEN
+════════════════════════════════════════════ -->
+<div id="form-screen" class="screen">
+  <div class="progress-bar-wrap">
+    <div class="progress-meta">
+      <span>Etapa <strong id="step-current">1</strong> de <strong>6</strong></span>
+      <span id="step-pct">17%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:17%"></div>
+    </div>
+  </div>
+
+  <!-- ── STEP 1: Identificação da Operação ── -->
+  <div class="step active" id="step-1">
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-icon id">🏢</div>
+        <h2>Identificação da Operação</h2>
+      </div>
+
+      <div class="field" id="f-empresa">
+        <label>Nome da empresa <span class="req">*</span></label>
+        <input type="text" id="empresa" placeholder="Digite o nome da empresa">
+        <div class="error-msg">Campo obrigatório</div>
+      </div>
+      <div class="field" id="f-telefone">
+        <label>Telefone <span class="req">*</span></label>
+        <input type="tel" id="telefone" placeholder="(00) 00000-0000">
+        <div class="error-msg">Campo obrigatório</div>
+      </div>
+      <div class="field" id="f-email">
+        <label>E-mail <span class="req">*</span></label>
+        <input type="email" id="email" placeholder="email@empresa.com">
+        <div class="error-msg">E-mail inválido</div>
+      </div>
+      <div class="field" id="f-cidade">
+        <label>Cidade <span class="req">*</span></label>
+        <input type="text" id="cidade" placeholder="Nome da cidade">
+        <div class="error-msg">Campo obrigatório</div>
+      </div>
+      <div class="field" id="f-estado">
+        <label>Estado <span class="req">*</span></label>
+        <input type="text" id="estado" placeholder="UF" maxlength="2"
+               oninput="this.value=this.value.toUpperCase()">
+        <div class="error-msg">Campo obrigatório</div>
+      </div>
+
+      <div class="field" id="f-operacao">
+        <label>Tipo de operação <span class="req">*</span></label>
+        <div class="checkbox-group">
+          <label class="custom-check">
+            <input type="checkbox" name="operacao" value="Regional">
+            <span class="check-box"></span> Regional
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="operacao" value="Rodoviária">
+            <span class="check-box"></span> Rodoviária
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="operacao" value="Mista">
+            <span class="check-box"></span> Mista
+          </label>
+        </div>
+        <div class="error-msg">Selecione pelo menos uma opção</div>
+      </div>
+
+      <div class="field" id="f-frota-tipo">
+        <label>Tipo de frota <span class="req">*</span></label>
+        <div class="checkbox-group">
+          <label class="custom-check">
+            <input type="checkbox" name="frota-tipo" value="Leve">
+            <span class="check-box"></span> Leve
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="frota-tipo" value="Média">
+            <span class="check-box"></span> Média
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="frota-tipo" value="Pesada">
+            <span class="check-box"></span> Pesada
+          </label>
+        </div>
+        <div class="error-msg">Selecione pelo menos uma opção</div>
+      </div>
+
+      <div class="field" id="f-veiculos">
+        <label>Quantidade total de veículos <span class="req">*</span></label>
+        <input type="number" id="qtd-veiculos" placeholder="Digite a quantidade de veículos" min="1">
+        <div class="error-msg">Campo obrigatório</div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn-next" onclick="nextStep(1)">Próximo →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: Volume Operacional ── -->
+  <div class="step" id="step-2">
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-icon volume">📊</div>
+        <h2>Volume Operacional da Frota</h2>
+      </div>
+
+      <div class="field" id="f-km">
+        <label>Quantos quilômetros a frota roda por mês? <span class="req">*</span></label>
+        <input type="number" id="km-mensais" placeholder="Ex: 50000" min="1">
+        <div class="hint">Este dado será usado para calcular o CPK (Custo Por Quilômetro) da sua frota</div>
+        <div class="error-msg">Campo obrigatório</div>
+      </div>
+
+      <div class="field" id="f-km-tipo">
+        <label>Esse número é:</label>
+        <div class="radio-group vertical">
+          <label class="custom-radio">
+            <input type="radio" name="km-tipo" value="preciso">
+            <span class="radio-dot"></span> Preciso (baseado em dados reais)
+          </label>
+          <label class="custom-radio">
+            <input type="radio" name="km-tipo" value="estimado" checked>
+            <span class="radio-dot"></span> Estimado (aproximação)
+          </label>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn-back" onclick="prevStep(2)">←</button>
+        <button class="btn-next" onclick="nextStep(2)">Próximo →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: Combustível ── -->
+  <div class="step" id="step-3">
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-icon fuel">⛽</div>
+        <h2>Diagnóstico de Combustível</h2>
+      </div>
+
+      <div class="field" id="f-combustivel-gasto">
+        <label>Gasto médio mensal com combustível (R$) <span class="req">*</span></label>
+        <input type="number" id="gasto-combustivel" placeholder="Ex: 50000.00" min="0" step="0.01">
+        <div class="error-msg">Campo obrigatório</div>
+      </div>
+
+      <div class="field" id="f-combustivel-tipo">
+        <label>A frota utiliza quais combustíveis? <span class="req">*</span></label>
+        <div class="checkbox-group">
+          <label class="custom-check">
+            <input type="checkbox" name="combustivel-tipo" value="Diesel S10">
+            <span class="check-box"></span> Diesel S10
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="combustivel-tipo" value="Diesel S500">
+            <span class="check-box"></span> Diesel S500
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="combustivel-tipo" value="Arla 32">
+            <span class="check-box"></span> Arla 32
+          </label>
+        </div>
+        <div class="error-msg">Selecione pelo menos um</div>
+      </div>
+
+      <div class="field">
+        <label>Existe controle de consumo por veículo (Km/L)?</label>
+        <div class="radio-group vertical">
+          <label class="custom-radio">
+            <input type="radio" name="controle-consumo" value="sim">
+            <span class="radio-dot"></span> Sim
+          </label>
+          <label class="custom-radio">
+            <input type="radio" name="controle-consumo" value="nao" checked>
+            <span class="radio-dot"></span> Não
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Existe política de condução econômica para motoristas?</label>
+        <div class="radio-group vertical">
+          <label class="custom-radio">
+            <input type="radio" name="politica-conducao" value="sim">
+            <span class="radio-dot"></span> Sim
+          </label>
+          <label class="custom-radio">
+            <input type="radio" name="politica-conducao" value="nao" checked>
+            <span class="radio-dot"></span> Não
+          </label>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn-back" onclick="prevStep(3)">←</button>
+        <button class="btn-next" onclick="nextStep(3)">Próximo →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: Manutenção ── -->
+  <div class="step" id="step-4">
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-icon maint">🔧</div>
+        <h2>Diagnóstico de Manutenção</h2>
+      </div>
+
+      <div class="field" id="f-prev">
+        <label>Gasto médio mensal com manutenção preventiva (R$) <span class="req">*</span></label>
+        <input type="number" id="gasto-preventiva" placeholder="Ex: 15000.00" min="0" step="0.01"
+               oninput="checkManutencaoRatio()">
+        <div class="hint">Manutenções programadas, revisões, trocas de óleo, etc.</div>
+        <div class="error-msg">Campo obrigatório</div>
+      </div>
+
+      <div class="field" id="f-corr">
+        <label>Gasto médio mensal com manutenção corretiva (R$) <span class="req">*</span></label>
+        <input type="number" id="gasto-corretiva" placeholder="Ex: 25000.00" min="0" step="0.01"
+               oninput="checkManutencaoRatio()">
+        <div class="hint">Consertos emergenciais, quebras inesperadas, reparos não planejados</div>
+        <div class="error-msg">Campo obrigatório</div>
+      </div>
+
+      <div class="alert-box warn" id="alert-maint-plan">
+        <span class="alert-box-icon">⚠</span>
+        <span><strong>Alerta de Risco:</strong> Sem plano de manutenção definido pode gerar custos fora de controle.</span>
+      </div>
+
+      <div class="alert-box error" id="alert-maint-ratio">
+        <span class="alert-box-icon">⚠</span>
+        <span><strong>Alerta de Risco:</strong> Manutenção corretiva maior que preventiva indica alto risco operacional.</span>
+      </div>
+
+      <div class="field">
+        <label>As manutenções seguem um plano definido?</label>
+        <div class="radio-group vertical">
+          <label class="custom-radio">
+            <input type="radio" name="plano-manut" value="completo" onchange="checkPlanAlert()">
+            <span class="radio-dot"></span> Sim, seguimos um plano completo
+          </label>
+          <label class="custom-radio">
+            <input type="radio" name="plano-manut" value="parcial" onchange="checkPlanAlert()">
+            <span class="radio-dot"></span> Parcial, alguns veículos têm plano
+          </label>
+          <label class="custom-radio">
+            <input type="radio" name="plano-manut" value="nao" checked onchange="checkPlanAlert()">
+            <span class="radio-dot"></span> Não, fazemos manutenção conforme necessidade
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Quebras inesperadas são frequentes?</label>
+        <div class="radio-group vertical">
+          <label class="custom-radio">
+            <input type="radio" name="quebras" value="sim">
+            <span class="radio-dot"></span> Sim
+          </label>
+          <label class="custom-radio">
+            <input type="radio" name="quebras" value="nao" checked>
+            <span class="radio-dot"></span> Não
+          </label>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn-back" onclick="prevStep(4)">←</button>
+        <button class="btn-next" onclick="nextStep(4)">Próximo →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 5: Pneus ── -->
+  <div class="step" id="step-5">
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-icon tire">⊙</div>
+        <h2>Diagnóstico de Pneus – CPK</h2>
+      </div>
+
+      <div class="alert-box info">
+        <span class="alert-box-icon">ℹ</span>
+        <span><strong>Atenção:</strong> A gestão de pneus é o coração do método CPK. Esta etapa tem o maior impacto na sua economia potencial.</span>
+      </div>
+
+      <div class="field" id="f-pneus-gasto">
+        <label>Gasto mensal médio total com pneus (R$) <span class="req">*</span></label>
+        <input type="number" id="gasto-pneus" placeholder="Ex: 30000.00" min="0" step="0.01">
+        <div class="error-msg">Campo obrigatório</div>
+      </div>
+
+      <div class="field">
+        <label>Desse valor, quanto é gasto mensalmente com recapagens? (R$)</label>
+        <input type="number" id="gasto-recapagem" placeholder="Ex: 8000.00" min="0" step="0.01">
+      </div>
+
+      <div class="field" id="f-pneus-tipo">
+        <label>A frota utiliza: <span class="req">*</span></label>
+        <div class="checkbox-group">
+          <label class="custom-check">
+            <input type="checkbox" name="pneus-tipo" value="novos">
+            <span class="check-box"></span> Pneus novos
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="pneus-tipo" value="recapados">
+            <span class="check-box"></span> Pneus recapados
+          </label>
+        </div>
+        <div class="error-msg">Selecione pelo menos uma opção</div>
+      </div>
+
+      <div class="field">
+        <label>Média de recapagens por carcaça:</label>
+        <div class="radio-group vertical">
+          <label class="custom-radio">
+            <input type="radio" name="recapagens" value="0" checked>
+            <span class="radio-dot"></span> Nenhuma
+          </label>
+          <label class="custom-radio">
+            <input type="radio" name="recapagens" value="1">
+            <span class="radio-dot"></span> 1 recapagem
+          </label>
+          <label class="custom-radio">
+            <input type="radio" name="recapagens" value="2">
+            <span class="radio-dot"></span> 2 ou mais recapagens
+          </label>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <p class="section-label">Controles operacionais:</p>
+
+      <div class="field">
+        <div class="checkbox-group vertical">
+          <label class="custom-check">
+            <input type="checkbox" name="controles-pneus" value="pressao">
+            <span class="check-box"></span> Controle de pressão
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="controles-pneus" value="rodizio">
+            <span class="check-box"></span> Rodízio periódico
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="controles-pneus" value="alinhamento">
+            <span class="check-box"></span> Alinhamento periódico
+          </label>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <p class="section-label">Perdas de pneus:</p>
+
+      <div class="field">
+        <label>Quantos pneus foram descartados nos últimos 3-6 meses?</label>
+        <input type="number" id="pneus-descartados" placeholder="Ex: 15" min="0">
+      </div>
+
+      <div class="field">
+        <label>Principais causas de perda:</label>
+        <div class="checkbox-group vertical">
+          <label class="custom-check">
+            <input type="checkbox" name="causas-perda" value="desgaste">
+            <span class="check-box"></span> Desgaste irregular
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="causas-perda" value="cortes">
+            <span class="check-box"></span> Cortes / impactos
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="causas-perda" value="bolhas">
+            <span class="check-box"></span> Bolhas
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="causas-perda" value="arrancamento">
+            <span class="check-box"></span> Arrancamento
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="causas-perda" value="nao-sabemos">
+            <span class="check-box"></span> Não sabemos
+          </label>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn-back" onclick="prevStep(5)">←</button>
+        <button class="btn-next" onclick="nextStep(5)">Próximo →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 6: Jornada do Motorista ── -->
+  <div class="step" id="step-6">
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-icon driver">⏱</div>
+        <h2>Controle de Jornada do Motorista</h2>
+      </div>
+
+      <div class="alert-box warn">
+        <span class="alert-box-icon">⚠</span>
+        <span><strong>Módulo Opcional:</strong> Este bloco não entra no cálculo do CPK, mas identifica riscos jurídicos e trabalhistas importantes.</span>
+      </div>
+
+      <div class="field">
+        <label>Existe controle formal de jornada?</label>
+        <div class="radio-group vertical">
+          <label class="custom-radio">
+            <input type="radio" name="controle-jornada" value="sim">
+            <span class="radio-dot"></span> Sim, temos controle formal
+          </label>
+          <label class="custom-radio">
+            <input type="radio" name="controle-jornada" value="nao" checked>
+            <span class="radio-dot"></span> Não, não temos controle
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>A empresa já teve problemas com:</label>
+        <div class="checkbox-group vertical">
+          <label class="custom-check">
+            <input type="checkbox" name="problemas-jornada" value="multas">
+            <span class="check-box"></span> Multas
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="problemas-jornada" value="fiscalizacao">
+            <span class="check-box"></span> Fiscalização
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="problemas-jornada" value="excesso">
+            <span class="check-box"></span> Excesso de jornada
+          </label>
+          <label class="custom-check">
+            <input type="checkbox" name="problemas-jornada" value="registro">
+            <span class="check-box"></span> Falta de registro
+          </label>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn-back" onclick="prevStep(6)">←</button>
+        <button class="btn-next" onclick="calcularEMostrarResultado()">
+          Gerar Diagnóstico ✓
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     RESULT SCREEN
+════════════════════════════════════════════ -->
+<div id="result-screen" class="screen">
+  <div class="result-hero">
+    <div class="result-check">✓</div>
+    <h1>Diagnóstico Concluído!</h1>
+    <p>Aqui estão os resultados do seu diagnóstico CPK</p>
+  </div>
+
+  <div class="cpk-card">
+    <div class="cpk-label">📉 CPK Atual da Frota</div>
+    <div class="cpk-value" id="res-cpk">R$ 0,00</div>
+    <div class="cpk-desc">Custo Por Quilômetro (Combustível + Manutenção + Pneus)</div>
+  </div>
+
+  <div class="saving-cards">
+    <div class="saving-card">
+      <div class="saving-icon">⛽</div>
+      <div>
+        <div class="saving-label">Combustível</div>
+        <div class="saving-value" id="res-eco-comb">R$ 0,00</div>
+        <div class="saving-sub">potencial mensal</div>
+      </div>
+    </div>
+    <div class="saving-card">
+      <div class="saving-icon">🔧</div>
+      <div>
+        <div class="saving-label">Manutenção</div>
+        <div class="saving-value" id="res-eco-mant">R$ 0,00</div>
+        <div class="saving-sub">potencial mensal</div>
+      </div>
+    </div>
+    <div class="saving-card">
+      <div class="saving-icon">⊙</div>
+      <div>
+        <div class="saving-label">Pneus</div>
+        <div class="saving-value" id="res-eco-pneu">R$ 0,00</div>
+        <div class="saving-sub">potencial mensal</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="economy-total">
+    <h3>Economia Total Estimada</h3>
+    <div class="economy-row">
+      <div class="economy-label">Economia Mensal</div>
+      <div class="economy-num" id="res-eco-mensal">R$ 0,00</div>
+    </div>
+    <div class="economy-bar"></div>
+    <div class="economy-row">
+      <div class="economy-label">Economia Anual</div>
+      <div class="economy-num" id="res-eco-anual">R$ 0,00</div>
+    </div>
+    <div class="economy-note">Baseado em padrões de mercado e boas práticas do setor</div>
+  </div>
+
+  <div class="attention-section">
+    <h2>Pontos de Atenção</h2>
+    <div id="attention-list"></div>
+  </div>
+
+  <div class="cta-section">
+    <p>Seu diagnóstico foi concluído. Um especialista pode apresentar um plano prático de redução de custos personalizado para sua operação.</p>
+    <button class="btn-pdf" onclick="alert('Funcionalidade em breve!')">
+      📄 Receber diagnóstico em PDF
+    </button>
+    <button class="btn-specialist" onclick="alert('Redirecionando para especialista...')">
+      💬 Falar com um especialista agora
+    </button>
+    <button class="btn-restart" onclick="reiniciar()">Fazer novo diagnóstico</button>
+  </div>
+</div>
+
+<script>
+  let currentStep = 1;
+  const TOTAL_STEPS = 6;
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function showStep(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-' + n).classList.add('active');
+    document.getElementById('step-current').textContent = n;
+    const pct = Math.round((n / TOTAL_STEPS) * 100);
+    document.getElementById('step-pct').textContent = pct + '%';
+    document.getElementById('progress-fill').style.width = pct + '%';
+    window.scrollTo(0, 0);
+  }
+
+  function startForm() {
+    currentStep = 1;
+    showScreen('form-screen');
+    showStep(1);
+  }
+
+  function getRadioValue(name) {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : null;
+  }
+
+  function getCheckboxValues(name) {
+    return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(e => e.value);
+  }
+
+  function validateStep1() {
+    let valid = true;
+
+    const fields = [
+      { id: 'f-empresa',   input: 'empresa',      type: 'text' },
+      { id: 'f-telefone',  input: 'telefone',     type: 'text' },
+      { id: 'f-email',     input: 'email',        type: 'email' },
+      { id: 'f-cidade',    input: 'cidade',       type: 'text' },
+      { id: 'f-estado',    input: 'estado',       type: 'text' },
+      { id: 'f-veiculos',  input: 'qtd-veiculos', type: 'number' },
+    ];
+
+    fields.forEach(({ id, input, type }) => {
+      const wrap = document.getElementById(id);
+      const el = document.getElementById(input);
+      const val = el.value.trim();
+      wrap.classList.remove('has-error');
+      if (!val) { wrap.classList.add('has-error'); valid = false; return; }
+      if (type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+        wrap.classList.add('has-error'); valid = false;
+      }
+    });
+
+    ['f-operacao', 'f-frota-tipo'].forEach((fid, i) => {
+      const name = i === 0 ? 'operacao' : 'frota-tipo';
+      const wrap = document.getElementById(fid);
+      wrap.classList.remove('has-error');
+      if (getCheckboxValues(name).length === 0) {
+        wrap.classList.add('has-error'); valid = false;
+      }
+    });
+
+    return valid;
+  }
+
+  function validateStep2() {
+    const wrap = document.getElementById('f-km');
+    const val = document.getElementById('km-mensais').value;
+    wrap.classList.remove('has-error');
+    if (!val || +val <= 0) { wrap.classList.add('has-error'); return false; }
+    return true;
+  }
+
+  function validateStep3() {
+    let valid = true;
+    const wrap1 = document.getElementById('f-combustivel-gasto');
+    wrap1.classList.remove('has-error');
+    if (!document.getElementById('gasto-combustivel').value) {
+      wrap1.classList.add('has-error'); valid = false;
+    }
+    const wrap2 = document.getElementById('f-combustivel-tipo');
+    wrap2.classList.remove('has-error');
+    if (getCheckboxValues('combustivel-tipo').length === 0) {
+      wrap2.classList.add('has-error'); valid = false;
+    }
+    return valid;
+  }
+
+  function validateStep4() {
+    let valid = true;
+    ['f-prev', 'f-corr'].forEach((fid, i) => {
+      const wrap = document.getElementById(fid);
+      const el = document.getElementById(i === 0 ? 'gasto-preventiva' : 'gasto-corretiva');
+      wrap.classList.remove('has-error');
+      if (!el.value) { wrap.classList.add('has-error'); valid = false; }
+    });
+    return valid;
+  }
+
+  function validateStep5() {
+    const wrap = document.getElementById('f-pneus-gasto');
+    wrap.classList.remove('has-error');
+    if (!document.getElementById('gasto-pneus').value) {
+      wrap.classList.add('has-error'); return false;
+    }
+    const wrap2 = document.getElementById('f-pneus-tipo');
+    wrap2.classList.remove('has-error');
+    if (getCheckboxValues('pneus-tipo').length === 0) {
+      wrap2.classList.add('has-error'); return false;
+    }
+    return true;
+  }
+
+  function nextStep(n) {
+    const validators = [null, validateStep1, validateStep2, validateStep3, validateStep4, validateStep5];
+    if (validators[n] && !validators[n]()) return;
+    currentStep = n + 1;
+    showStep(currentStep);
+  }
+
+  function prevStep(n) {
+    currentStep = n - 1;
+    showStep(currentStep);
+  }
+
+  function checkManutencaoRatio() {
+    const prev = parseFloat(document.getElementById('gasto-preventiva').value) || 0;
+    const corr = parseFloat(document.getElementById('gasto-corretiva').value) || 0;
+    document.getElementById('alert-maint-ratio').style.display =
+      (corr > 0 && prev > 0 && corr > prev) ? 'flex' : 'none';
+  }
+
+  function checkPlanAlert() {
+    const val = getRadioValue('plano-manut');
+    document.getElementById('alert-maint-plan').style.display =
+      (val === 'nao') ? 'flex' : 'none';
+  }
+
+  function fmt(n) {
+    return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function fmtCpk(n) {
+    return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function calcularEMostrarResultado() {
+    const km       = parseFloat(document.getElementById('km-mensais').value) || 1;
+    const combVal  = parseFloat(document.getElementById('gasto-combustivel').value) || 0;
+    const prevVal  = parseFloat(document.getElementById('gasto-preventiva').value) || 0;
+    const corrVal  = parseFloat(document.getElementById('gasto-corretiva').value) || 0;
+    const pneusVal = parseFloat(document.getElementById('gasto-pneus').value) || 0;
+
+    const totalManut = prevVal + corrVal;
+    const totalCosts = combVal + totalManut + pneusVal;
+    const cpk = km > 0 ? totalCosts / km : 0;
+
+    // Economy estimates
+    const semControleCons  = getRadioValue('controle-consumo')  === 'nao';
+    const semPolitica      = getRadioValue('politica-conducao') === 'nao';
+    const planoManut       = getRadioValue('plano-manut');
+    const quebrasFreq      = getRadioValue('quebras') === 'sim';
+    const recapagens       = parseInt(getRadioValue('recapagens') || '0');
+    const controlesPneus   = getCheckboxValues('controles-pneus');
+    const semPressao       = !controlesPneus.includes('pressao');
+    const semRodizio       = !controlesPneus.includes('rodizio');
+    const semAlinhamento   = !controlesPneus.includes('alinhamento');
+    const jornada          = getRadioValue('controle-jornada') === 'nao';
+    const problemasJornada = getCheckboxValues('problemas-jornada');
+
+    let ecoComb = 0;
+    if (semControleCons) ecoComb += combVal * 0.12;
+    if (semPolitica)     ecoComb += combVal * 0.08;
+
+    let ecoMant = 0;
+    if (planoManut === 'nao')    ecoMant += totalManut * 0.30;
+    else if (planoManut === 'parcial') ecoMant += totalManut * 0.15;
+    if (quebrasFreq) ecoMant += totalManut * 0.10;
+    if (corrVal > prevVal) ecoMant += totalManut * 0.05;
+
+    let ecoPneu = 0;
+    if (recapagens === 0)  ecoPneu += pneusVal * 0.25;
+    else if (recapagens === 1) ecoPneu += pneusVal * 0.10;
+    if (semPressao)     ecoPneu += pneusVal * 0.08;
+    if (semRodizio)     ecoPneu += pneusVal * 0.05;
+    if (semAlinhamento) ecoPneu += pneusVal * 0.04;
+
+    const ecoMensal = ecoComb + ecoMant + ecoPneu;
+    const ecoAnual  = ecoMensal * 12;
+
+    document.getElementById('res-cpk').textContent      = fmtCpk(cpk);
+    document.getElementById('res-eco-comb').textContent = fmt(ecoComb);
+    document.getElementById('res-eco-mant').textContent = fmt(ecoMant);
+    document.getElementById('res-eco-pneu').textContent = fmt(ecoPneu);
+    document.getElementById('res-eco-mensal').textContent = fmt(ecoMensal);
+    document.getElementById('res-eco-anual').textContent  = fmt(ecoAnual);
+
+    // Build attention list
+    const items = [];
+
+    if (semControleCons)
+      items.push({ group: '⛽ Combustível', icon: 'ℹ', text: 'Sem controle de consumo por veículo – perda de eficiência não identificada' });
+    if (semPolitica)
+      items.push({ group: '⛽ Combustível', icon: 'ℹ', text: 'Sem política de condução econômica – desperdício de combustível' });
+
+    if (corrVal > prevVal)
+      items.push({ group: '🔧 Manutenção', icon: '⚠', text: 'Manutenção corretiva maior que preventiva – alto risco operacional' });
+    if (planoManut === 'nao')
+      items.push({ group: '🔧 Manutenção', icon: '⚠', text: 'Sem plano de manutenção – custos imprevisíveis' });
+    if (quebrasFreq)
+      items.push({ group: '🔧 Manutenção', icon: 'ℹ', text: 'Quebras frequentes indicam necessidade de revisão do plano preventivo' });
+
+    if (recapagens === 0)
+      items.push({ group: '⊙ Pneus', icon: '⚠', text: 'Ausência de recapagem – custo por km com pneus acima do ideal' });
+    if (semPressao || semRodizio || semAlinhamento)
+      items.push({ group: '⊙ Pneus', icon: 'ℹ', text: 'Controles operacionais ausentes – desgaste irregular dos pneus' });
+
+    if (jornada)
+      items.push({ group: '⏱ Jornada do Motorista', icon: 'ℹ', text: 'Sem controle de jornada – risco jurídico e trabalhista' });
+    if (problemasJornada.length > 0)
+      items.push({ group: '⏱ Jornada do Motorista', icon: '⚠', text: 'Histórico de problemas com jornada – exposição a multas e fiscalização' });
+
+    const grouped = {};
+    items.forEach(item => {
+      if (!grouped[item.group]) grouped[item.group] = [];
+      grouped[item.group].push(item);
+    });
+
+    let html = '';
+    Object.entries(grouped).forEach(([group, list]) => {
+      html += `<div class="attention-group">
+        <div class="attention-group-title">${group}</div>`;
+      list.forEach(i => {
+        html += `<div class="attention-item">
+          <span class="ai-icon">${i.icon === '⚠' ? '⚠️' : 'ℹ️'}</span>
+          <span>${i.text}</span>
+        </div>`;
+      });
+      html += '</div>';
+    });
+
+    if (html === '') {
+      html = `<div class="attention-group">
+        <div class="attention-item">
+          <span class="ai-icon">✅</span>
+          <span>Parabéns! Sua operação está com boas práticas. Continue monitorando os indicadores.</span>
+        </div>
+      </div>`;
+    }
+
+    document.getElementById('attention-list').innerHTML = html;
+
+    showScreen('result-screen');
+  }
+
+  function reiniciar() {
+    // Reset all inputs
+    document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="number"]')
+      .forEach(el => el.value = '');
+    document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+    document.querySelectorAll('input[type="radio"]').forEach(el => {
+      if (el.value === 'nao' || el.value === 'estimado' || el.value === '0') el.checked = true;
+      else el.checked = false;
+    });
+    document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
+    document.getElementById('alert-maint-ratio').style.display = 'none';
+    document.getElementById('alert-maint-plan').style.display = 'none';
+    showScreen('landing');
+  }
+
+  // Init plan alert on page load
+  checkPlanAlert();
+</script>
+</body>
+</html>
