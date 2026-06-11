@@ -9,6 +9,33 @@
 </head>
 <body>
 
+  <!-- ===== TELA DE LOGIN ===== -->
+  <div class="tela-login" id="telaLogin">
+    <div class="login-card">
+      <div class="login-logo">🚛 Frota<b>Bot</b></div>
+      <p class="login-sub">Acesse seu painel de gestão</p>
+      <form id="formLogin">
+        <div class="login-field">
+          <label>E-mail</label>
+          <input type="email" id="loginEmail" placeholder="seu@email.com" required />
+        </div>
+        <div class="login-field">
+          <label>Senha</label>
+          <input type="password" id="loginSenha" placeholder="••••••••" required />
+        </div>
+        <div class="login-erro" id="loginErro"></div>
+        <button type="submit" class="btn-login">Entrar</button>
+      </form>
+      <div class="login-hint">
+        <p><strong>Admin:</strong> rafael@frotabot.com.br / admin123</p>
+        <p><strong>Cliente:</strong> silva@transportadora.com / silva123</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PAINEL PRINCIPAL ===== -->
+  <div id="painelPrincipal" style="display:none; width:100%; min-height:100vh;">
+
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
@@ -46,12 +73,13 @@
     </nav>
     <div class="sidebar-footer">
       <div class="user-info">
-        <div class="user-avatar">R</div>
+        <div class="user-avatar" id="avatarUsuario">R</div>
         <div>
-          <div class="user-name">Rafael</div>
-          <div class="user-role">Administrador</div>
+          <div class="user-name" id="nomeUsuario">Rafael</div>
+          <div class="user-role" id="perfilUsuario">Administrador</div>
         </div>
       </div>
+      <button class="btn-logout" id="btnLogout">Sair</button>
     </div>
   </aside>
 
@@ -904,6 +932,8 @@
       </div>
     </div>
   </div>
+
+  </div><!-- fim painelPrincipal -->
 
   <script src="admin.js"></script>
 </body>
