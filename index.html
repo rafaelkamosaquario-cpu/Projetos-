@@ -606,6 +606,57 @@
       .landing-hero h1 { font-size: 30px; }
       .result-hero h1  { font-size: 28px; }
     }
+
+    /* ── BENCHMARK ELEMENTS ── */
+    .bench-detail {
+      font-size: 11px;
+      color: var(--gray-600);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+    .bench-pill {
+      display: inline-block;
+      background: var(--gray-100);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--gray-600);
+    }
+    .cpk-benchmark {
+      background: var(--white);
+      margin: 0 16px 12px;
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      border-left: 3px solid var(--blue);
+    }
+    .cpk-benchmark-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-600);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .cpk-benchmark-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .cpk-benchmark-row .label { color: var(--gray-600); width: 70px; flex-shrink: 0; font-size: 12px; }
+    .bar-wrap { flex: 1; height: 8px; background: var(--gray-100); border-radius: 99px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; }
+    .bar-fill.yours { background: var(--blue); }
+    .bar-fill.bench { background: var(--green); }
+    .cpk-benchmark-row .val { font-weight: 700; color: var(--gray-900); font-size: 12px; text-align: right; width: 90px; }
+    .ratio-prev { background: var(--blue); height: 100%; }
+    .ratio-corr { background: var(--red); height: 100%; }
+    .ratio-legend { display: flex; gap: 14px; font-size: 11px; color: var(--gray-600); margin-bottom: 6px; }
+    .ratio-legend span::before { content: '●'; margin-right: 3px; }
+    .ratio-legend .l-prev::before { color: var(--blue); }
+    .ratio-legend .l-corr::before { color: var(--red); }
   </style>
 </head>
 <body>
@@ -1150,6 +1201,8 @@
     <div class="cpk-desc">Custo Por Quilômetro (Combustível + Manutenção + Pneus)</div>
   </div>
 
+  <div id="res-cpk-bench" class="cpk-benchmark" style="display:none"></div>
+
   <div class="saving-cards">
     <div class="saving-card">
       <div class="saving-icon">⛽</div>
@@ -1188,8 +1241,10 @@
       <div class="economy-label">Economia Anual</div>
       <div class="economy-num" id="res-eco-anual">R$ 0,00</div>
     </div>
-    <div class="economy-note">Baseado em padrões de mercado e boas práticas do setor</div>
+    <div class="economy-note">Benchmarks setoriais: ANTT SUROC 1/2024 · NTC&Logística · Bandag/Bridgestone · Volvo Trucks BR · ICCT</div>
   </div>
+
+  <div id="res-mant-ratio" class="section" style="margin:16px;display:none"></div>
 
   <div class="attention-section">
     <h2>Pontos de Atenção</h2>
@@ -1211,6 +1266,40 @@
 <script>
   let currentStep = 1;
   const TOTAL_STEPS = 6;
+
+  // ── BENCHMARKS SETORIAIS ─────────────────────────────────────────────────
+  // Fontes: ANTT SUROC 1/2024, NTC&Logística, Bandag/Bridgestone Brasil,
+  // Volvo Trucks BR, Scania Brasil, ICCT, Geotab Brasil, ANFAVEA,
+  // ANIP, Mercedes-Benz Trucks BR, ProLog App
+  const BM = {
+    comb: {
+      controlConsumo: 0.065, // 5–8% mediana (Cobli / GolFleet / MiX Telematics)
+      ecodriving:     0.10,  // 8–15% mediana (Volvo Trucks BR / Scania Brasil / ICCT)
+    },
+    mant: {
+      ratioIdealCorr: 0.20, // 20% corretiva é o teto ideal (Geotab Brasil / CNT)
+      excessoCorr:    0.30, // frotas com corr>prev pagam 30% a mais (Geotab / ANFAVEA)
+      semPlano:       0.25, // sem plano preventivo = 25% de custo evitável (NTC&Logística)
+      parcial:        0.12, // plano parcial = 12% de custo evitável
+      quebras:        0.08, // quebras frequentes = +8% (Geotab Brasil)
+    },
+    pneu: {
+      semRecap:       0.38, // 35–40% mais caro sem recapagem (Bandag/Bridgestone Brasil)
+      umaRecap:       0.17, // com 1 recap vs 2: 17% a mais (Bandag)
+      pressao_comb:   0.03, // 3% mais combustível com pressão errada (ANIP / Mercedes-Benz Trucks BR)
+      pressao_pneu:   0.12, // 12% mais desgaste com pressão errada
+      rodizio:        0.15, // +20% vida útil com rodízio (ProLog App)
+      alinhamento:    0.12, // +15–20% vida útil com alinhamento (ProLog App)
+    },
+    // CPK parcial de referência por tipo de frota (combustível+manutenção+pneus ≈ 58–69% do CPK total)
+    // Fonte: ANTT SUROC 1/2024 + NTC&Logística
+    cpk: {
+      Leve:  { min: 0.70, max: 1.30, label: 'VUC / Furgão' },
+      Média: { min: 1.20, max: 2.10, label: 'Toco / Truck' },
+      Pesada:{ min: 2.00, max: 3.60, label: 'Carreta / Bitrem' },
+    },
+  };
+  // ─────────────────────────────────────────────────────────────────────────
 
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1360,17 +1449,21 @@
   }
 
   function calcularEMostrarResultado() {
+    // ── Inputs ──
     const km       = parseFloat(document.getElementById('km-mensais').value) || 1;
     const combVal  = parseFloat(document.getElementById('gasto-combustivel').value) || 0;
     const prevVal  = parseFloat(document.getElementById('gasto-preventiva').value) || 0;
     const corrVal  = parseFloat(document.getElementById('gasto-corretiva').value) || 0;
     const pneusVal = parseFloat(document.getElementById('gasto-pneus').value) || 0;
+    const tiposFrota = getCheckboxValues('frota-tipo');
+    const tipoFrota  = tiposFrota.includes('Pesada') ? 'Pesada'
+                     : tiposFrota.includes('Média')  ? 'Média' : 'Leve';
 
     const totalManut = prevVal + corrVal;
     const totalCosts = combVal + totalManut + pneusVal;
     const cpk = km > 0 ? totalCosts / km : 0;
 
-    // Economy estimates
+    // ── Flags ──
     const semControleCons  = getRadioValue('controle-consumo')  === 'nao';
     const semPolitica      = getRadioValue('politica-conducao') === 'nao';
     const planoManut       = getRadioValue('plano-manut');
@@ -1383,103 +1476,202 @@
     const jornada          = getRadioValue('controle-jornada') === 'nao';
     const problemasJornada = getCheckboxValues('problemas-jornada');
 
+    // ── Economia Combustível ─────────────────────────────────────────────
+    // 5–8% com monitoramento km/L · 8–15% com eco-driving
+    // Fontes: Cobli/MiX Telematics · Volvo Trucks BR / Scania Brasil / ICCT
     let ecoComb = 0;
-    if (semControleCons) ecoComb += combVal * 0.12;
-    if (semPolitica)     ecoComb += combVal * 0.08;
+    const combItens = [];
+    if (semControleCons) {
+      const v = combVal * BM.comb.controlConsumo;
+      ecoComb += v;
+      combItens.push({ text: 'Monitoramento de consumo km/L por veículo', pct: '5–8%', v, fonte: 'Cobli / MiX Telematics' });
+    }
+    if (semPolitica) {
+      const v = combVal * BM.comb.ecodriving;
+      ecoComb += v;
+      combItens.push({ text: 'Programa de condução econômica (eco-driving)', pct: '8–15%', v, fonte: 'Volvo Trucks BR / Scania / ICCT' });
+    }
 
+    // ── Economia Manutenção ──────────────────────────────────────────────
+    // Benchmark: 80% preventiva / 20% corretiva (Geotab Brasil / CNT)
+    // Excesso corretivo: +30% no custo total (Geotab / ANFAVEA)
+    // Sem plano: 25% de custo evitável (NTC&Logística)
     let ecoMant = 0;
-    if (planoManut === 'nao')    ecoMant += totalManut * 0.30;
-    else if (planoManut === 'parcial') ecoMant += totalManut * 0.15;
-    if (quebrasFreq) ecoMant += totalManut * 0.10;
-    if (corrVal > prevVal) ecoMant += totalManut * 0.05;
+    const mantItens = [];
+    const ratioCorr = totalManut > 0 ? corrVal / totalManut : 0;
 
+    if (ratioCorr > BM.mant.ratioIdealCorr) {
+      const excesso = (ratioCorr - BM.mant.ratioIdealCorr) / (1 - BM.mant.ratioIdealCorr);
+      const v = totalManut * excesso * BM.mant.excessoCorr;
+      ecoMant += v;
+      mantItens.push({
+        text: `Equalização prev/corr (atual ${Math.round(ratioCorr*100)}% corretiva → ideal 20%)`,
+        pct: '30%', v, fonte: 'Geotab Brasil / ANFAVEA', icn: '⚠'
+      });
+    }
+    if (planoManut === 'nao') {
+      const v = totalManut * BM.mant.semPlano;
+      ecoMant += v;
+      mantItens.push({ text: 'Implantação de plano preventivo estruturado', pct: '25%', v, fonte: 'NTC&Logística', icn: '⚠' });
+    } else if (planoManut === 'parcial') {
+      const v = totalManut * BM.mant.parcial;
+      ecoMant += v;
+      mantItens.push({ text: 'Expansão do plano preventivo para toda a frota', pct: '12%', v, fonte: 'NTC&Logística', icn: 'ℹ' });
+    }
+    if (quebrasFreq) {
+      const v = totalManut * BM.mant.quebras;
+      ecoMant += v;
+      mantItens.push({ text: 'Redução de quebras com manutenção preditiva', pct: '8%', v, fonte: 'Geotab Brasil', icn: 'ℹ' });
+    }
+
+    // ── Economia Pneus ───────────────────────────────────────────────────
+    // Sem recapagem: 35–40% mais caro/km (Bandag/Bridgestone Brasil)
+    // Pressão errada: +3% combustível, +12% desgaste (ANIP / Mercedes-Benz Trucks BR)
+    // Rodízio: +20% vida útil · Alinhamento: +15–20% vida útil (ProLog App)
     let ecoPneu = 0;
-    if (recapagens === 0)  ecoPneu += pneusVal * 0.25;
-    else if (recapagens === 1) ecoPneu += pneusVal * 0.10;
-    if (semPressao)     ecoPneu += pneusVal * 0.08;
-    if (semRodizio)     ecoPneu += pneusVal * 0.05;
-    if (semAlinhamento) ecoPneu += pneusVal * 0.04;
+    const pneuItens = [];
+
+    if (recapagens === 0) {
+      const v = pneusVal * BM.pneu.semRecap;
+      ecoPneu += v;
+      pneuItens.push({ text: 'Programa de recapagem – 2 recaps por carcaça', pct: '35–40%', v, fonte: 'Bandag/Bridgestone Brasil', icn: '⚠' });
+    } else if (recapagens === 1) {
+      const v = pneusVal * BM.pneu.umaRecap;
+      ecoPneu += v;
+      pneuItens.push({ text: 'Ampliação para 2ª recapagem por carcaça', pct: '17%', v, fonte: 'Bandag/Bridgestone Brasil', icn: 'ℹ' });
+    }
+    if (semPressao) {
+      const v = combVal * BM.pneu.pressao_comb + pneusVal * BM.pneu.pressao_pneu;
+      ecoPneu += v;
+      pneuItens.push({ text: 'Controle de pressão a cada 15 dias (impacto em combustível e vida do pneu)', pct: '3%comb+12%pneu', v, fonte: 'ANIP / Mercedes-Benz Trucks BR', icn: 'ℹ' });
+    }
+    if (semRodizio) {
+      const v = pneusVal * BM.pneu.rodizio;
+      ecoPneu += v;
+      pneuItens.push({ text: 'Rodízio periódico de pneus (+20% de vida útil)', pct: '15%', v, fonte: 'ProLog App', icn: 'ℹ' });
+    }
+    if (semAlinhamento) {
+      const v = pneusVal * BM.pneu.alinhamento;
+      ecoPneu += v;
+      pneuItens.push({ text: 'Alinhamento e balanceamento regulares (+15–20% de vida útil)', pct: '12%', v, fonte: 'ProLog App', icn: 'ℹ' });
+    }
+    ecoPneu = Math.min(ecoPneu, pneusVal * 0.70); // teto realista de 70%
 
     const ecoMensal = ecoComb + ecoMant + ecoPneu;
     const ecoAnual  = ecoMensal * 12;
 
-    document.getElementById('res-cpk').textContent      = fmtCpk(cpk);
-    document.getElementById('res-eco-comb').textContent = fmt(ecoComb);
-    document.getElementById('res-eco-mant').textContent = fmt(ecoMant);
-    document.getElementById('res-eco-pneu').textContent = fmt(ecoPneu);
+    // ── Preenche valores base ──
+    document.getElementById('res-cpk').textContent        = fmt(cpk);
+    document.getElementById('res-eco-comb').textContent   = fmt(ecoComb);
+    document.getElementById('res-eco-mant').textContent   = fmt(ecoMant);
+    document.getElementById('res-eco-pneu').textContent   = fmt(ecoPneu);
     document.getElementById('res-eco-mensal').textContent = fmt(ecoMensal);
     document.getElementById('res-eco-anual').textContent  = fmt(ecoAnual);
 
-    // Build attention list
-    const items = [];
+    // ── CPK vs Benchmark de mercado ──────────────────────────────────────
+    const bench   = BM.cpk[tipoFrota];
+    const benchMid = (bench.min + bench.max) / 2;
+    const maxBar   = Math.max(cpk, bench.max) * 1.15;
+    const pYours   = Math.min(100, (cpk / maxBar) * 100).toFixed(1);
+    const pBench   = Math.min(100, (benchMid / maxBar) * 100).toFixed(1);
+    const cpkStatus = cpk <= bench.min ? ['✅ Abaixo do mercado – CPK competitivo', '#059669']
+                    : cpk <= bench.max ? ['⚠️ Dentro da faixa de mercado', '#D97706']
+                    : ['🔴 Acima do mercado – atenção ao CPK', '#DC2626'];
 
-    if (semControleCons)
-      items.push({ group: '⛽ Combustível', icon: 'ℹ', text: 'Sem controle de consumo por veículo – perda de eficiência não identificada' });
-    if (semPolitica)
-      items.push({ group: '⛽ Combustível', icon: 'ℹ', text: 'Sem política de condução econômica – desperdício de combustível' });
+    document.getElementById('res-cpk-bench').innerHTML = `
+      <div class="cpk-benchmark-title">Comparativo setorial — ${bench.label}</div>
+      <div class="ratio-legend" style="margin-bottom:10px">
+        <span class="l-prev">Seu CPK</span>
+        <span class="l-corr" style="color:var(--green)">●</span>
+        <span style="color:var(--gray-600)">Benchmark mercado</span>
+      </div>
+      <div class="cpk-benchmark-row">
+        <span class="label">Seu CPK</span>
+        <div class="bar-wrap"><div class="bar-fill yours" style="width:${pYours}%"></div></div>
+        <span class="val">${fmt(cpk)}/km</span>
+      </div>
+      <div class="cpk-benchmark-row">
+        <span class="label">Mercado</span>
+        <div class="bar-wrap"><div class="bar-fill bench" style="width:${pBench}%"></div></div>
+        <span class="val">${fmt(bench.min)}–${fmt(bench.max)}</span>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:${cpkStatus[1]};margin-top:8px">${cpkStatus[0]}</div>
+      <div style="font-size:11px;color:#9CA3AF;margin-top:3px">
+        Fonte: ANTT SUROC 1/2024 · NTC&Logística &nbsp;|&nbsp; CPK parcial (combustível + manutenção + pneus)
+      </div>`;
+    document.getElementById('res-cpk-bench').style.display = 'block';
 
-    if (corrVal > prevVal)
-      items.push({ group: '🔧 Manutenção', icon: '⚠', text: 'Manutenção corretiva maior que preventiva – alto risco operacional' });
-    if (planoManut === 'nao')
-      items.push({ group: '🔧 Manutenção', icon: '⚠', text: 'Sem plano de manutenção – custos imprevisíveis' });
-    if (quebrasFreq)
-      items.push({ group: '🔧 Manutenção', icon: 'ℹ', text: 'Quebras frequentes indicam necessidade de revisão do plano preventivo' });
+    // ── Proporção Preventiva / Corretiva ─────────────────────────────────
+    if (totalManut > 0) {
+      const pPrev = Math.round((prevVal / totalManut) * 100);
+      const pCorr = 100 - pPrev;
+      const rColor = pCorr <= 20 ? '#059669' : pCorr <= 40 ? '#D97706' : '#DC2626';
+      const rMsg   = pCorr <= 20 ? '✅ Proporção ideal (≤20% corretiva)'
+                   : pCorr <= 40 ? `⚠️ Corretiva em ${pCorr}% – benchmark é 20%`
+                   : `🔴 Crítico: ${pCorr}% corretiva – benchmark ideal é 20%`;
+      document.getElementById('res-mant-ratio').innerHTML = `
+        <div class="section-label" style="margin-bottom:10px">📊 Proporção Preventiva / Corretiva</div>
+        <div class="ratio-legend">
+          <span class="l-prev">Preventiva ${pPrev}%</span>
+          <span class="l-corr">Corretiva ${pCorr}%</span>
+        </div>
+        <div style="height:12px;border-radius:99px;overflow:hidden;display:flex;margin-bottom:8px;background:var(--gray-100)">
+          <div style="width:${pPrev}%;background:var(--blue)"></div>
+          <div style="width:${pCorr}%;background:var(--red)"></div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:${rColor}">${rMsg}</div>
+        <div style="font-size:11px;color:#9CA3AF;margin-top:3px">Benchmark ideal: 80% preventiva / 20% corretiva — Geotab Brasil / CNT</div>`;
+      document.getElementById('res-mant-ratio').style.display = 'block';
+    }
 
-    if (recapagens === 0)
-      items.push({ group: '⊙ Pneus', icon: '⚠', text: 'Ausência de recapagem – custo por km com pneus acima do ideal' });
-    if (semPressao || semRodizio || semAlinhamento)
-      items.push({ group: '⊙ Pneus', icon: 'ℹ', text: 'Controles operacionais ausentes – desgaste irregular dos pneus' });
-
-    if (jornada)
-      items.push({ group: '⏱ Jornada do Motorista', icon: 'ℹ', text: 'Sem controle de jornada – risco jurídico e trabalhista' });
-    if (problemasJornada.length > 0)
-      items.push({ group: '⏱ Jornada do Motorista', icon: '⚠', text: 'Histórico de problemas com jornada – exposição a multas e fiscalização' });
+    // ── Pontos de Atenção com fontes ─────────────────────────────────────
+    const allItens = [
+      ...combItens.map(i => ({ ...i, group: '⛽ Combustível', icn: 'ℹ' })),
+      ...mantItens.map(i => ({ ...i, group: '🔧 Manutenção' })),
+      ...pneuItens.map(i => ({ ...i, group: '⊙ Pneus' })),
+      ...(jornada ? [{ group: '⏱ Jornada', text: 'Sem controle formal de jornada – risco jurídico e trabalhista', fonte: 'ANTT / CLT', pct: '', icn: 'ℹ' }] : []),
+      ...(problemasJornada.length > 0 ? [{ group: '⏱ Jornada', text: 'Histórico de problemas com jornada – exposição a multas e fiscalização', fonte: 'ANTT', pct: '', icn: '⚠' }] : []),
+    ];
 
     const grouped = {};
-    items.forEach(item => {
-      if (!grouped[item.group]) grouped[item.group] = [];
-      grouped[item.group].push(item);
-    });
+    allItens.forEach(i => { if (!grouped[i.group]) grouped[i.group] = []; grouped[i.group].push(i); });
 
     let html = '';
     Object.entries(grouped).forEach(([group, list]) => {
-      html += `<div class="attention-group">
-        <div class="attention-group-title">${group}</div>`;
+      html += `<div class="attention-group"><div class="attention-group-title">${group}</div>`;
       list.forEach(i => {
         html += `<div class="attention-item">
-          <span class="ai-icon">${i.icon === '⚠' ? '⚠️' : 'ℹ️'}</span>
-          <span>${i.text}</span>
+          <span class="ai-icon">${i.icn === '⚠' ? '⚠️' : 'ℹ️'}</span>
+          <div>
+            <div>${i.text}</div>
+            ${i.pct ? `<div class="bench-detail">Potencial: <strong>${i.pct}</strong> de redução &nbsp;·&nbsp; <span class="bench-pill">${i.fonte}</span></div>` : `<div class="bench-detail"><span class="bench-pill">${i.fonte}</span></div>`}
+          </div>
         </div>`;
       });
       html += '</div>';
     });
 
-    if (html === '') {
-      html = `<div class="attention-group">
-        <div class="attention-item">
-          <span class="ai-icon">✅</span>
-          <span>Parabéns! Sua operação está com boas práticas. Continue monitorando os indicadores.</span>
-        </div>
-      </div>`;
-    }
+    if (!html) html = `<div class="attention-group"><div class="attention-item">
+      <span class="ai-icon">✅</span>
+      <span>Parabéns! Sua operação está com boas práticas. Continue monitorando os indicadores.</span>
+    </div></div>`;
 
     document.getElementById('attention-list').innerHTML = html;
-
     showScreen('result-screen');
   }
 
   function reiniciar() {
-    // Reset all inputs
     document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="number"]')
       .forEach(el => el.value = '');
     document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
     document.querySelectorAll('input[type="radio"]').forEach(el => {
-      if (el.value === 'nao' || el.value === 'estimado' || el.value === '0') el.checked = true;
-      else el.checked = false;
+      el.checked = (el.value === 'nao' || el.value === 'estimado' || el.value === '0');
     });
     document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
     document.getElementById('alert-maint-ratio').style.display = 'none';
     document.getElementById('alert-maint-plan').style.display = 'none';
+    document.getElementById('res-cpk-bench').style.display = 'none';
+    document.getElementById('res-mant-ratio').style.display = 'none';
     showScreen('landing');
   }
 
