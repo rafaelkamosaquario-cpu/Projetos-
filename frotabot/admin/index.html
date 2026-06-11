@@ -36,6 +36,9 @@
   <!-- ===== PAINEL PRINCIPAL ===== -->
   <div id="painelPrincipal" style="display:none; width:100%; min-height:100vh;">
 
+  <!-- BACKDROP mobile -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
@@ -43,15 +46,36 @@
       <span class="logo-text">Frota<b>Bot</b></span>
     </div>
     <nav class="sidebar-nav">
-      <a href="#" class="nav-item active" data-page="dashboard"><span class="nav-icon">📊</span><span>Dashboard</span></a>
-      <a href="#" class="nav-item" data-page="empresas"><span class="nav-icon">🏢</span><span>Empresas</span></a>
-      <a href="#" class="nav-item" data-page="veiculos"><span class="nav-icon">🚚</span><span>Veículos</span></a>
-      <a href="#" class="nav-item" data-page="motoristas"><span class="nav-icon">👨‍✈️</span><span>Motoristas</span></a>
-      <a href="#" class="nav-item" data-page="manutencao"><span class="nav-icon">🔧</span><span>Manutenção</span></a>
-      <a href="#" class="nav-item" data-page="documentos"><span class="nav-icon">📄</span><span>Documentos</span></a>
-      <a href="#" class="nav-item" data-page="checklists"><span class="nav-icon">✅</span><span>Checklists</span></a>
-      <a href="#" class="nav-item" data-page="alertas"><span class="nav-icon">🔔</span><span>Alertas</span></a>
-      <a href="#" class="nav-item" data-page="relatorios"><span class="nav-icon">📈</span><span>Relatórios</span></a>
+      <a href="#" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">📊</span><span>Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" data-page="empresas">
+        <span class="nav-icon">🏢</span><span>Empresas</span>
+      </a>
+      <a href="#" class="nav-item" data-page="veiculos">
+        <span class="nav-icon">🚚</span><span>Veículos</span>
+      </a>
+      <a href="#" class="nav-item" data-page="motoristas">
+        <span class="nav-icon">👨‍✈️</span><span>Motoristas</span>
+      </a>
+      <a href="#" class="nav-item" data-page="manutencao">
+        <span class="nav-icon">🔧</span><span>Manutenção</span>
+      </a>
+      <a href="#" class="nav-item" data-page="documentos">
+        <span class="nav-icon">📄</span><span>Documentos</span>
+      </a>
+      <a href="#" class="nav-item" data-page="checklists">
+        <span class="nav-icon">✅</span><span>Checklists</span>
+      </a>
+      <a href="#" class="nav-item" data-page="alertas">
+        <span class="nav-icon">🔔</span><span>Alertas</span>
+      </a>
+      <a href="#" class="nav-item" data-page="relatorios">
+        <span class="nav-icon">📈</span><span>Relatórios</span>
+      </a>
+      <a href="#" class="nav-item" data-page="configuracoes">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
     </nav>
     <div class="sidebar-footer">
       <div class="user-info">
@@ -67,196 +91,704 @@
 
   <!-- MAIN -->
   <main class="main">
+
+    <!-- TOPBAR -->
     <header class="topbar">
       <button class="menu-toggle" id="menuToggle">☰</button>
       <div class="topbar-title" id="pageTitle">Dashboard</div>
       <div class="topbar-actions">
-        <div class="notif-btn">🔔 <span class="notif-badge">3</span></div>
+        <div class="notif-btn">
+          🔔 <span class="notif-badge">3</span>
+        </div>
         <button class="btn-add" id="btnAdd">+ Novo</button>
       </div>
     </header>
 
+    <!-- CONTEÚDO DINÂMICO -->
     <div class="content" id="content">
 
-      <!-- DASHBOARD -->
+      <!-- ===== DASHBOARD ===== -->
       <div class="page active" id="page-dashboard">
         <div class="metrics-grid">
-          <div class="metric-card"><div class="metric-icon" style="background:#EEF2FF">🏢</div><div class="metric-info"><div class="metric-value">12</div><div class="metric-label">Empresas ativas</div></div></div>
-          <div class="metric-card"><div class="metric-icon" style="background:#F0FDF4">🚚</div><div class="metric-info"><div class="metric-value">87</div><div class="metric-label">Veículos monitorados</div></div></div>
-          <div class="metric-card"><div class="metric-icon" style="background:#FFF7ED">👨‍✈️</div><div class="metric-info"><div class="metric-value">64</div><div class="metric-label">Motoristas ativos</div></div></div>
-          <div class="metric-card alert"><div class="metric-icon" style="background:#FEF2F2">⚠️</div><div class="metric-info"><div class="metric-value">9</div><div class="metric-label">Alertas pendentes</div></div></div>
+          <div class="metric-card">
+            <div class="metric-icon" style="background:#EEF2FF">🏢</div>
+            <div class="metric-info">
+              <div class="metric-value">12</div>
+              <div class="metric-label">Empresas ativas</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon" style="background:#F0FDF4">🚚</div>
+            <div class="metric-info">
+              <div class="metric-value">87</div>
+              <div class="metric-label">Veículos monitorados</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon" style="background:#FFF7ED">👨‍✈️</div>
+            <div class="metric-info">
+              <div class="metric-value">64</div>
+              <div class="metric-label">Motoristas ativos</div>
+            </div>
+          </div>
+          <div class="metric-card alert">
+            <div class="metric-icon" style="background:#FEF2F2">⚠️</div>
+            <div class="metric-info">
+              <div class="metric-value">9</div>
+              <div class="metric-label">Alertas pendentes</div>
+            </div>
+          </div>
         </div>
+
         <div class="dash-grid">
+          <!-- Alertas urgentes -->
           <div class="card">
-            <div class="card-header"><h3>🚨 Alertas Urgentes</h3><span class="badge-red">9 pendentes</span></div>
+            <div class="card-header">
+              <h3>🚨 Alertas Urgentes</h3>
+              <span class="badge-red">9 pendentes</span>
+            </div>
             <div class="alert-list">
-              <div class="alert-item red"><div class="alert-dot red"></div><div class="alert-body"><strong>Tacógrafo vencido</strong><span>ABC-1234 — Transportadora Silva</span></div><span class="alert-time">Hoje</span></div>
-              <div class="alert-item orange"><div class="alert-dot orange"></div><div class="alert-body"><strong>Troca de óleo em 3 dias</strong><span>XYZ-5678 — Frota Rápida</span></div><span class="alert-time">3 dias</span></div>
-              <div class="alert-item orange"><div class="alert-dot orange"></div><div class="alert-body"><strong>CNH vencendo</strong><span>João Silva — Transportes União</span></div><span class="alert-time">5 dias</span></div>
-              <div class="alert-item yellow"><div class="alert-dot yellow"></div><div class="alert-body"><strong>Licenciamento em 7 dias</strong><span>DEF-9012 — LogFast</span></div><span class="alert-time">7 dias</span></div>
-              <div class="alert-item yellow"><div class="alert-dot yellow"></div><div class="alert-body"><strong>Alinhamento pendente</strong><span>GHI-3456 — Transportadora Silva</span></div><span class="alert-time">10 dias</span></div>
+              <div class="alert-item red">
+                <div class="alert-dot red"></div>
+                <div class="alert-body">
+                  <strong>Tacógrafo vencido</strong>
+                  <span>ABC-1234 — Transportadora Silva</span>
+                </div>
+                <span class="alert-time">Hoje</span>
+              </div>
+              <div class="alert-item orange">
+                <div class="alert-dot orange"></div>
+                <div class="alert-body">
+                  <strong>Troca de óleo em 3 dias</strong>
+                  <span>XYZ-5678 — Frota Rápida</span>
+                </div>
+                <span class="alert-time">3 dias</span>
+              </div>
+              <div class="alert-item orange">
+                <div class="alert-dot orange"></div>
+                <div class="alert-body">
+                  <strong>CNH vencendo</strong>
+                  <span>João Silva — Transportes União</span>
+                </div>
+                <span class="alert-time">5 dias</span>
+              </div>
+              <div class="alert-item yellow">
+                <div class="alert-dot yellow"></div>
+                <div class="alert-body">
+                  <strong>Licenciamento em 7 dias</strong>
+                  <span>DEF-9012 — LogFast</span>
+                </div>
+                <span class="alert-time">7 dias</span>
+              </div>
+              <div class="alert-item yellow">
+                <div class="alert-dot yellow"></div>
+                <div class="alert-body">
+                  <strong>Alinhamento pendente</strong>
+                  <span>GHI-3456 — Transportadora Silva</span>
+                </div>
+                <span class="alert-time">10 dias</span>
+              </div>
             </div>
           </div>
+
+          <!-- Checklists hoje -->
           <div class="card">
-            <div class="card-header"><h3>✅ Checklists Hoje</h3><span class="badge-green">52/64 respondidos</span></div>
-            <div class="checklist-progress"><div class="progress-bar-wrap"><div class="progress-bar" style="width:81%"></div></div><span class="progress-label">81% de resposta</span></div>
+            <div class="card-header">
+              <h3>✅ Checklists Hoje</h3>
+              <span class="badge-green">52/64 respondidos</span>
+            </div>
+            <div class="checklist-progress">
+              <div class="progress-bar-wrap">
+                <div class="progress-bar" style="width:81%"></div>
+              </div>
+              <span class="progress-label">81% de resposta</span>
+            </div>
             <div class="checklist-companies">
-              <div class="ck-company"><span>Transportadora Silva</span><span class="ck-status green">18/18 ✅</span></div>
-              <div class="ck-company"><span>Frota Rápida</span><span class="ck-status green">12/12 ✅</span></div>
-              <div class="ck-company"><span>Transportes União</span><span class="ck-status orange">10/14 ⚠️</span></div>
-              <div class="ck-company"><span>LogFast</span><span class="ck-status orange">8/12 ⚠️</span></div>
-              <div class="ck-company"><span>Rota Sul</span><span class="ck-status red">4/8 🚨</span></div>
+              <div class="ck-company">
+                <span>Transportadora Silva</span>
+                <span class="ck-status green">18/18 ✅</span>
+              </div>
+              <div class="ck-company">
+                <span>Frota Rápida</span>
+                <span class="ck-status green">12/12 ✅</span>
+              </div>
+              <div class="ck-company">
+                <span>Transportes União</span>
+                <span class="ck-status orange">10/14 ⚠️</span>
+              </div>
+              <div class="ck-company">
+                <span>LogFast</span>
+                <span class="ck-status orange">8/12 ⚠️</span>
+              </div>
+              <div class="ck-company">
+                <span>Rota Sul</span>
+                <span class="ck-status red">4/8 🚨</span>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Kanban veículos -->
         <div class="card mt">
-          <div class="card-header"><h3>🚚 Status da Frota — Kanban</h3></div>
+          <div class="card-header">
+            <h3>🚚 Status da Frota — Kanban</h3>
+          </div>
           <div class="kanban">
-            <div class="kanban-col"><div class="kanban-title green">✅ Operacional</div><div class="kanban-card">ABC-1234<br/><small>Volvo FH 460</small></div><div class="kanban-card">XYZ-5678<br/><small>Scania R450</small></div><div class="kanban-card">MNO-2345<br/><small>Mercedes Actros</small></div><div class="kanban-card">PQR-6789<br/><small>DAF XF</small></div></div>
-            <div class="kanban-col"><div class="kanban-title orange">🔧 Em Manutenção</div><div class="kanban-card">DEF-9012<br/><small>Volvo FH 540</small></div><div class="kanban-card">GHI-3456<br/><small>Iveco Hi-Way</small></div></div>
-            <div class="kanban-col"><div class="kanban-title yellow">⚠️ Manutenção Próxima</div><div class="kanban-card">JKL-7890<br/><small>Scania G450</small></div><div class="kanban-card">STU-1234<br/><small>Mercedes 2651</small></div><div class="kanban-card">VWX-5678<br/><small>Volvo FM 370</small></div></div>
-            <div class="kanban-col"><div class="kanban-title red">🚨 Doc. Irregular</div><div class="kanban-card">YZA-9012<br/><small>DAF CF 85</small></div></div>
+            <div class="kanban-col">
+              <div class="kanban-title green">✅ Operacional</div>
+              <div class="kanban-card">ABC-1234<br/><small>Volvo FH 460</small></div>
+              <div class="kanban-card">XYZ-5678<br/><small>Scania R450</small></div>
+              <div class="kanban-card">MNO-2345<br/><small>Mercedes Actros</small></div>
+              <div class="kanban-card">PQR-6789<br/><small>DAF XF</small></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-title orange">🔧 Em Manutenção</div>
+              <div class="kanban-card">DEF-9012<br/><small>Volvo FH 540</small></div>
+              <div class="kanban-card">GHI-3456<br/><small>Iveco Hi-Way</small></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-title yellow">⚠️ Manutenção Próxima</div>
+              <div class="kanban-card">JKL-7890<br/><small>Scania G450</small></div>
+              <div class="kanban-card">STU-1234<br/><small>Mercedes 2651</small></div>
+              <div class="kanban-card">VWX-5678<br/><small>Volvo FM 370</small></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-title red">🚨 Doc. Irregular</div>
+              <div class="kanban-card">YZA-9012<br/><small>DAF CF 85</small></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- EMPRESAS -->
+      <!-- ===== EMPRESAS ===== -->
       <div class="page" id="page-empresas">
         <div class="card">
-          <div class="card-header"><h3>🏢 Empresas Cadastradas</h3><button class="btn-primary" onclick="openModal('modalEmpresa')">+ Nova Empresa</button></div>
+          <div class="card-header">
+            <h3>🏢 Empresas Cadastradas</h3>
+            <button class="btn-primary" onclick="openModal('modalEmpresa')">+ Nova Empresa</button>
+          </div>
           <table class="data-table">
-            <thead><tr><th>Empresa</th><th>CNPJ</th><th>Plano</th><th>Veículos</th><th>Gestor WhatsApp</th><th>Status</th><th>Ações</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Empresa</th>
+                <th>CNPJ</th>
+                <th>Plano</th>
+                <th>Veículos</th>
+                <th>Gestor WhatsApp</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td><strong>Transportadora Silva</strong></td><td>12.345.678/0001-90</td><td><span class="badge-blue">Profissional</span></td><td>18</td><td>(42) 99999-1111</td><td><span class="status-dot green"></span> Ativo</td><td><button class="btn-sm">Editar</button></td></tr>
-              <tr><td><strong>Frota Rápida Ltda</strong></td><td>98.765.432/0001-10</td><td><span class="badge-blue">Profissional</span></td><td>12</td><td>(11) 98888-2222</td><td><span class="status-dot green"></span> Ativo</td><td><button class="btn-sm">Editar</button></td></tr>
-              <tr><td><strong>Transportes União</strong></td><td>45.678.901/0001-23</td><td><span class="badge-orange">Starter</span></td><td>8</td><td>(31) 97777-3333</td><td><span class="status-dot green"></span> Ativo</td><td><button class="btn-sm">Editar</button></td></tr>
-              <tr><td><strong>LogFast Transportes</strong></td><td>23.456.789/0001-45</td><td><span class="badge-orange">Starter</span></td><td>6</td><td>(41) 96666-4444</td><td><span class="status-dot yellow"></span> Trial</td><td><button class="btn-sm">Editar</button></td></tr>
+              <tr>
+                <td><strong>Transportadora Silva</strong></td>
+                <td>12.345.678/0001-90</td>
+                <td><span class="badge-blue">Profissional</span></td>
+                <td>18</td>
+                <td>(42) 99999-1111</td>
+                <td><span class="status-dot green"></span> Ativo</td>
+                <td><button class="btn-sm">Editar</button></td>
+              </tr>
+              <tr>
+                <td><strong>Frota Rápida Ltda</strong></td>
+                <td>98.765.432/0001-10</td>
+                <td><span class="badge-blue">Profissional</span></td>
+                <td>12</td>
+                <td>(11) 98888-2222</td>
+                <td><span class="status-dot green"></span> Ativo</td>
+                <td><button class="btn-sm">Editar</button></td>
+              </tr>
+              <tr>
+                <td><strong>Transportes União</strong></td>
+                <td>45.678.901/0001-23</td>
+                <td><span class="badge-orange">Starter</span></td>
+                <td>8</td>
+                <td>(31) 97777-3333</td>
+                <td><span class="status-dot green"></span> Ativo</td>
+                <td><button class="btn-sm">Editar</button></td>
+              </tr>
+              <tr>
+                <td><strong>LogFast Transportes</strong></td>
+                <td>23.456.789/0001-45</td>
+                <td><span class="badge-orange">Starter</span></td>
+                <td>6</td>
+                <td>(41) 96666-4444</td>
+                <td><span class="status-dot yellow"></span> Trial</td>
+                <td><button class="btn-sm">Editar</button></td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- VEÍCULOS -->
+      <!-- ===== VEÍCULOS ===== -->
       <div class="page" id="page-veiculos">
         <div class="card">
-          <div class="card-header"><h3>🚚 Veículos Cadastrados</h3><button class="btn-primary" onclick="openModal('modalVeiculo')">+ Novo Veículo</button></div>
+          <div class="card-header">
+            <h3>🚚 Veículos Cadastrados</h3>
+            <button class="btn-primary" onclick="openModal('modalVeiculo')">+ Novo Veículo</button>
+          </div>
           <table class="data-table">
-            <thead><tr><th>Placa</th><th>Modelo</th><th>Empresa</th><th>Próx. Revisão</th><th>Tacógrafo</th><th>Status</th><th>Ações</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Placa</th>
+                <th>Modelo</th>
+                <th>Empresa</th>
+                <th>Próx. Revisão</th>
+                <th>Tacógrafo</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td><strong>ABC-1234</strong></td><td>Volvo FH 460</td><td>Transportadora Silva</td><td><span class="date-ok">20/07/2025</span></td><td><span class="date-alert">15/06/2025</span></td><td><span class="status-dot green"></span> OK</td><td><button class="btn-sm">Ver</button></td></tr>
-              <tr><td><strong>XYZ-5678</strong></td><td>Scania R450</td><td>Frota Rápida</td><td><span class="date-warn">14/06/2025</span></td><td><span class="date-ok">10/09/2025</span></td><td><span class="status-dot orange"></span> Atenção</td><td><button class="btn-sm">Ver</button></td></tr>
-              <tr><td><strong>DEF-9012</strong></td><td>Volvo FH 540</td><td>LogFast</td><td><span class="date-ok">30/08/2025</span></td><td><span class="date-ok">20/11/2025</span></td><td><span class="status-dot orange"></span> Manutenção</td><td><button class="btn-sm">Ver</button></td></tr>
-              <tr><td><strong>GHI-3456</strong></td><td>Iveco Hi-Way</td><td>Transportes União</td><td><span class="date-ok">15/09/2025</span></td><td><span class="date-alert">05/06/2025</span></td><td><span class="status-dot red"></span> Irregular</td><td><button class="btn-sm">Ver</button></td></tr>
+              <tr>
+                <td><strong>ABC-1234</strong></td>
+                <td>Volvo FH 460</td>
+                <td>Transportadora Silva</td>
+                <td><span class="date-ok">20/07/2025</span></td>
+                <td><span class="date-alert">15/06/2025</span></td>
+                <td><span class="status-dot green"></span> OK</td>
+                <td><button class="btn-sm">Ver</button></td>
+              </tr>
+              <tr>
+                <td><strong>XYZ-5678</strong></td>
+                <td>Scania R450</td>
+                <td>Frota Rápida</td>
+                <td><span class="date-warn">14/06/2025</span></td>
+                <td><span class="date-ok">10/09/2025</span></td>
+                <td><span class="status-dot orange"></span> Atenção</td>
+                <td><button class="btn-sm">Ver</button></td>
+              </tr>
+              <tr>
+                <td><strong>DEF-9012</strong></td>
+                <td>Volvo FH 540</td>
+                <td>LogFast</td>
+                <td><span class="date-ok">30/08/2025</span></td>
+                <td><span class="date-ok">20/11/2025</span></td>
+                <td><span class="status-dot orange"></span> Manutenção</td>
+                <td><button class="btn-sm">Ver</button></td>
+              </tr>
+              <tr>
+                <td><strong>GHI-3456</strong></td>
+                <td>Iveco Hi-Way</td>
+                <td>Transportes União</td>
+                <td><span class="date-ok">15/09/2025</span></td>
+                <td><span class="date-alert">05/06/2025</span></td>
+                <td><span class="status-dot red"></span> Irregular</td>
+                <td><button class="btn-sm">Ver</button></td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- MOTORISTAS -->
+      <!-- ===== MOTORISTAS ===== -->
       <div class="page" id="page-motoristas">
         <div class="card">
-          <div class="card-header"><h3>👨‍✈️ Motoristas Cadastrados</h3><button class="btn-primary" onclick="openModal('modalMotorista')">+ Novo Motorista</button></div>
+          <div class="card-header">
+            <h3>👨‍✈️ Motoristas Cadastrados</h3>
+            <button class="btn-primary" onclick="openModal('modalMotorista')">+ Novo Motorista</button>
+          </div>
           <table class="data-table">
-            <thead><tr><th>Nome</th><th>WhatsApp</th><th>Empresa</th><th>Veículo</th><th>Venc. CNH</th><th>Toxicológico</th><th>Checklist Hoje</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>WhatsApp</th>
+                <th>Empresa</th>
+                <th>Veículo</th>
+                <th>Venc. CNH</th>
+                <th>Toxicológico</th>
+                <th>Checklist Hoje</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td><strong>João Silva</strong></td><td>(42) 98888-1111</td><td>Transportadora Silva</td><td>ABC-1234</td><td><span class="date-warn">25/06/2025</span></td><td><span class="date-ok">10/12/2025</span></td><td><span class="badge-green">✅ Respondido</span></td></tr>
-              <tr><td><strong>Carlos Souza</strong></td><td>(11) 97777-2222</td><td>Frota Rápida</td><td>XYZ-5678</td><td><span class="date-ok">15/01/2026</span></td><td><span class="date-ok">20/03/2026</span></td><td><span class="badge-green">✅ Respondido</span></td></tr>
-              <tr><td><strong>Pedro Alves</strong></td><td>(31) 96666-3333</td><td>Transportes União</td><td>GHI-3456</td><td><span class="date-ok">30/09/2025</span></td><td><span class="date-alert">01/06/2025</span></td><td><span class="badge-red">❌ Pendente</span></td></tr>
-              <tr><td><strong>Marcos Lima</strong></td><td>(41) 95555-4444</td><td>LogFast</td><td>DEF-9012</td><td><span class="date-ok">22/05/2026</span></td><td><span class="date-ok">15/08/2025</span></td><td><span class="badge-orange">⚠️ Não enviado</span></td></tr>
+              <tr>
+                <td><strong>João Silva</strong></td>
+                <td>(42) 98888-1111</td>
+                <td>Transportadora Silva</td>
+                <td>ABC-1234</td>
+                <td><span class="date-warn">25/06/2025</span></td>
+                <td><span class="date-ok">10/12/2025</span></td>
+                <td><span class="badge-green">✅ Respondido</span></td>
+              </tr>
+              <tr>
+                <td><strong>Carlos Souza</strong></td>
+                <td>(11) 97777-2222</td>
+                <td>Frota Rápida</td>
+                <td>XYZ-5678</td>
+                <td><span class="date-ok">15/01/2026</span></td>
+                <td><span class="date-ok">20/03/2026</span></td>
+                <td><span class="badge-green">✅ Respondido</span></td>
+              </tr>
+              <tr>
+                <td><strong>Pedro Alves</strong></td>
+                <td>(31) 96666-3333</td>
+                <td>Transportes União</td>
+                <td>GHI-3456</td>
+                <td><span class="date-ok">30/09/2025</span></td>
+                <td><span class="date-alert">01/06/2025</span></td>
+                <td><span class="badge-red">❌ Pendente</span></td>
+              </tr>
+              <tr>
+                <td><strong>Marcos Lima</strong></td>
+                <td>(41) 95555-4444</td>
+                <td>LogFast</td>
+                <td>DEF-9012</td>
+                <td><span class="date-ok">22/05/2026</span></td>
+                <td><span class="date-ok">15/08/2025</span></td>
+                <td><span class="badge-orange">⚠️ Não enviado</span></td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- MANUTENÇÃO -->
+      <!-- ===== MANUTENÇÃO ===== -->
       <div class="page" id="page-manutencao">
         <div class="card">
-          <div class="card-header"><h3>🔧 Controle de Manutenção</h3><button class="btn-primary" onclick="openModal('modalManutencao')">+ Nova Manutenção</button></div>
+          <div class="card-header">
+            <h3>🔧 Controle de Manutenção</h3>
+            <button class="btn-primary" onclick="openModal('modalManutencao')">+ Nova Manutenção</button>
+          </div>
           <table class="data-table">
-            <thead><tr><th>Veículo</th><th>Empresa</th><th>Tipo</th><th>Vencimento</th><th>Dias Restantes</th><th>Status</th><th>Alerta Enviado</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Veículo</th>
+                <th>Empresa</th>
+                <th>Tipo</th>
+                <th>Vencimento</th>
+                <th>Dias Restantes</th>
+                <th>Status</th>
+                <th>Alerta Enviado</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td><strong>ABC-1234</strong></td><td>Transportadora Silva</td><td>Troca de óleo</td><td>14/06/2025</td><td><span class="days-critical">3 dias</span></td><td><span class="status-dot orange"></span> Pendente</td><td>✅ Sim</td></tr>
-              <tr><td><strong>XYZ-5678</strong></td><td>Frota Rápida</td><td>Alinhamento</td><td>18/06/2025</td><td><span class="days-warn">7 dias</span></td><td><span class="status-dot yellow"></span> Agendado</td><td>✅ Sim</td></tr>
-              <tr><td><strong>GHI-3456</strong></td><td>Transportes União</td><td>Revisão 80.000km</td><td>25/06/2025</td><td><span class="days-ok">14 dias</span></td><td><span class="status-dot green"></span> Programado</td><td>✅ Sim</td></tr>
-              <tr><td><strong>DEF-9012</strong></td><td>LogFast</td><td>Balanceamento</td><td>30/06/2025</td><td><span class="days-ok">19 dias</span></td><td><span class="status-dot green"></span> Programado</td><td>❌ Não</td></tr>
+              <tr>
+                <td><strong>ABC-1234</strong></td>
+                <td>Transportadora Silva</td>
+                <td>Troca de óleo</td>
+                <td>14/06/2025</td>
+                <td><span class="days-critical">3 dias</span></td>
+                <td><span class="status-dot orange"></span> Pendente</td>
+                <td>✅ Sim</td>
+              </tr>
+              <tr>
+                <td><strong>XYZ-5678</strong></td>
+                <td>Frota Rápida</td>
+                <td>Alinhamento</td>
+                <td>18/06/2025</td>
+                <td><span class="days-warn">7 dias</span></td>
+                <td><span class="status-dot yellow"></span> Agendado</td>
+                <td>✅ Sim</td>
+              </tr>
+              <tr>
+                <td><strong>GHI-3456</strong></td>
+                <td>Transportes União</td>
+                <td>Revisão 80.000km</td>
+                <td>25/06/2025</td>
+                <td><span class="days-ok">14 dias</span></td>
+                <td><span class="status-dot green"></span> Programado</td>
+                <td>✅ Sim</td>
+              </tr>
+              <tr>
+                <td><strong>DEF-9012</strong></td>
+                <td>LogFast</td>
+                <td>Balanceamento</td>
+                <td>30/06/2025</td>
+                <td><span class="days-ok">19 dias</span></td>
+                <td><span class="status-dot green"></span> Programado</td>
+                <td>❌ Não</td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- DOCUMENTOS -->
+      <!-- ===== DOCUMENTOS ===== -->
       <div class="page" id="page-documentos">
         <div class="card">
-          <div class="card-header"><h3>📄 Controle Documental</h3><button class="btn-primary" onclick="openModal('modalDocumento')">+ Novo Documento</button></div>
+          <div class="card-header">
+            <h3>📄 Controle Documental</h3>
+            <button class="btn-primary" onclick="openModal('modalDocumento')">+ Novo Documento</button>
+          </div>
           <table class="data-table">
-            <thead><tr><th>Tipo</th><th>Referente a</th><th>Empresa</th><th>Vencimento</th><th>Dias Restantes</th><th>Status</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Referente a</th>
+                <th>Empresa</th>
+                <th>Vencimento</th>
+                <th>Dias Restantes</th>
+                <th>Status</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>Tacógrafo</td><td>ABC-1234</td><td>Transportadora Silva</td><td>11/06/2025</td><td><span class="days-critical">Vencido</span></td><td><span class="status-dot red"></span> Vencido</td></tr>
-              <tr><td>CNH</td><td>João Silva</td><td>Transportadora Silva</td><td>25/06/2025</td><td><span class="days-warn">14 dias</span></td><td><span class="status-dot orange"></span> Urgente</td></tr>
-              <tr><td>Licenciamento</td><td>GHI-3456</td><td>Transportes União</td><td>30/06/2025</td><td><span class="days-warn">19 dias</span></td><td><span class="status-dot yellow"></span> Atenção</td></tr>
-              <tr><td>Toxicológico</td><td>Pedro Alves</td><td>Transportes União</td><td>01/06/2025</td><td><span class="days-critical">Vencido</span></td><td><span class="status-dot red"></span> Vencido</td></tr>
-              <tr><td>RNTRC</td><td>LogFast Transportes</td><td>LogFast</td><td>15/09/2025</td><td><span class="days-ok">96 dias</span></td><td><span class="status-dot green"></span> Regular</td></tr>
+              <tr>
+                <td>Tacógrafo</td>
+                <td>ABC-1234</td>
+                <td>Transportadora Silva</td>
+                <td>11/06/2025</td>
+                <td><span class="days-critical">Vencido</span></td>
+                <td><span class="status-dot red"></span> Vencido</td>
+              </tr>
+              <tr>
+                <td>CNH</td>
+                <td>João Silva</td>
+                <td>Transportadora Silva</td>
+                <td>25/06/2025</td>
+                <td><span class="days-warn">14 dias</span></td>
+                <td><span class="status-dot orange"></span> Urgente</td>
+              </tr>
+              <tr>
+                <td>Licenciamento</td>
+                <td>GHI-3456</td>
+                <td>Transportes União</td>
+                <td>30/06/2025</td>
+                <td><span class="days-warn">19 dias</span></td>
+                <td><span class="status-dot yellow"></span> Atenção</td>
+              </tr>
+              <tr>
+                <td>Toxicológico</td>
+                <td>Pedro Alves</td>
+                <td>Transportes União</td>
+                <td>01/06/2025</td>
+                <td><span class="days-critical">Vencido</span></td>
+                <td><span class="status-dot red"></span> Vencido</td>
+              </tr>
+              <tr>
+                <td>RNTRC</td>
+                <td>LogFast Transportes</td>
+                <td>LogFast</td>
+                <td>15/09/2025</td>
+                <td><span class="days-ok">96 dias</span></td>
+                <td><span class="status-dot green"></span> Regular</td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- CHECKLISTS -->
+      <!-- ===== CHECKLISTS ===== -->
       <div class="page" id="page-checklists">
         <div class="card">
-          <div class="card-header"><h3>✅ Checklists do Dia</h3><span class="badge-green">52/64 respondidos hoje</span></div>
-          <div class="checklist-progress mb"><div class="progress-bar-wrap large"><div class="progress-bar" style="width:81%"></div></div><span class="progress-label">81% — 11/06/2025</span></div>
+          <div class="card-header">
+            <h3>✅ Checklists do Dia</h3>
+            <span class="badge-green">52/64 respondidos hoje</span>
+          </div>
+          <div class="checklist-progress mb">
+            <div class="progress-bar-wrap large">
+              <div class="progress-bar" style="width:81%"></div>
+            </div>
+            <span class="progress-label">81% — 11/06/2025</span>
+          </div>
           <table class="data-table">
-            <thead><tr><th>Motorista</th><th>Veículo</th><th>Empresa</th><th>Enviado às</th><th>Respondido às</th><th>Resposta</th><th>Tentativas</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Motorista</th>
+                <th>Veículo</th>
+                <th>Empresa</th>
+                <th>Enviado às</th>
+                <th>Respondido às</th>
+                <th>Resposta</th>
+                <th>Tentativas</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>João Silva</td><td>ABC-1234</td><td>Transportadora Silva</td><td>07:00</td><td>07:03</td><td><span class="badge-green">OK ✅</span></td><td>1</td></tr>
-              <tr><td>Carlos Souza</td><td>XYZ-5678</td><td>Frota Rápida</td><td>07:00</td><td>07:08</td><td><span class="badge-green">OK ✅</span></td><td>1</td></tr>
-              <tr><td>Pedro Alves</td><td>GHI-3456</td><td>Transportes União</td><td>07:00</td><td>—</td><td><span class="badge-red">Pendente ❌</span></td><td>2</td></tr>
-              <tr><td>Marcos Lima</td><td>DEF-9012</td><td>LogFast</td><td>07:00</td><td>07:22</td><td><span class="badge-orange">Pneu baixo ⚠️</span></td><td>2</td></tr>
+              <tr>
+                <td>João Silva</td>
+                <td>ABC-1234</td>
+                <td>Transportadora Silva</td>
+                <td>07:00</td>
+                <td>07:03</td>
+                <td><span class="badge-green">OK ✅</span></td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>Carlos Souza</td>
+                <td>XYZ-5678</td>
+                <td>Frota Rápida</td>
+                <td>07:00</td>
+                <td>07:08</td>
+                <td><span class="badge-green">OK ✅</span></td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>Pedro Alves</td>
+                <td>GHI-3456</td>
+                <td>Transportes União</td>
+                <td>07:00</td>
+                <td>—</td>
+                <td><span class="badge-red">Pendente ❌</span></td>
+                <td>2</td>
+              </tr>
+              <tr>
+                <td>Marcos Lima</td>
+                <td>DEF-9012</td>
+                <td>LogFast</td>
+                <td>07:00</td>
+                <td>07:22</td>
+                <td><span class="badge-orange">Pneu baixo ⚠️</span></td>
+                <td>2</td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- ALERTAS -->
+      <!-- ===== ALERTAS ===== -->
       <div class="page" id="page-alertas">
         <div class="card">
-          <div class="card-header"><h3>🔔 Central de Alertas</h3><button class="btn-primary">Enviar Alerta Manual</button></div>
+          <div class="card-header">
+            <h3>🔔 Central de Alertas</h3>
+            <button class="btn-primary">Enviar Alerta Manual</button>
+          </div>
           <div class="alert-list full">
-            <div class="alert-item red"><div class="alert-dot red"></div><div class="alert-body"><strong>🚨 Tacógrafo VENCIDO — ABC-1234</strong><span>Transportadora Silva • Enviado para gestor e motorista</span></div><span class="alert-time">Hoje 08:00</span></div>
-            <div class="alert-item red"><div class="alert-dot red"></div><div class="alert-body"><strong>🚨 Toxicológico VENCIDO — Pedro Alves</strong><span>Transportes União • Enviado para gestor</span></div><span class="alert-time">Hoje 08:00</span></div>
-            <div class="alert-item orange"><div class="alert-dot orange"></div><div class="alert-body"><strong>⚠️ Checklist sem resposta — Pedro Alves</strong><span>Transportes União • Gestor notificado após 20min</span></div><span class="alert-time">Hoje 07:20</span></div>
-            <div class="alert-item orange"><div class="alert-dot orange"></div><div class="alert-body"><strong>🔧 Troca de óleo em 3 dias — ABC-1234</strong><span>Transportadora Silva • Gestor confirmou agendamento</span></div><span class="alert-time">Hoje 08:00</span></div>
-            <div class="alert-item yellow"><div class="alert-dot yellow"></div><div class="alert-body"><strong>📄 CNH vencendo em 14 dias — João Silva</strong><span>Transportadora Silva • Aguardando renovação</span></div><span class="alert-time">Ontem</span></div>
+            <div class="alert-item red">
+              <div class="alert-dot red"></div>
+              <div class="alert-body">
+                <strong>🚨 Tacógrafo VENCIDO — ABC-1234</strong>
+                <span>Transportadora Silva • Enviado para gestor e motorista</span>
+              </div>
+              <span class="alert-time">Hoje 08:00</span>
+            </div>
+            <div class="alert-item red">
+              <div class="alert-dot red"></div>
+              <div class="alert-body">
+                <strong>🚨 Toxicológico VENCIDO — Pedro Alves</strong>
+                <span>Transportes União • Enviado para gestor</span>
+              </div>
+              <span class="alert-time">Hoje 08:00</span>
+            </div>
+            <div class="alert-item orange">
+              <div class="alert-dot orange"></div>
+              <div class="alert-body">
+                <strong>⚠️ Checklist sem resposta — Pedro Alves</strong>
+                <span>Transportes União • Gestor notificado após 20min</span>
+              </div>
+              <span class="alert-time">Hoje 07:20</span>
+            </div>
+            <div class="alert-item orange">
+              <div class="alert-dot orange"></div>
+              <div class="alert-body">
+                <strong>🔧 Troca de óleo em 3 dias — ABC-1234</strong>
+                <span>Transportadora Silva • Gestor confirmou agendamento</span>
+              </div>
+              <span class="alert-time">Hoje 08:00</span>
+            </div>
+            <div class="alert-item yellow">
+              <div class="alert-dot yellow"></div>
+              <div class="alert-body">
+                <strong>📄 CNH vencendo em 14 dias — João Silva</strong>
+                <span>Transportadora Silva • Aguardando renovação</span>
+              </div>
+              <span class="alert-time">Ontem</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- RELATÓRIOS -->
+      <!-- ===== RELATÓRIOS ===== -->
       <div class="page" id="page-relatorios">
         <div class="relatorio-header">
           <div class="card relatorio-select">
             <label>Empresa</label>
-            <select class="select-input"><option>Todas as empresas</option><option>Transportadora Silva</option><option>Frota Rápida</option><option>Transportes União</option><option>LogFast</option></select>
+            <select class="select-input">
+              <option>Todas as empresas</option>
+              <option>Transportadora Silva</option>
+              <option>Frota Rápida</option>
+              <option>Transportes União</option>
+              <option>LogFast</option>
+            </select>
             <label>Período</label>
-            <select class="select-input"><option>Junho 2025</option><option>Maio 2025</option><option>Abril 2025</option></select>
+            <select class="select-input">
+              <option>Junho 2025</option>
+              <option>Maio 2025</option>
+              <option>Abril 2025</option>
+            </select>
             <button class="btn-primary">Gerar Relatório</button>
           </div>
         </div>
+
         <div class="metrics-grid">
-          <div class="metric-card"><div class="metric-icon" style="background:#F0FDF4">✅</div><div class="metric-info"><div class="metric-value">94%</div><div class="metric-label">Taxa checklists respondidos</div></div></div>
-          <div class="metric-card"><div class="metric-icon" style="background:#FFF7ED">🔧</div><div class="metric-info"><div class="metric-value">7</div><div class="metric-label">Manutenções realizadas</div></div></div>
-          <div class="metric-card"><div class="metric-icon" style="background:#EEF2FF">📄</div><div class="metric-info"><div class="metric-value">3</div><div class="metric-label">Documentos renovados</div></div></div>
-          <div class="metric-card"><div class="metric-icon" style="background:#F0FDF4">💰</div><div class="metric-info"><div class="metric-value">R$ 8.400</div><div class="metric-label">Economia estimada</div></div></div>
+          <div class="metric-card">
+            <div class="metric-icon" style="background:#F0FDF4">✅</div>
+            <div class="metric-info">
+              <div class="metric-value">94%</div>
+              <div class="metric-label">Taxa checklists respondidos</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon" style="background:#FFF7ED">🔧</div>
+            <div class="metric-info">
+              <div class="metric-value">7</div>
+              <div class="metric-label">Manutenções realizadas</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon" style="background:#EEF2FF">📄</div>
+            <div class="metric-info">
+              <div class="metric-value">3</div>
+              <div class="metric-label">Documentos renovados</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon" style="background:#F0FDF4">💰</div>
+            <div class="metric-info">
+              <div class="metric-value">R$ 8.400</div>
+              <div class="metric-label">Economia estimada</div>
+            </div>
+          </div>
         </div>
+
         <div class="card mt">
-          <div class="card-header"><h3>📋 Relatório Mensal — Junho 2025</h3><button class="btn-sm">📥 Exportar PDF</button></div>
+          <div class="card-header">
+            <h3>📋 Relatório Mensal — Junho 2025</h3>
+            <button class="btn-sm">📥 Exportar PDF</button>
+          </div>
           <div class="relatorio-body">
-            <div class="relatorio-section"><h4>Checklists</h4><p>Total enviado: <strong>1.280</strong> | Respondidos: <strong>1.203 (94%)</strong> | Não respondidos: <strong>77 (6%)</strong></p></div>
-            <div class="relatorio-section"><h4>Manutenções</h4><p>Programadas: <strong>9</strong> | Realizadas: <strong>7</strong> | Pendentes: <strong>2</strong> | Quebras evitadas: <strong>1</strong></p></div>
-            <div class="relatorio-section"><h4>Documentos</h4><p>Vencidos: <strong>2</strong> | Renovados no prazo: <strong>3</strong> | Próximos do vencimento: <strong>4</strong></p></div>
-            <div class="relatorio-section"><h4>Alertas Enviados</h4><p>Total: <strong>143 alertas</strong> | Manutenção: 67 | Documentos: 41 | Checklist: 35</p></div>
-            <div class="relatorio-section highlight"><h4>💰 Economia Estimada</h4><p>1 quebra evitada: <strong>R$ 4.200</strong> | Multas evitadas: <strong>R$ 2.600</strong> | Horas economizadas: <strong>R$ 1.600</strong> | <strong>Total: R$ 8.400</strong></p></div>
+            <div class="relatorio-section">
+              <h4>Checklists</h4>
+              <p>Total enviado: <strong>1.280</strong> | Respondidos: <strong>1.203 (94%)</strong> | Não respondidos: <strong>77 (6%)</strong></p>
+            </div>
+            <div class="relatorio-section">
+              <h4>Manutenções</h4>
+              <p>Programadas: <strong>9</strong> | Realizadas: <strong>7</strong> | Pendentes: <strong>2</strong> | Quebras evitadas: <strong>1</strong></p>
+            </div>
+            <div class="relatorio-section">
+              <h4>Documentos</h4>
+              <p>Vencidos: <strong>2</strong> | Renovados no prazo: <strong>3</strong> | Próximos do vencimento: <strong>4</strong></p>
+            </div>
+            <div class="relatorio-section">
+              <h4>Alertas Enviados</h4>
+              <p>Total: <strong>143 alertas</strong> | Manutenção: 67 | Documentos: 41 | Checklist: 35</p>
+            </div>
+            <div class="relatorio-section highlight">
+              <h4>💰 Economia Estimada</h4>
+              <p>1 quebra evitada: <strong>R$ 4.200</strong> | Multas evitadas: <strong>R$ 2.600</strong> | Horas economizadas: <strong>R$ 1.600</strong> | <strong>Total: R$ 8.400</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CONFIGURAÇÕES ===== -->
+      <div class="page" id="page-configuracoes">
+        <div class="card" style="max-width:540px;">
+          <div class="card-header">
+            <h3>⚙️ Configurações do Bot</h3>
+          </div>
+          <div class="modal-body" style="padding:24px;">
+            <label>📱 WhatsApp do Gestor (recebe alertas)</label>
+            <input type="text" id="cfg-gestor" placeholder="5542999991111" style="margin-bottom:16px;" />
+            <label>⏰ Horário do Checklist Diário</label>
+            <input type="time" id="cfg-horario" value="07:00" style="margin-bottom:16px;" />
+            <label>📝 Perguntas do Checklist (uma por linha)</label>
+            <textarea id="cfg-perguntas" rows="5" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb;font-size:0.9rem;margin-bottom:16px;">Pneus OK?
+Freios OK?
+Luzes OK?
+Combustível OK?</textarea>
+            <button class="btn-primary" id="btnSalvarConfig" style="width:100%;">💾 Salvar Configurações</button>
+            <div id="cfg-status" style="margin-top:12px;text-align:center;color:#22c55e;font-weight:600;display:none;">✅ Configurações salvas!</div>
           </div>
         </div>
       </div>
@@ -267,80 +799,166 @@
   <!-- MODALS -->
   <div class="modal-overlay" id="modalEmpresa" onclick="closeModal(event, 'modalEmpresa')">
     <div class="modal">
-      <div class="modal-header"><h3>🏢 Nova Empresa</h3><button onclick="closeModalById('modalEmpresa')">✕</button></div>
-      <div class="modal-body">
-        <label>Nome da Empresa</label><input type="text" id="emp-nome" placeholder="Ex: Transportadora Silva" />
-        <label>CNPJ</label><input type="text" id="emp-cnpj" placeholder="00.000.000/0001-00" />
-        <label>WhatsApp do Gestor</label><input type="text" id="emp-whats" placeholder="(00) 99999-0000" />
-        <label>Plano</label>
-        <select id="emp-plano" class="select-input"><option>Starter — R$ 197/mês</option><option>Profissional — R$ 397/mês</option><option>Empresarial</option></select>
-        <label>Horário do Checklist</label><input type="time" id="emp-horario" value="07:00" />
+      <div class="modal-header">
+        <h3>🏢 Nova Empresa</h3>
+        <button onclick="closeModalById('modalEmpresa')">✕</button>
       </div>
-      <div class="modal-footer"><button class="btn-outline-modal" onclick="closeModalById('modalEmpresa')">Cancelar</button><button class="btn-primary" id="btnCadEmpresa">Cadastrar Empresa</button></div>
+      <div class="modal-body">
+        <label>Nome da Empresa</label>
+        <input type="text" id="emp-nome" placeholder="Ex: Transportadora Silva" />
+        <label>CNPJ</label>
+        <input type="text" id="emp-cnpj" placeholder="00.000.000/0001-00" />
+        <label>WhatsApp do Gestor</label>
+        <input type="text" id="emp-whats" placeholder="(00) 99999-0000" />
+        <label>Plano</label>
+        <select id="emp-plano" class="select-input">
+          <option>Starter — R$ 197/mês</option>
+          <option>Profissional — R$ 397/mês</option>
+          <option>Empresarial</option>
+        </select>
+        <label>Horário do Checklist</label>
+        <input type="time" id="emp-horario" value="07:00" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline-modal" onclick="closeModalById('modalEmpresa')">Cancelar</button>
+        <button class="btn-primary" id="btnCadEmpresa">Cadastrar Empresa</button>
+      </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="modalVeiculo" onclick="closeModal(event, 'modalVeiculo')">
     <div class="modal">
-      <div class="modal-header"><h3>🚚 Novo Veículo</h3><button onclick="closeModalById('modalVeiculo')">✕</button></div>
-      <div class="modal-body">
-        <label>Placa</label><input type="text" id="vei-placa" placeholder="ABC-1234" />
-        <label>Modelo</label><input type="text" id="vei-modelo" placeholder="Ex: Volvo FH 460" />
-        <label>Empresa</label>
-        <select id="vei-empresa" class="select-input"><option>Transportadora Silva</option><option>Frota Rápida</option><option>Transportes União</option><option>LogFast</option></select>
-        <label>Próxima Revisão</label><input type="date" id="vei-revisao" />
-        <label>Vencimento Tacógrafo</label><input type="date" id="vei-tacografo" />
-        <label>Troca de Óleo</label><input type="date" id="vei-oleo" />
+      <div class="modal-header">
+        <h3>🚚 Novo Veículo</h3>
+        <button onclick="closeModalById('modalVeiculo')">✕</button>
       </div>
-      <div class="modal-footer"><button class="btn-outline-modal" onclick="closeModalById('modalVeiculo')">Cancelar</button><button class="btn-primary" id="btnCadVeiculo">Cadastrar Veículo</button></div>
+      <div class="modal-body">
+        <label>Placa</label>
+        <input type="text" id="vei-placa" placeholder="ABC-1234" />
+        <label>Modelo</label>
+        <input type="text" id="vei-modelo" placeholder="Ex: Volvo FH 460" />
+        <label>Empresa</label>
+        <select id="vei-empresa" class="select-input">
+          <option>Transportadora Silva</option>
+          <option>Frota Rápida</option>
+          <option>Transportes União</option>
+          <option>LogFast</option>
+        </select>
+        <label>Próxima Revisão</label>
+        <input type="date" id="vei-revisao" />
+        <label>Vencimento Tacógrafo</label>
+        <input type="date" id="vei-tacografo" />
+        <label>Troca de Óleo</label>
+        <input type="date" id="vei-oleo" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline-modal" onclick="closeModalById('modalVeiculo')">Cancelar</button>
+        <button class="btn-primary" id="btnCadVeiculo">Cadastrar Veículo</button>
+      </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="modalMotorista" onclick="closeModal(event, 'modalMotorista')">
     <div class="modal">
-      <div class="modal-header"><h3>👨‍✈️ Novo Motorista</h3><button onclick="closeModalById('modalMotorista')">✕</button></div>
-      <div class="modal-body">
-        <label>Nome Completo</label><input type="text" id="mot-nome" placeholder="Ex: João Silva" />
-        <label>WhatsApp</label><input type="text" id="mot-whats" placeholder="(00) 99999-0000" />
-        <label>Empresa</label>
-        <select id="mot-empresa" class="select-input"><option>Transportadora Silva</option><option>Frota Rápida</option></select>
-        <label>Veículo</label>
-        <select id="mot-veiculo" class="select-input"><option>ABC-1234 — Volvo FH 460</option><option>XYZ-5678 — Scania R450</option></select>
-        <label>Vencimento CNH</label><input type="date" id="mot-cnh" />
-        <label>Vencimento Toxicológico</label><input type="date" id="mot-toxi" />
+      <div class="modal-header">
+        <h3>👨‍✈️ Novo Motorista</h3>
+        <button onclick="closeModalById('modalMotorista')">✕</button>
       </div>
-      <div class="modal-footer"><button class="btn-outline-modal" onclick="closeModalById('modalMotorista')">Cancelar</button><button class="btn-primary" id="btnCadMotorista">Cadastrar Motorista</button></div>
+      <div class="modal-body">
+        <label>Nome Completo</label>
+        <input type="text" id="mot-nome" placeholder="Ex: João Silva" />
+        <label>WhatsApp</label>
+        <input type="text" id="mot-whats" placeholder="(00) 99999-0000" />
+        <label>Empresa</label>
+        <select id="mot-empresa" class="select-input">
+          <option>Transportadora Silva</option>
+          <option>Frota Rápida</option>
+        </select>
+        <label>Veículo</label>
+        <select id="mot-veiculo" class="select-input">
+          <option>ABC-1234 — Volvo FH 460</option>
+          <option>XYZ-5678 — Scania R450</option>
+        </select>
+        <label>Vencimento CNH</label>
+        <input type="date" id="mot-cnh" />
+        <label>Vencimento Toxicológico</label>
+        <input type="date" id="mot-toxi" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline-modal" onclick="closeModalById('modalMotorista')">Cancelar</button>
+        <button class="btn-primary" id="btnCadMotorista">Cadastrar Motorista</button>
+      </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="modalManutencao" onclick="closeModal(event, 'modalManutencao')">
     <div class="modal">
-      <div class="modal-header"><h3>🔧 Nova Manutenção</h3><button onclick="closeModalById('modalManutencao')">✕</button></div>
+      <div class="modal-header">
+        <h3>🔧 Nova Manutenção</h3>
+        <button onclick="closeModalById('modalManutencao')">✕</button>
+      </div>
       <div class="modal-body">
         <label>Veículo</label>
-        <select id="man-veiculo" class="select-input"><option>ABC-1234 — Volvo FH 460</option><option>XYZ-5678 — Scania R450</option></select>
+        <select id="man-veiculo" class="select-input">
+          <option>ABC-1234 — Volvo FH 460</option>
+          <option>XYZ-5678 — Scania R450</option>
+        </select>
         <label>Tipo de Manutenção</label>
-        <select id="man-tipo" class="select-input"><option>Troca de óleo</option><option>Revisão geral</option><option>Alinhamento</option><option>Balanceamento</option><option>Freios</option><option>Tacógrafo</option><option>Outro</option></select>
-        <label>Data de Vencimento</label><input type="date" id="man-data" />
+        <select id="man-tipo" class="select-input">
+          <option>Troca de óleo</option>
+          <option>Revisão geral</option>
+          <option>Alinhamento</option>
+          <option>Balanceamento</option>
+          <option>Freios</option>
+          <option>Tacógrafo</option>
+          <option>Outro</option>
+        </select>
+        <label>Data de Vencimento</label>
+        <input type="date" id="man-data" />
         <label>Alertar com antecedência de</label>
-        <select id="man-antec" class="select-input"><option>7 dias</option><option>15 dias</option><option>30 dias</option></select>
+        <select id="man-antec" class="select-input">
+          <option>7 dias</option>
+          <option>15 dias</option>
+          <option>30 dias</option>
+        </select>
       </div>
-      <div class="modal-footer"><button class="btn-outline-modal" onclick="closeModalById('modalManutencao')">Cancelar</button><button class="btn-primary" id="btnCadManutencao">Cadastrar</button></div>
+      <div class="modal-footer">
+        <button class="btn-outline-modal" onclick="closeModalById('modalManutencao')">Cancelar</button>
+        <button class="btn-primary" id="btnCadManutencao">Cadastrar</button>
+      </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="modalDocumento" onclick="closeModal(event, 'modalDocumento')">
     <div class="modal">
-      <div class="modal-header"><h3>📄 Novo Documento</h3><button onclick="closeModalById('modalDocumento')">✕</button></div>
+      <div class="modal-header">
+        <h3>📄 Novo Documento</h3>
+        <button onclick="closeModalById('modalDocumento')">✕</button>
+      </div>
       <div class="modal-body">
         <label>Tipo de Documento</label>
-        <select id="doc-tipo" class="select-input"><option>CNH</option><option>Tacógrafo</option><option>Licenciamento</option><option>RNTRC</option><option>Toxicológico</option><option>Seguro obrigatório</option></select>
-        <label>Referente a (veículo ou motorista)</label><input type="text" id="doc-ref" placeholder="Ex: ABC-1234 ou João Silva" />
+        <select id="doc-tipo" class="select-input">
+          <option>CNH</option>
+          <option>Tacógrafo</option>
+          <option>Licenciamento</option>
+          <option>RNTRC</option>
+          <option>Toxicológico</option>
+          <option>Seguro obrigatório</option>
+        </select>
+        <label>Referente a (veículo ou motorista)</label>
+        <input type="text" id="doc-ref" placeholder="Ex: ABC-1234 ou João Silva" />
         <label>Empresa</label>
-        <select id="doc-empresa" class="select-input"><option>Transportadora Silva</option><option>Frota Rápida</option></select>
-        <label>Data de Vencimento</label><input type="date" id="doc-venc" />
+        <select id="doc-empresa" class="select-input">
+          <option>Transportadora Silva</option>
+          <option>Frota Rápida</option>
+        </select>
+        <label>Data de Vencimento</label>
+        <input type="date" id="doc-venc" />
       </div>
-      <div class="modal-footer"><button class="btn-outline-modal" onclick="closeModalById('modalDocumento')">Cancelar</button><button class="btn-primary" id="btnCadDocumento">Cadastrar</button></div>
+      <div class="modal-footer">
+        <button class="btn-outline-modal" onclick="closeModalById('modalDocumento')">Cancelar</button>
+        <button class="btn-primary" id="btnCadDocumento">Cadastrar</button>
+      </div>
     </div>
   </div>
 

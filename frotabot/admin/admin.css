@@ -394,7 +394,7 @@ body {
 }
 .relatorio-body { display: flex; flex-direction: column; gap: 16px; }
 .relatorio-section { padding: 16px; background: var(--light); border-radius: 8px; }
-.relatorio-section.highlight { background: #EFF6FF; border-left: 3px solid var(--primary); }
+.relatorio-section.highlight { background: #FFF7ED; border-left: 3px solid var(--primary); }
 .relatorio-section h4 { font-size: 0.88rem; font-weight: 700; color: var(--gray); margin-bottom: 6px; text-transform: uppercase; }
 .relatorio-section p { font-size: 0.9rem; }
 
@@ -537,6 +537,16 @@ body {
 }
 .btn-logout:hover { background: rgba(255,255,255,0.15); color: var(--white); }
 
+/* ===== SIDEBAR BACKDROP (mobile) ===== */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 199;
+}
+.sidebar-backdrop.open { display: block; }
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
   .dash-grid { grid-template-columns: 1fr; }
@@ -551,4 +561,6 @@ body {
   .kanban { grid-template-columns: 1fr 1fr; }
   .metrics-grid { grid-template-columns: 1fr 1fr; }
   .data-table { font-size: 0.8rem; }
+  .modal { margin: 12px; }
+  .modal-overlay { z-index: 1100; }
 }
