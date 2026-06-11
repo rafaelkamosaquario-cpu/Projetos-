@@ -90,8 +90,8 @@ def webhook():
             log.resposta = mensagem
             log.horario_resposta = datetime.now()
             db.session.commit()
-            enviar_mensagem(numero, f"✅ Checklist registrado! Bom trabalho, {motorista.nome}.")
-        return jsonify({"status": "ok"})
+        enviar_mensagem(numero, f"✅ Checklist registrado! Bom trabalho, {motorista.nome}.")
+        return jsonify({"status": "ok", "enviado": True})
 
     # Resposta de agendamento de manutenção
     if "agendar" in mensagem or "sim, pode agendar" in mensagem:
