@@ -123,7 +123,7 @@ document.getElementById('btnAdd').addEventListener('click', () => {
 });
 
 // ─── MODALS ───
-function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function openModal(id)  { fecharSidebar(); document.getElementById(id).classList.add('open'); }
 function closeModal(event, id) {
   if (event.target === document.getElementById(id)) document.getElementById(id).classList.remove('open');
 }
