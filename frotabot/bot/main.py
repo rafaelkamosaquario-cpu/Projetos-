@@ -31,7 +31,10 @@ if database_url.startswith("postgresql"):
 db.init_app(app)
 
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+    except Exception as e:
+        print(f"[WARN] db.create_all() falhou: {e}")
 
 scheduler = BackgroundScheduler()
 
@@ -43,6 +46,21 @@ scheduler = BackgroundScheduler()
 @app.route("/ping", methods=["GET"])
 def ping():
     return jsonify({"status": "ok", "bot": "FrotaBot rodando!"})
+
+
+@app.route("/debug-db", methods=["GET"])
+def debug_db():
+    """Diagnóstico da conexão com banco de dados."""
+    import sqlalchemy
+    url_raw = os.getenv("DATABASE_URL", "sqlite:///frotabot.db")
+    url_usado = database_url  # após strip do sslmode
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(sqlalchemy.text("SELECT 1"))
+        db.create_all()
+        return jsonify({"status": "ok", "db": "conectado e tabelas criadas", "url_tipo": url_usado.split(":")[0]})
+    except Exception as e:
+        return jsonify({"status": "erro", "erro": str(e), "url_tipo": url_usado.split(":")[0], "url_raw_inicio": url_raw[:40]})
 
 
 @app.route("/setup-teste", methods=["GET"])
