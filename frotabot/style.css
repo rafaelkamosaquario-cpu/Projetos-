@@ -2,8 +2,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --primary: #F97316;
-  --primary-dark: #EA580C;
+  --primary: #2563EB;
+  --primary-dark: #1D4ED8;
   --dark: #0F172A;
   --dark2: #1E293B;
   --gray: #64748B;
@@ -75,7 +75,7 @@ body {
 /* ===== BADGE ===== */
 .badge {
   display: inline-block;
-  background: rgba(249,115,22,0.15);
+  background: rgba(37,99,235,0.1);
   color: var(--primary);
   padding: 6px 16px;
   border-radius: 999px;
@@ -169,8 +169,8 @@ body {
   text-align: center;
   font-size: 1.15rem;
   color: var(--dark);
-  background: #FFF7ED;
-  border: 1px solid #FDBA74;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
   border-radius: var(--radius);
   padding: 20px;
   max-width: 600px;
@@ -394,7 +394,7 @@ body {
 /* ===== CTA FINAL ===== */
 .cta-final {
   padding: 100px 0;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(135deg, #1E40AF 0%, var(--primary-dark) 100%);
   text-align: center;
   color: var(--white);
 }
