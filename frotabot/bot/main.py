@@ -46,6 +46,25 @@ def setup_teste():
     return jsonify({"status": "ok", "msg": "Motorista de teste criado!", "numero": "5542998582489"})
 
 
+@app.route("/cadastrar-do-webhook", methods=["GET"])
+def cadastrar_do_webhook():
+    """Cadastra motorista usando o número exato que chegou no último webhook."""
+    numero = _ultimo_webhook.get("phone", "")
+    if not numero:
+        return jsonify({"erro": "Nenhum webhook recebido ainda. Envie uma mensagem primeiro."})
+    Motorista.query.delete()
+    db.session.commit()
+    m = Motorista(
+        nome="Rafael (Teste)",
+        whatsapp=numero,
+        veiculo_placa="ABC-1234",
+        ativo=True
+    )
+    db.session.add(m)
+    db.session.commit()
+    return jsonify({"status": "ok", "msg": "Motorista cadastrado com o número do webhook!", "numero_cadastrado": numero})
+
+
 # ─────────────────────────────────────────
 # WEBHOOK – recebe mensagens do WhatsApp
 # ─────────────────────────────────────────
