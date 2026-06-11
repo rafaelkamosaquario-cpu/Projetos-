@@ -83,7 +83,7 @@ navItems.forEach(item => {
     pages.forEach(p => p.classList.remove('active'));
     document.getElementById('page-' + page).classList.add('active');
     pageTitle.textContent = titles[page];
-    if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+    if (window.innerWidth <= 768) fecharSidebar();
     if (page === 'dashboard')  await carregarDashboard();
     if (page === 'veiculos')   await carregarVeiculos();
     if (page === 'motoristas') await carregarMotoristas();
@@ -95,13 +95,26 @@ navItems.forEach(item => {
   });
 });
 
+function abrirSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarBackdrop').classList.add('open');
+}
+function fecharSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarBackdrop').classList.remove('open');
+}
+
 document.getElementById('menuToggle').addEventListener('click', () => {
-  document.getElementById('sidebar').classList.toggle('open');
+  const aberta = document.getElementById('sidebar').classList.contains('open');
+  aberta ? fecharSidebar() : abrirSidebar();
 });
+document.getElementById('sidebarBackdrop').addEventListener('click', fecharSidebar);
 
 // ─── BOTÃO + NOVO ───
 document.getElementById('btnAdd').addEventListener('click', () => {
-  const activePage = document.querySelector('.nav-item.active').dataset.page;
+  const activeItem = document.querySelector('.nav-item.active');
+  if (!activeItem) return;
+  const activePage = activeItem.dataset.page;
   const modalMap = {
     empresas: 'modalEmpresa', veiculos: 'modalVeiculo', motoristas: 'modalMotorista',
     manutencao: 'modalManutencao', documentos: 'modalDocumento'
