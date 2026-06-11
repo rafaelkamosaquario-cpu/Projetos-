@@ -7,11 +7,13 @@ import os
 import json
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
 from database import db, Veiculo, Motorista, Manutencao, Documento, ChecklistLog
 from whatsapp import enviar_mensagem, enviar_alerta_gestor
 
 app = Flask(__name__)
+CORS(app)
 
 database_url = os.getenv("DATABASE_URL", "sqlite:///frotabot.db")
 # Remove sslmode from URL — será configurado via engine options
@@ -295,48 +297,109 @@ def _notificar_equipe_manutencao(manutencao):
 def veiculos():
     if request.method == "POST":
         data = request.json
-        v = Veiculo(placa=data["placa"], modelo=data["modelo"], ano=data["ano"])
+        v = Veiculo(placa=data["placa"].upper(), modelo=data.get("modelo", ""), ano=data.get("ano"))
         db.session.add(v)
         db.session.commit()
-        return jsonify({"id": v.id, "placa": v.placa}), 201
-    return jsonify([{"id": v.id, "placa": v.placa, "modelo": v.modelo} for v in Veiculo.query.all()])
+        return jsonify({"id": v.id, "placa": v.placa, "modelo": v.modelo}), 201
+    return jsonify([
+        {"id": v.id, "placa": v.placa, "modelo": v.modelo, "ano": v.ano, "ativo": v.ativo}
+        for v in Veiculo.query.filter_by(ativo=True).order_by(Veiculo.placa).all()
+    ])
 
 
 @app.route("/api/motoristas", methods=["GET", "POST"])
 def motoristas():
     if request.method == "POST":
         data = request.json
-        m = Motorista(nome=data["nome"], whatsapp=data["whatsapp"], veiculo_placa=data.get("veiculo_placa"))
+        whats = data["whatsapp"].replace("(","").replace(")","").replace("-","").replace(" ","")
+        if not whats.startswith("55"):
+            whats = "55" + whats
+        m = Motorista(nome=data["nome"], whatsapp=whats, veiculo_placa=data.get("veiculo_placa"), ativo=True)
         db.session.add(m)
         db.session.commit()
-        return jsonify({"id": m.id, "nome": m.nome}), 201
-    return jsonify([{"id": m.id, "nome": m.nome, "whatsapp": m.whatsapp} for m in Motorista.query.all()])
+        return jsonify({"id": m.id, "nome": m.nome, "whatsapp": m.whatsapp}), 201
+    result = []
+    for m in Motorista.query.filter_by(ativo=True).order_by(Motorista.nome).all():
+        hoje = datetime.today().date()
+        log = ChecklistLog.query.filter_by(motorista_id=m.id, data=hoje).first()
+        checklist_status = "respondido" if (log and log.respondido) else ("pendente" if log else "nao_enviado")
+        result.append({
+            "id": m.id, "nome": m.nome, "whatsapp": m.whatsapp,
+            "veiculo_placa": m.veiculo_placa, "checklist_hoje": checklist_status
+        })
+    return jsonify(result)
 
 
-@app.route("/api/manutencoes", methods=["POST"])
-def cadastrar_manutencao():
-    data = request.json
-    m = Manutencao(
-        veiculo_id=data["veiculo_id"],
-        tipo=data["tipo"],
-        vencimento=datetime.strptime(data["vencimento"], "%Y-%m-%d").date()
-    )
-    db.session.add(m)
+@app.route("/api/motoristas/<int:mid>", methods=["DELETE"])
+def deletar_motorista(mid):
+    m = Motorista.query.get_or_404(mid)
+    m.ativo = False
     db.session.commit()
-    return jsonify({"id": m.id, "tipo": m.tipo}), 201
+    return jsonify({"status": "ok"})
 
 
-@app.route("/api/documentos", methods=["POST"])
-def cadastrar_documento():
-    data = request.json
-    d = Documento(
-        tipo=data["tipo"],
-        referencia=data["referencia"],
-        vencimento=datetime.strptime(data["vencimento"], "%Y-%m-%d").date()
-    )
-    db.session.add(d)
+@app.route("/api/veiculos/<int:vid>", methods=["DELETE"])
+def deletar_veiculo(vid):
+    v = Veiculo.query.get_or_404(vid)
+    v.ativo = False
     db.session.commit()
-    return jsonify({"id": d.id, "tipo": d.tipo}), 201
+    return jsonify({"status": "ok"})
+
+
+@app.route("/api/manutencoes", methods=["GET", "POST"])
+def manutencoes():
+    if request.method == "POST":
+        data = request.json
+        veiculo_id = data.get("veiculo_id")
+        if not veiculo_id and data.get("veiculo_placa"):
+            v = Veiculo.query.filter_by(placa=data["veiculo_placa"].upper()).first()
+            if v:
+                veiculo_id = v.id
+        if not veiculo_id:
+            return jsonify({"erro": "Veículo não encontrado"}), 400
+        m = Manutencao(
+            veiculo_id=veiculo_id,
+            tipo=data["tipo"],
+            vencimento=datetime.strptime(data["vencimento"], "%Y-%m-%d").date()
+        )
+        db.session.add(m)
+        db.session.commit()
+        return jsonify({"id": m.id, "tipo": m.tipo}), 201
+    hoje = datetime.today().date()
+    result = []
+    for m in Manutencao.query.filter_by(concluida=False).order_by(Manutencao.vencimento).all():
+        v = Veiculo.query.get(m.veiculo_id)
+        dias = (m.vencimento - hoje).days
+        result.append({
+            "id": m.id, "tipo": m.tipo,
+            "vencimento": str(m.vencimento), "dias_restantes": dias,
+            "veiculo_placa": v.placa if v else "—",
+            "agendada": m.agendada
+        })
+    return jsonify(result)
+
+
+@app.route("/api/documentos", methods=["GET", "POST"])
+def documentos():
+    if request.method == "POST":
+        data = request.json
+        d = Documento(
+            tipo=data["tipo"],
+            referencia=data["referencia"],
+            vencimento=datetime.strptime(data["vencimento"], "%Y-%m-%d").date()
+        )
+        db.session.add(d)
+        db.session.commit()
+        return jsonify({"id": d.id, "tipo": d.tipo}), 201
+    hoje = datetime.today().date()
+    result = []
+    for d in Documento.query.filter_by(renovado=False).order_by(Documento.vencimento).all():
+        dias = (d.vencimento - hoje).days
+        result.append({
+            "id": d.id, "tipo": d.tipo, "referencia": d.referencia,
+            "vencimento": str(d.vencimento), "dias_restantes": dias
+        })
+    return jsonify(result)
 
 
 @app.route("/api/relatorio", methods=["GET"])
@@ -353,9 +416,13 @@ def relatorio():
         Documento.renovado == False,
         Documento.vencimento <= hoje + timedelta(days=30)
     ).count()
+    total_motoristas = Motorista.query.filter_by(ativo=True).count()
+    total_veiculos = Veiculo.query.filter_by(ativo=True).count()
     return jsonify({
         "data": str(hoje),
-        "checklists": {"respondidos": respondidos, "pendentes": pendentes},
+        "total_motoristas": total_motoristas,
+        "total_veiculos": total_veiculos,
+        "checklists": {"respondidos": respondidos, "pendentes": pendentes, "total": len(checklists_hoje)},
         "manutencoes_proximas_7dias": manutencoes_proximas,
         "documentos_proximos_30dias": docs_proximos
     })
