@@ -16,7 +16,19 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///fro
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
+with app.app_context():
+    db.create_all()
+
 scheduler = BackgroundScheduler()
+
+
+# ─────────────────────────────────────────
+# PING – healthcheck
+# ─────────────────────────────────────────
+
+@app.route("/ping", methods=["GET"])
+def ping():
+    return jsonify({"status": "ok", "bot": "FrotaBot rodando!"})
 
 
 # ─────────────────────────────────────────
@@ -25,9 +37,18 @@ scheduler = BackgroundScheduler()
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    data = request.json
-    numero = data.get("from")
-    mensagem = data.get("body", "").strip().lower()
+    data = request.json or {}
+
+    # Z-API usa "phone" e "text.message"
+    if data.get("fromMe"):
+        return jsonify({"status": "ignorado"})
+
+    numero = data.get("phone") or data.get("from", "")
+    text_obj = data.get("text") or {}
+    if isinstance(text_obj, dict):
+        mensagem = text_obj.get("message", "").strip().lower()
+    else:
+        mensagem = data.get("body", "").strip().lower()
 
     motorista = Motorista.query.filter_by(whatsapp=numero).first()
     if not motorista:
