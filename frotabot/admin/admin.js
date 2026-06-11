@@ -70,7 +70,8 @@ const pageTitle = document.getElementById('pageTitle');
 const titles = {
   dashboard: 'Dashboard', empresas: 'Empresas', veiculos: 'Veículos',
   motoristas: 'Motoristas', manutencao: 'Manutenção', documentos: 'Documentos',
-  checklists: 'Checklists', alertas: 'Alertas', relatorios: 'Relatórios'
+  checklists: 'Checklists', alertas: 'Alertas', relatorios: 'Relatórios',
+  configuracoes: 'Configurações'
 };
 
 navItems.forEach(item => {
@@ -89,7 +90,8 @@ navItems.forEach(item => {
     if (page === 'manutencao') await carregarManutencoes();
     if (page === 'documentos') await carregarDocumentos();
     if (page === 'checklists') await carregarChecklists();
-    if (page === 'relatorios') await carregarRelatorio();
+    if (page === 'relatorios')    await carregarRelatorio();
+    if (page === 'configuracoes') await carregarConfiguracoes();
   });
 });
 
@@ -453,4 +455,35 @@ document.getElementById('btnCadDocumento').addEventListener('click', async () =>
   closeModalById('modalDocumento');
   showToast('✅ Documento cadastrado com sucesso!');
   await carregarDocumentos();
+});
+
+// ─── CONFIGURAÇÕES ───
+async function carregarConfiguracoes() {
+  const cfg = await apiFetch('/api/config');
+  if (!cfg) return;
+  if (cfg.whatsapp_gestor) document.getElementById('cfg-gestor').value = cfg.whatsapp_gestor;
+  if (cfg.horario_checklist) document.getElementById('cfg-horario').value = cfg.horario_checklist;
+  if (cfg.perguntas_checklist) document.getElementById('cfg-perguntas').value = cfg.perguntas_checklist;
+}
+
+document.getElementById('btnSalvarConfig').addEventListener('click', async () => {
+  const gestor   = document.getElementById('cfg-gestor').value.trim();
+  const horario  = document.getElementById('cfg-horario').value;
+  const perguntas = document.getElementById('cfg-perguntas').value.trim();
+  const btn = document.getElementById('btnSalvarConfig');
+  btn.disabled = true; btn.textContent = 'Salvando…';
+  const res = await apiFetch('/api/config', {
+    method: 'POST',
+    body: JSON.stringify({
+      whatsapp_gestor: gestor,
+      horario_checklist: horario,
+      perguntas_checklist: perguntas
+    })
+  });
+  btn.disabled = false; btn.textContent = '💾 Salvar Configurações';
+  if (!res || res.status !== 'ok') { showToast('Erro ao salvar.', 'error'); return; }
+  const status = document.getElementById('cfg-status');
+  status.style.display = 'block';
+  setTimeout(() => status.style.display = 'none', 3000);
+  showToast('✅ Configurações salvas! Bot atualizado.');
 });

@@ -9,8 +9,8 @@ from datetime import datetime, timedelta
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
-from database import db, Veiculo, Motorista, Manutencao, Documento, ChecklistLog
-from whatsapp import enviar_mensagem, enviar_alerta_gestor
+from database import db, Veiculo, Motorista, Manutencao, Documento, ChecklistLog, Config
+from whatsapp import enviar_mensagem
 
 app = Flask(__name__)
 CORS(app)
@@ -39,6 +39,28 @@ with app.app_context():
         print(f"[WARN] db.create_all() falhou: {e}")
 
 scheduler = BackgroundScheduler()
+
+
+# ─────────────────────────────────────────
+# CONFIG HELPERS
+# ─────────────────────────────────────────
+
+def get_config(chave, default=None):
+    c = Config.query.filter_by(chave=chave).first()
+    return c.valor if c else default
+
+def set_config(chave, valor):
+    c = Config.query.filter_by(chave=chave).first()
+    if c:
+        c.valor = valor
+    else:
+        db.session.add(Config(chave=chave, valor=valor))
+    db.session.commit()
+
+def alerta_gestor(mensagem):
+    numero = get_config("whatsapp_gestor") or os.getenv("WHATSAPP_GESTOR", "")
+    if numero:
+        enviar_mensagem(numero, mensagem)
 
 
 # ─────────────────────────────────────────
@@ -193,15 +215,17 @@ def webhook():
 # ─────────────────────────────────────────
 
 def job_checklist_diario():
-    """Envia checklist para todos os motoristas ativos às 07:00."""
+    """Envia checklist para todos os motoristas ativos no horário configurado."""
     with app.app_context():
+        perguntas_raw = get_config("perguntas_checklist", "Pneus OK?\nFreios OK?\nLuzes OK?\nCombustível OK?")
+        perguntas = "\n".join(f"• {p.strip()}" for p in perguntas_raw.splitlines() if p.strip())
         motoristas = Motorista.query.filter_by(ativo=True).all()
         for m in motoristas:
             enviar_mensagem(
                 m.whatsapp,
                 f"🚛 *FrotaBot* – Bom dia, {m.nome}!\n\n"
-                f"Checklist do veículo *{m.veiculo_placa}*:\n"
-                f"• Pneus OK?\n• Freios OK?\n• Luzes OK?\n• Combustível OK?\n\n"
+                f"Checklist do veículo *{m.veiculo_placa or 'seu veículo'}*:\n"
+                f"{perguntas}\n\n"
                 f"Responda *OK* para confirmar."
             )
             log = ChecklistLog(
@@ -226,7 +250,7 @@ def job_cobrar_checklist():
             m = Motorista.query.get(log.motorista_id)
             enviar_mensagem(m.whatsapp, f"⚠️ {m.nome}, ainda não recebi seu checklist. Responda *OK* para confirmar.")
             if log.tentativas >= 1:
-                enviar_alerta_gestor(
+                alerta_gestor(
                     f"🚨 *Alerta:* {m.nome} não respondeu o checklist de hoje. "
                     f"Veículo: {m.veiculo_placa}"
                 )
@@ -246,7 +270,7 @@ def job_alertas_manutencao():
             dias = (m.vencimento - hoje).days
             if dias in [7, 3, 1]:
                 veiculo = Veiculo.query.get(m.veiculo_id)
-                enviar_alerta_gestor(
+                alerta_gestor(
                     f"🔧 *Manutenção próxima:*\n"
                     f"Veículo: {veiculo.placa}\n"
                     f"Tipo: {m.tipo}\n"
@@ -263,7 +287,7 @@ def job_alertas_documentos():
         for d in docs:
             dias = (d.vencimento - hoje).days
             if dias in [30, 15, 7, 1]:
-                enviar_alerta_gestor(
+                alerta_gestor(
                     f"📄 *Documento vencendo:*\n"
                     f"Tipo: {d.tipo}\n"
                     f"Referente a: {d.referencia}\n"
@@ -429,6 +453,33 @@ def relatorio():
 
 
 # ─────────────────────────────────────────
+# API CONFIG
+# ─────────────────────────────────────────
+
+@app.route("/api/config", methods=["GET"])
+def get_configuracoes():
+    configs = Config.query.all()
+    return jsonify({c.chave: c.valor for c in configs})
+
+
+@app.route("/api/config", methods=["POST"])
+def salvar_configuracoes():
+    data = request.json or {}
+    for chave, valor in data.items():
+        set_config(chave, str(valor))
+    # Reagendar checklist se horário mudou
+    if "horario_checklist" in data:
+        try:
+            hora, minuto = data["horario_checklist"].split(":")
+            scheduler.reschedule_job("checklist_diario", trigger="cron", hour=int(hora), minute=int(minuto))
+            scheduler.reschedule_job("cobrar_checklist_1", trigger="cron", hour=int(hora), minute=int(minuto) + 20)
+            scheduler.reschedule_job("cobrar_checklist_2", trigger="cron", hour=int(hora), minute=int(minuto) + 40)
+        except Exception as e:
+            print(f"[WARN] Erro ao reagendar: {e}")
+    return jsonify({"status": "ok", "salvo": list(data.keys())})
+
+
+# ─────────────────────────────────────────
 # INICIALIZAÇÃO
 # ─────────────────────────────────────────
 
@@ -436,11 +487,11 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
 
-    scheduler.add_job(job_checklist_diario, "cron", hour=7, minute=0)
-    scheduler.add_job(job_cobrar_checklist, "cron", hour=7, minute=20)
-    scheduler.add_job(job_cobrar_checklist, "cron", hour=7, minute=40)
-    scheduler.add_job(job_alertas_manutencao, "cron", hour=8, minute=0)
-    scheduler.add_job(job_alertas_documentos, "cron", hour=8, minute=30)
+    scheduler.add_job(job_checklist_diario, "cron", hour=7, minute=0, id="checklist_diario")
+    scheduler.add_job(job_cobrar_checklist, "cron", hour=7, minute=20, id="cobrar_checklist_1")
+    scheduler.add_job(job_cobrar_checklist, "cron", hour=7, minute=40, id="cobrar_checklist_2")
+    scheduler.add_job(job_alertas_manutencao, "cron", hour=8, minute=0, id="alertas_manutencao")
+    scheduler.add_job(job_alertas_documentos, "cron", hour=8, minute=30, id="alertas_documentos")
     scheduler.start()
 
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))

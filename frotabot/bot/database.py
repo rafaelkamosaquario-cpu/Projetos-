@@ -46,6 +46,13 @@ class Documento(db.Model):
     criado_em = db.Column(db.DateTime, default=datetime.now)
 
 
+class Config(db.Model):
+    __tablename__ = "configuracoes"
+    id    = db.Column(db.Integer, primary_key=True)
+    chave = db.Column(db.String(50), unique=True, nullable=False)
+    valor = db.Column(db.String(200))
+
+
 class ChecklistLog(db.Model):
     __tablename__ = "checklist_logs"
     id = db.Column(db.Integer, primary_key=True)

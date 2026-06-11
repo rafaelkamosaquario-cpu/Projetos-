@@ -70,6 +70,9 @@
       <a href="#" class="nav-item" data-page="relatorios">
         <span class="nav-icon">📈</span><span>Relatórios</span>
       </a>
+      <a href="#" class="nav-item" data-page="configuracoes">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
     </nav>
     <div class="sidebar-footer">
       <div class="user-info">
@@ -761,6 +764,28 @@
               <h4>💰 Economia Estimada</h4>
               <p>1 quebra evitada: <strong>R$ 4.200</strong> | Multas evitadas: <strong>R$ 2.600</strong> | Horas economizadas: <strong>R$ 1.600</strong> | <strong>Total: R$ 8.400</strong></p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CONFIGURAÇÕES ===== -->
+      <div class="page" id="page-configuracoes">
+        <div class="card" style="max-width:540px;">
+          <div class="card-header">
+            <h3>⚙️ Configurações do Bot</h3>
+          </div>
+          <div class="modal-body" style="padding:24px;">
+            <label>📱 WhatsApp do Gestor (recebe alertas)</label>
+            <input type="text" id="cfg-gestor" placeholder="5542999991111" style="margin-bottom:16px;" />
+            <label>⏰ Horário do Checklist Diário</label>
+            <input type="time" id="cfg-horario" value="07:00" style="margin-bottom:16px;" />
+            <label>📝 Perguntas do Checklist (uma por linha)</label>
+            <textarea id="cfg-perguntas" rows="5" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb;font-size:0.9rem;margin-bottom:16px;">Pneus OK?
+Freios OK?
+Luzes OK?
+Combustível OK?</textarea>
+            <button class="btn-primary" id="btnSalvarConfig" style="width:100%;">💾 Salvar Configurações</button>
+            <div id="cfg-status" style="margin-top:12px;text-align:center;color:#22c55e;font-weight:600;display:none;">✅ Configurações salvas!</div>
           </div>
         </div>
       </div>
