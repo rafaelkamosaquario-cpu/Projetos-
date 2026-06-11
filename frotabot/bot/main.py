@@ -83,10 +83,12 @@ def testar_envio():
     numero = _ultimo_webhook.get("phone") or "5542998582489"
     instance = os.getenv("ZAPI_INSTANCE", "")
     token = os.getenv("ZAPI_TOKEN", "")
+    client_token = os.getenv("ZAPI_CLIENT_TOKEN", "")
     url = f"https://api.z-api.io/instances/{instance}/token/{token}/send-text"
+    headers = {"Client-Token": client_token} if client_token else {}
     payload = {"phone": numero, "message": "🤖 Teste FrotaBot - funcionando!"}
     try:
-        r = req.post(url, json=payload, timeout=10)
+        r = req.post(url, json=payload, headers=headers, timeout=10)
         try:
             resp_body = r.json()
         except Exception:
@@ -95,8 +97,7 @@ def testar_envio():
             "status_code": r.status_code,
             "resposta_zapi": resp_body,
             "numero_usado": numero,
-            "instance": instance[:8] + "..." if instance else "NAO DEFINIDO",
-            "token": token[:6] + "..." if token else "NAO DEFINIDO"
+            "client_token_ok": bool(client_token)
         })
     except Exception as e:
         return jsonify({"erro": str(e)})
