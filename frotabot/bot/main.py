@@ -76,6 +76,32 @@ def ultimo_webhook():
     return jsonify(_ultimo_webhook)
 
 
+@app.route("/testar-envio", methods=["GET"])
+def testar_envio():
+    """Testa envio direto via Z-API e retorna resposta completa para debug."""
+    import requests as req
+    numero = _ultimo_webhook.get("phone") or "5542998582489"
+    instance = os.getenv("ZAPI_INSTANCE", "")
+    token = os.getenv("ZAPI_TOKEN", "")
+    url = f"https://api.z-api.io/instances/{instance}/token/{token}/send-text"
+    payload = {"phone": numero, "message": "🤖 Teste FrotaBot - funcionando!"}
+    try:
+        r = req.post(url, json=payload, timeout=10)
+        try:
+            resp_body = r.json()
+        except Exception:
+            resp_body = r.text
+        return jsonify({
+            "status_code": r.status_code,
+            "resposta_zapi": resp_body,
+            "numero_usado": numero,
+            "instance": instance[:8] + "..." if instance else "NAO DEFINIDO",
+            "token": token[:6] + "..." if token else "NAO DEFINIDO"
+        })
+    except Exception as e:
+        return jsonify({"erro": str(e)})
+
+
 @app.route("/webhook", methods=["POST"])
 def webhook():
     global _ultimo_webhook
