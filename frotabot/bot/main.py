@@ -50,9 +50,18 @@ def setup_teste():
 # WEBHOOK – recebe mensagens do WhatsApp
 # ─────────────────────────────────────────
 
+_ultimo_webhook = {}
+
+@app.route("/ultimo-webhook", methods=["GET"])
+def ultimo_webhook():
+    return jsonify(_ultimo_webhook)
+
+
 @app.route("/webhook", methods=["POST"])
 def webhook():
+    global _ultimo_webhook
     data = request.json or {}
+    _ultimo_webhook = data  # salva para debug
 
     # Z-API usa "phone" e "text.message"
     if data.get("fromMe"):
@@ -67,7 +76,7 @@ def webhook():
 
     motorista = Motorista.query.filter_by(whatsapp=numero).first()
     if not motorista:
-        return jsonify({"status": "ignorado"})
+        return jsonify({"status": "ignorado", "numero_recebido": numero, "motoristas": [m.whatsapp for m in Motorista.query.all()]})
 
     # Resposta ao checklist diário
     if mensagem in ["ok", "sim", "tudo certo", "ok tudo certo"]:
