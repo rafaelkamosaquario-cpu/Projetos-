@@ -12,8 +12,22 @@ from database import db, Veiculo, Motorista, Manutencao, Documento, ChecklistLog
 from whatsapp import enviar_mensagem, enviar_alerta_gestor
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///frotabot.db")
+
+database_url = os.getenv("DATABASE_URL", "sqlite:///frotabot.db")
+# Remove sslmode from URL — será configurado via engine options
+if "?sslmode=" in database_url:
+    database_url = database_url.split("?sslmode=")[0]
+
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+if database_url.startswith("postgresql"):
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "connect_args": {"sslmode": "require"},
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+    }
+
 db.init_app(app)
 
 with app.app_context():
