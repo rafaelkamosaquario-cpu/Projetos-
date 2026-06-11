@@ -1484,12 +1484,12 @@
     if (semControleCons) {
       const v = combVal * BM.comb.controlConsumo;
       ecoComb += v;
-      combItens.push({ text: 'Monitoramento de consumo km/L por veículo', pct: '5–8%', v, fonte: 'Cobli / MiX Telematics' });
+      combItens.push({ text: 'Sem controle de consumo por veículo – perda de eficiência não identificada', pct: '5–8%', v, fonte: 'Cobli / MiX Telematics' });
     }
     if (semPolitica) {
       const v = combVal * BM.comb.ecodriving;
       ecoComb += v;
-      combItens.push({ text: 'Programa de condução econômica (eco-driving)', pct: '8–15%', v, fonte: 'Volvo Trucks BR / Scania / ICCT' });
+      combItens.push({ text: 'Sem política de condução econômica – desperdício de combustível', pct: '8–15%', v, fonte: 'Volvo Trucks BR / Scania / ICCT' });
     }
 
     // ── Economia Manutenção ──────────────────────────────────────────────
@@ -1505,23 +1505,23 @@
       const v = totalManut * excesso * BM.mant.excessoCorr;
       ecoMant += v;
       mantItens.push({
-        text: `Equalização prev/corr (atual ${Math.round(ratioCorr*100)}% corretiva → ideal 20%)`,
+        text: `Manutenção corretiva em ${Math.round(ratioCorr*100)}% – custo fora de controle (ideal: máx. 20%)`,
         pct: '30%', v, fonte: 'Geotab Brasil / ANFAVEA', icn: '⚠'
       });
     }
     if (planoManut === 'nao') {
       const v = totalManut * BM.mant.semPlano;
       ecoMant += v;
-      mantItens.push({ text: 'Implantação de plano preventivo estruturado', pct: '25%', v, fonte: 'NTC&Logística', icn: '⚠' });
+      mantItens.push({ text: 'Sem plano de manutenção definido – custo fora de controle', pct: '25%', v, fonte: 'NTC&Logística', icn: '⚠' });
     } else if (planoManut === 'parcial') {
       const v = totalManut * BM.mant.parcial;
       ecoMant += v;
-      mantItens.push({ text: 'Expansão do plano preventivo para toda a frota', pct: '12%', v, fonte: 'NTC&Logística', icn: 'ℹ' });
+      mantItens.push({ text: 'Plano de manutenção parcial – parte da frota desprotegida', pct: '12%', v, fonte: 'NTC&Logística', icn: 'ℹ' });
     }
     if (quebrasFreq) {
       const v = totalManut * BM.mant.quebras;
       ecoMant += v;
-      mantItens.push({ text: 'Redução de quebras com manutenção preditiva', pct: '8%', v, fonte: 'Geotab Brasil', icn: 'ℹ' });
+      mantItens.push({ text: 'Quebras frequentes – custos emergenciais até 5x maiores que preventivo', pct: '8%', v, fonte: 'Geotab Brasil', icn: 'ℹ' });
     }
 
     // ── Economia Pneus ───────────────────────────────────────────────────
@@ -1531,29 +1531,29 @@
     let ecoPneu = 0;
     const pneuItens = [];
 
-    if (recapagens === 0) {
-      const v = pneusVal * BM.pneu.semRecap;
-      ecoPneu += v;
-      pneuItens.push({ text: 'Programa de recapagem – 2 recaps por carcaça', pct: '35–40%', v, fonte: 'Bandag/Bridgestone Brasil', icn: '⚠' });
-    } else if (recapagens === 1) {
-      const v = pneusVal * BM.pneu.umaRecap;
-      ecoPneu += v;
-      pneuItens.push({ text: 'Ampliação para 2ª recapagem por carcaça', pct: '17%', v, fonte: 'Bandag/Bridgestone Brasil', icn: 'ℹ' });
-    }
     if (semPressao) {
       const v = combVal * BM.pneu.pressao_comb + pneusVal * BM.pneu.pressao_pneu;
       ecoPneu += v;
-      pneuItens.push({ text: 'Controle de pressão a cada 15 dias (impacto em combustível e vida do pneu)', pct: '3%comb+12%pneu', v, fonte: 'ANIP / Mercedes-Benz Trucks BR', icn: 'ℹ' });
+      pneuItens.push({ text: 'Sem controle de pressão – principal causa de desgaste prematuro dos pneus', pct: '3%comb+12%pneu', v, fonte: 'ANIP / Mercedes-Benz Trucks BR', icn: '⚠' });
     }
     if (semRodizio) {
       const v = pneusVal * BM.pneu.rodizio;
       ecoPneu += v;
-      pneuItens.push({ text: 'Rodízio periódico de pneus (+20% de vida útil)', pct: '15%', v, fonte: 'ProLog App', icn: 'ℹ' });
+      pneuItens.push({ text: 'Sem rodízio periódico – redução da vida útil dos pneus', pct: '15%', v, fonte: 'ProLog App', icn: 'ℹ' });
     }
     if (semAlinhamento) {
       const v = pneusVal * BM.pneu.alinhamento;
       ecoPneu += v;
-      pneuItens.push({ text: 'Alinhamento e balanceamento regulares (+15–20% de vida útil)', pct: '12%', v, fonte: 'ProLog App', icn: 'ℹ' });
+      pneuItens.push({ text: 'Sem alinhamento periódico – desgaste irregular dos pneus', pct: '12%', v, fonte: 'ProLog App', icn: 'ℹ' });
+    }
+    if (recapagens === 0) {
+      const v = pneusVal * BM.pneu.semRecap;
+      ecoPneu += v;
+      pneuItens.push({ text: 'Nenhuma recapagem utilizada – custo altíssimo operando apenas com pneus novos', pct: '35–40%', v, fonte: 'Bandag/Bridgestone Brasil', icn: '⚠' });
+    } else if (recapagens === 1) {
+      const v = pneusVal * BM.pneu.umaRecap;
+      ecoPneu += v;
+      pneuItens.push({ text: 'Apenas 1 recapagem por carcaça – potencial não aproveitado na 2ª vida', pct: '17%', v, fonte: 'Bandag/Bridgestone Brasil', icn: 'ℹ' });
     }
     ecoPneu = Math.min(ecoPneu, pneusVal * 0.70); // teto realista de 70%
 
