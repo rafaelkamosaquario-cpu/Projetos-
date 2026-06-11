@@ -776,23 +776,23 @@
       </div>
       <div class="modal-body">
         <label>Nome da Empresa</label>
-        <input type="text" placeholder="Ex: Transportadora Silva" />
+        <input type="text" id="emp-nome" placeholder="Ex: Transportadora Silva" />
         <label>CNPJ</label>
-        <input type="text" placeholder="00.000.000/0001-00" />
+        <input type="text" id="emp-cnpj" placeholder="00.000.000/0001-00" />
         <label>WhatsApp do Gestor</label>
-        <input type="text" placeholder="(00) 99999-0000" />
+        <input type="text" id="emp-whats" placeholder="(00) 99999-0000" />
         <label>Plano</label>
-        <select class="select-input">
+        <select id="emp-plano" class="select-input">
           <option>Starter — R$ 197/mês</option>
           <option>Profissional — R$ 397/mês</option>
           <option>Empresarial</option>
         </select>
         <label>Horário do Checklist</label>
-        <input type="time" value="07:00" />
+        <input type="time" id="emp-horario" value="07:00" />
       </div>
       <div class="modal-footer">
         <button class="btn-outline-modal" onclick="closeModalById('modalEmpresa')">Cancelar</button>
-        <button class="btn-primary">Cadastrar Empresa</button>
+        <button class="btn-primary" id="btnCadEmpresa">Cadastrar Empresa</button>
       </div>
     </div>
   </div>
@@ -805,26 +805,26 @@
       </div>
       <div class="modal-body">
         <label>Placa</label>
-        <input type="text" placeholder="ABC-1234" />
+        <input type="text" id="vei-placa" placeholder="ABC-1234" />
         <label>Modelo</label>
-        <input type="text" placeholder="Ex: Volvo FH 460" />
+        <input type="text" id="vei-modelo" placeholder="Ex: Volvo FH 460" />
         <label>Empresa</label>
-        <select class="select-input">
+        <select id="vei-empresa" class="select-input">
           <option>Transportadora Silva</option>
           <option>Frota Rápida</option>
           <option>Transportes União</option>
           <option>LogFast</option>
         </select>
         <label>Próxima Revisão</label>
-        <input type="date" />
+        <input type="date" id="vei-revisao" />
         <label>Vencimento Tacógrafo</label>
-        <input type="date" />
+        <input type="date" id="vei-tacografo" />
         <label>Troca de Óleo</label>
-        <input type="date" />
+        <input type="date" id="vei-oleo" />
       </div>
       <div class="modal-footer">
         <button class="btn-outline-modal" onclick="closeModalById('modalVeiculo')">Cancelar</button>
-        <button class="btn-primary">Cadastrar Veículo</button>
+        <button class="btn-primary" id="btnCadVeiculo">Cadastrar Veículo</button>
       </div>
     </div>
   </div>
@@ -837,27 +837,27 @@
       </div>
       <div class="modal-body">
         <label>Nome Completo</label>
-        <input type="text" placeholder="Ex: João Silva" />
+        <input type="text" id="mot-nome" placeholder="Ex: João Silva" />
         <label>WhatsApp</label>
-        <input type="text" placeholder="(00) 99999-0000" />
+        <input type="text" id="mot-whats" placeholder="(00) 99999-0000" />
         <label>Empresa</label>
-        <select class="select-input">
+        <select id="mot-empresa" class="select-input">
           <option>Transportadora Silva</option>
           <option>Frota Rápida</option>
         </select>
         <label>Veículo</label>
-        <select class="select-input">
+        <select id="mot-veiculo" class="select-input">
           <option>ABC-1234 — Volvo FH 460</option>
           <option>XYZ-5678 — Scania R450</option>
         </select>
         <label>Vencimento CNH</label>
-        <input type="date" />
+        <input type="date" id="mot-cnh" />
         <label>Vencimento Toxicológico</label>
-        <input type="date" />
+        <input type="date" id="mot-toxi" />
       </div>
       <div class="modal-footer">
         <button class="btn-outline-modal" onclick="closeModalById('modalMotorista')">Cancelar</button>
-        <button class="btn-primary">Cadastrar Motorista</button>
+        <button class="btn-primary" id="btnCadMotorista">Cadastrar Motorista</button>
       </div>
     </div>
   </div>
@@ -870,12 +870,12 @@
       </div>
       <div class="modal-body">
         <label>Veículo</label>
-        <select class="select-input">
+        <select id="man-veiculo" class="select-input">
           <option>ABC-1234 — Volvo FH 460</option>
           <option>XYZ-5678 — Scania R450</option>
         </select>
         <label>Tipo de Manutenção</label>
-        <select class="select-input">
+        <select id="man-tipo" class="select-input">
           <option>Troca de óleo</option>
           <option>Revisão geral</option>
           <option>Alinhamento</option>
@@ -885,9 +885,9 @@
           <option>Outro</option>
         </select>
         <label>Data de Vencimento</label>
-        <input type="date" />
+        <input type="date" id="man-data" />
         <label>Alertar com antecedência de</label>
-        <select class="select-input">
+        <select id="man-antec" class="select-input">
           <option>7 dias</option>
           <option>15 dias</option>
           <option>30 dias</option>
@@ -895,7 +895,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn-outline-modal" onclick="closeModalById('modalManutencao')">Cancelar</button>
-        <button class="btn-primary">Cadastrar</button>
+        <button class="btn-primary" id="btnCadManutencao">Cadastrar</button>
       </div>
     </div>
   </div>
@@ -908,7 +908,7 @@
       </div>
       <div class="modal-body">
         <label>Tipo de Documento</label>
-        <select class="select-input">
+        <select id="doc-tipo" class="select-input">
           <option>CNH</option>
           <option>Tacógrafo</option>
           <option>Licenciamento</option>
@@ -917,18 +917,18 @@
           <option>Seguro obrigatório</option>
         </select>
         <label>Referente a (veículo ou motorista)</label>
-        <input type="text" placeholder="Ex: ABC-1234 ou João Silva" />
+        <input type="text" id="doc-ref" placeholder="Ex: ABC-1234 ou João Silva" />
         <label>Empresa</label>
-        <select class="select-input">
+        <select id="doc-empresa" class="select-input">
           <option>Transportadora Silva</option>
           <option>Frota Rápida</option>
         </select>
         <label>Data de Vencimento</label>
-        <input type="date" />
+        <input type="date" id="doc-venc" />
       </div>
       <div class="modal-footer">
         <button class="btn-outline-modal" onclick="closeModalById('modalDocumento')">Cancelar</button>
-        <button class="btn-primary">Cadastrar</button>
+        <button class="btn-primary" id="btnCadDocumento">Cadastrar</button>
       </div>
     </div>
   </div>
