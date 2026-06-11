@@ -1,0 +1,81 @@
+name: meu_assessor_ia
+description: Seu Assistente Inteligente Completo com IA
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  provider: ^6.1.1
+
+  # HTTP requests (AI API)
+  http: ^1.2.0
+
+  # Local database
+  sqflite: ^2.3.2
+  path: ^1.9.0
+
+  # Speech to text
+  speech_to_text: ^6.6.0
+
+  # Text to speech
+  flutter_tts: ^3.8.5
+
+  # File picker (PDF upload)
+  file_picker: ^8.0.0+1
+
+  # PDF text extraction
+  syncfusion_flutter_pdf: ^24.2.9
+
+  # Charts for financial dashboard
+  fl_chart: ^0.68.0
+
+  # Markdown rendering in chat
+  flutter_markdown: ^0.6.22
+
+  # Shared preferences
+  shared_preferences: ^2.2.3
+
+  # Image picker (for photo analysis)
+  image_picker: ^1.1.2
+
+  # Lottie animations
+  lottie: ^3.1.0
+
+  # Google fonts
+  google_fonts: ^6.2.1
+
+  # Intl for date/currency formatting
+  intl: ^0.19.0
+
+  # UUID for message IDs
+  uuid: ^4.4.0
+
+  # Icons
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/animations/
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
