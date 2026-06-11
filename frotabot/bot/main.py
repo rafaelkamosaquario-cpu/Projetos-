@@ -31,6 +31,22 @@ def ping():
     return jsonify({"status": "ok", "bot": "FrotaBot rodando!"})
 
 
+@app.route("/setup-teste", methods=["GET"])
+def setup_teste():
+    with app.app_context():
+        if Motorista.query.count() == 0:
+            m = Motorista(
+                nome="Rafael (Teste)",
+                whatsapp="5542986867567",
+                veiculo_placa="ABC-1234",
+                ativo=True
+            )
+            db.session.add(m)
+            db.session.commit()
+            return jsonify({"status": "ok", "msg": "Motorista de teste criado!", "numero": "5542986867567"})
+        return jsonify({"status": "ok", "msg": f"{Motorista.query.count()} motorista(s) já cadastrado(s)"})
+
+
 # ─────────────────────────────────────────
 # WEBHOOK – recebe mensagens do WhatsApp
 # ─────────────────────────────────────────
