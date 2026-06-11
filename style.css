@@ -157,13 +157,7 @@ body {
   font-size: 14px;
   color: var(--dark);
 }
-.discover-list li::before {
-  content: '✓';
-  color: var(--green-dark);
-  font-weight: 700;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
+.discover-list li .disc-icon { flex-shrink: 0; }
 
 /* ── INFO ITEMS ──────────────────────────────────────────────────────────── */
 .info-items { display: flex; flex-direction: column; gap: 14px; }
@@ -1123,13 +1117,158 @@ body {
 }
 .btn-cta-full:hover { background: var(--primary-dark); }
 
+/* ── FLEET SUMMARY STRIP ─────────────────────────────────────────────────── */
+.fleet-strip {
+  display: flex;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+  gap: 0;
+}
+.fleet-strip-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.fleet-strip-sep {
+  width: 1px;
+  background: var(--border);
+  align-self: stretch;
+}
+.fleet-strip-label { font-size: 10px; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
+.fleet-strip-val   { font-size: 14px; font-weight: 700; color: var(--dark); }
+
+/* ── CPK GAUGE ───────────────────────────────────────────────────────────── */
+.cpk-gauge { margin: 14px 0 4px; }
+.cpk-gauge-track {
+  position: relative;
+  height: 8px;
+  background: #E2E8F0;
+  border-radius: 99px;
+  margin-bottom: 6px;
+}
+.cpk-gauge-range {
+  position: absolute;
+  top: 0; bottom: 0;
+  background: rgba(34,197,94,.35);
+  border-radius: 99px;
+  border: 1px solid rgba(34,197,94,.5);
+}
+.cpk-gauge-dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  transition: left .6s cubic-bezier(.34,1.56,.64,1);
+}
+.cpk-gauge-dot.atual { background: var(--red); z-index: 2; }
+.cpk-gauge-dot.otim  { background: var(--green-dark); z-index: 3; }
+.cpk-gauge-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: var(--gray);
+}
+.cpk-gauge-lbl-mid { font-size: 10px; font-weight: 600; color: var(--green-dark); }
+.cpk-gauge-legend  { display: flex; gap: 12px; font-size: 10px; color: var(--gray); margin-top: 6px; justify-content: center; }
+.cpk-gauge-legend span::before { content: '●'; margin-right: 3px; }
+.cpk-gauge-legend .l-atual::before { color: var(--red); }
+.cpk-gauge-legend .l-otim::before  { color: var(--green-dark); }
+.cpk-gauge-legend .l-bench::before { color: rgba(34,197,94,.6); }
+
+/* ── PILLAR SAVINGS CARDS ────────────────────────────────────────────────── */
+.pillar-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.pillar-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 12px;
+  box-shadow: var(--shadow);
+}
+.pillar-card-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+.pillar-card-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.pillar-card-dot.blue   { background: var(--primary); }
+.pillar-card-dot.orange { background: var(--orange); }
+.pillar-card-dot.green  { background: var(--green); }
+.pillar-card-name { font-size: 11px; font-weight: 700; color: var(--dark); flex: 1; }
+.pillar-card-pct  { font-size: 11px; font-weight: 800; color: var(--green-dark); }
+.pillar-card-custo   { font-size: 14px; font-weight: 800; color: var(--dark); line-height: 1; }
+.pillar-card-eco     { font-size: 13px; font-weight: 700; color: var(--green-dark); line-height: 1; margin-top: 8px; }
+.pillar-card-sublabel { font-size: 10px; color: var(--gray); margin-top: 2px; }
+.pillar-card-bar-wrap {
+  height: 5px;
+  background: var(--light);
+  border-radius: 99px;
+  margin: 8px 0 4px;
+  overflow: hidden;
+}
+.pillar-card-bar {
+  height: 100%;
+  border-radius: 99px;
+  width: 0%;
+  transition: width .8s ease;
+}
+.pillar-card-bar.blue   { background: var(--primary); }
+.pillar-card-bar.orange { background: var(--orange); }
+.pillar-card-bar.green  { background: var(--green); }
+
+/* ── ECO TOTAL BAR ───────────────────────────────────────────────────────── */
+.eco-pct-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 4px;
+}
+.eco-pct-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: rgba(255,255,255,.35);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.eco-pct-bar {
+  height: 100%;
+  background: var(--green-dark);
+  border-radius: 99px;
+  width: 0%;
+  transition: width 1s ease;
+}
+.eco-pct-label { font-size: 11px; color: var(--green-dark); opacity: .7; }
+
 /* ── RESPONSIVE ADDITIONS ────────────────────────────────────────────────── */
 @media (min-width: 480px) {
   .hero-title   { font-size: 30px; }
   .result-title { font-size: 24px; }
   .result-value { font-size: 52px; }
 }
+@media (max-width: 420px) {
+  .pillar-cards { grid-template-columns: 1fr; }
+  .pillar-card { display: flex; gap: 10px; align-items: center; padding: 12px; }
+  .pillar-card-header { margin-bottom: 0; flex-direction: column; align-items: flex-start; width: 70px; }
+  .pillar-card-bar-wrap { display: none; }
+  .pillar-card-sublabel { display: none; }
+  .pillar-card-eco { margin-top: 0; }
+}
 @media (max-width: 380px) {
-  .metrics-header, .metrics-row { grid-template-columns: 1.5fr 1fr 1fr; gap: 4px; font-size: 12px; }
   .cpk-value { font-size: 20px; }
+  .fleet-strip-val { font-size: 12px; }
 }

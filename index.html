@@ -494,7 +494,7 @@
 <div id="result" class="screen">
   <div class="result-hero">
     <div class="result-hero-inner">
-      <div class="result-badge">Diagnóstico Concluído</div>
+      <div class="result-badge">✓ Diagnóstico Concluído</div>
       <h1 class="result-title">Sua frota pode economizar</h1>
       <p class="result-value" id="res-economia-mes">R$ 0</p>
       <p class="result-sub">por mês · <strong id="res-economia-ano">R$ 0</strong> por ano</p>
@@ -503,70 +503,128 @@
 
   <div class="content-wrap result-content">
 
-    <!-- CPK card -->
+    <!-- Fleet summary strip -->
+    <div class="fleet-strip">
+      <div class="fleet-strip-item">
+        <span class="fleet-strip-label">Tipo de frota</span>
+        <span class="fleet-strip-val" id="res-frota-tipo">—</span>
+      </div>
+      <div class="fleet-strip-sep"></div>
+      <div class="fleet-strip-item">
+        <span class="fleet-strip-label">Veículos</span>
+        <span class="fleet-strip-val" id="res-frota-veiculos">—</span>
+      </div>
+      <div class="fleet-strip-sep"></div>
+      <div class="fleet-strip-item">
+        <span class="fleet-strip-label">km/mês (média)</span>
+        <span class="fleet-strip-val" id="res-frota-km">—</span>
+      </div>
+    </div>
+
+    <!-- CPK card with gauge -->
     <div class="cpk-card">
       <div class="cpk-row">
         <div class="cpk-col">
           <p class="cpk-label">CPK Atual</p>
           <p class="cpk-value" id="res-cpk-atual">—</p>
-          <p class="cpk-unit">por km</p>
+          <p class="cpk-unit">por km rodado</p>
         </div>
         <div class="cpk-arrow">→</div>
         <div class="cpk-col">
           <p class="cpk-label">CPK Otimizado</p>
           <p class="cpk-value green" id="res-cpk-otim">—</p>
-          <p class="cpk-unit">por km</p>
+          <p class="cpk-unit">por km rodado</p>
         </div>
       </div>
+
+      <!-- Gauge bar -->
+      <div class="cpk-gauge">
+        <div class="cpk-gauge-track">
+          <div class="cpk-gauge-range" id="res-gauge-range"></div>
+          <div class="cpk-gauge-dot atual" id="res-gauge-dot-atual" title="Seu CPK atual"></div>
+          <div class="cpk-gauge-dot otim" id="res-gauge-dot-otim" title="CPK otimizado"></div>
+        </div>
+        <div class="cpk-gauge-labels">
+          <span class="cpk-gauge-lbl-min" id="res-gauge-min">—</span>
+          <span class="cpk-gauge-lbl-mid">Benchmark do setor</span>
+          <span class="cpk-gauge-lbl-max" id="res-gauge-max">—</span>
+        </div>
+        <div class="cpk-gauge-legend">
+          <span class="l-atual">Seu CPK atual</span>
+          <span class="l-otim">CPK otimizado</span>
+          <span class="l-bench">Zona de referência</span>
+        </div>
+      </div>
+
       <div class="cpk-footer">
         <span id="res-cpk-badge" class="badge-pill yellow">Na média do setor</span>
         <span id="res-bench-range" class="bench-range">—</span>
       </div>
     </div>
 
-    <!-- Metrics breakdown -->
-    <div class="card">
-      <p class="card-label">Detalhamento por pilar</p>
-      <div class="metrics-table">
-        <div class="metrics-header">
-          <span>Pilar</span>
-          <span>Custo atual</span>
-          <span>Potencial de economia</span>
+    <!-- Pillar savings cards -->
+    <div class="pillar-cards">
+      <div class="pillar-card fuel">
+        <div class="pillar-card-header">
+          <span class="pillar-card-dot blue"></span>
+          <span class="pillar-card-name">Combustível</span>
+          <span class="pillar-card-pct" id="res-comb-pct">0%</span>
         </div>
-        <div class="metrics-row">
-          <span class="metrics-pillar"><span class="pillar-dot blue"></span>Combustível</span>
-          <span id="res-comb-custo">—</span>
-          <span class="metrics-eco" id="res-comb-eco">—</span>
+        <p class="pillar-card-custo" id="res-comb-custo">—</p>
+        <p class="pillar-card-sublabel">custo atual / mês</p>
+        <div class="pillar-card-bar-wrap">
+          <div class="pillar-card-bar blue" id="res-comb-bar" style="width:0%"></div>
         </div>
-        <div class="metrics-row">
-          <span class="metrics-pillar"><span class="pillar-dot orange"></span>Manutenção</span>
-          <span id="res-mant-custo">—</span>
-          <span class="metrics-eco" id="res-mant-eco">—</span>
+        <p class="pillar-card-eco" id="res-comb-eco">—</p>
+        <p class="pillar-card-sublabel">potencial de economia</p>
+      </div>
+      <div class="pillar-card maint">
+        <div class="pillar-card-header">
+          <span class="pillar-card-dot orange"></span>
+          <span class="pillar-card-name">Manutenção</span>
+          <span class="pillar-card-pct" id="res-mant-pct">0%</span>
         </div>
-        <div class="metrics-row">
-          <span class="metrics-pillar"><span class="pillar-dot green"></span>Pneus</span>
-          <span id="res-pneu-custo">—</span>
-          <span class="metrics-eco" id="res-pneu-eco">—</span>
+        <p class="pillar-card-custo" id="res-mant-custo">—</p>
+        <p class="pillar-card-sublabel">custo atual / mês</p>
+        <div class="pillar-card-bar-wrap">
+          <div class="pillar-card-bar orange" id="res-mant-bar" style="width:0%"></div>
         </div>
-        <div class="metrics-row total-row">
-          <span class="metrics-pillar"><strong>Total</strong></span>
-          <span><strong id="res-total-custo">—</strong></span>
-          <span class="metrics-eco"><strong id="res-total-eco">—</strong></span>
+        <p class="pillar-card-eco" id="res-mant-eco">—</p>
+        <p class="pillar-card-sublabel">potencial de economia</p>
+      </div>
+      <div class="pillar-card tire">
+        <div class="pillar-card-header">
+          <span class="pillar-card-dot green"></span>
+          <span class="pillar-card-name">Pneus</span>
+          <span class="pillar-card-pct" id="res-pneu-pct">0%</span>
         </div>
+        <p class="pillar-card-custo" id="res-pneu-custo">—</p>
+        <p class="pillar-card-sublabel">custo atual / mês</p>
+        <div class="pillar-card-bar-wrap">
+          <div class="pillar-card-bar green" id="res-pneu-bar" style="width:0%"></div>
+        </div>
+        <p class="pillar-card-eco" id="res-pneu-eco">—</p>
+        <p class="pillar-card-sublabel">potencial de economia</p>
       </div>
     </div>
 
     <!-- Eco total highlight -->
     <div class="eco-total">
-      <p class="eco-label">Potencial de redução de custos</p>
+      <p class="eco-label">Potencial total de redução</p>
       <p class="eco-value" id="res-eco-mes-big">—</p>
       <p class="eco-sub">por mês · <strong id="res-eco-ano-big">—</strong> por ano</p>
-      <div class="eco-pct"><span id="res-pct-eco">0%</span> do custo total analisado</div>
+      <div class="eco-pct-row">
+        <div class="eco-pct-bar-wrap">
+          <div class="eco-pct-bar" id="res-eco-bar" style="width:0%"></div>
+        </div>
+        <span class="eco-pct" id="res-pct-eco">0%</span>
+      </div>
+      <p class="eco-pct-label">do custo total analisado</p>
     </div>
 
     <!-- Attention items -->
     <div id="attn-section" class="card attn-section">
-      <p class="card-label">Pontos de atenção identificados</p>
+      <p class="card-label">⚠ Pontos de atenção identificados</p>
       <div id="res-atencao" class="attn-group"></div>
     </div>
 
@@ -574,7 +632,7 @@
     <div class="cta-card">
       <p class="cta-title">Quer implementar essas melhorias?</p>
       <p class="cta-body">Nosso time pode ajudar sua frota a atingir esse potencial de economia com um plano de ação personalizado.</p>
-      <button class="btn-primary btn-cta-full">Falar com especialista</button>
+      <button class="btn-cta-full">Falar com especialista</button>
       <button class="btn-ghost" onclick="restart()">Refazer diagnóstico</button>
     </div>
 

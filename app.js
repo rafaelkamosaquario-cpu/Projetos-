@@ -280,11 +280,15 @@ function fmtDec(val, dec) {
   return val.toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
 }
 
+function fmtNum(val) {
+  return val.toLocaleString('pt-BR');
+}
+
 function cpkStatus(cpk) {
   const bm = BM.cpk[state.frota] || BM.cpk['Média'];
   if (cpk <= bm.min) return { label: 'Excelente', cls: 'green' };
   if (cpk <= bm.max) return { label: 'Na média do setor', cls: 'yellow' };
-  return { label: 'Acima da média', cls: 'red' };
+  return { label: 'Acima da média do setor', cls: 'red' };
 }
 
 function renderAtencao(items) {
@@ -292,6 +296,54 @@ function renderAtencao(items) {
   return items.map(function(txt) {
     return '<div class="attn-item"><span class="attn-dot red"></span><span>' + txt + '</span></div>';
   }).join('');
+}
+
+function countUp(id, target, prefix, suffix, duration) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = Date.now();
+  function tick() {
+    const elapsed = Date.now() - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(target * ease);
+    el.textContent = prefix + fmtNum(current) + suffix;
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function setGauge(cpkAtual, cpkOtim, bmMin, bmMax) {
+  const scale = bmMax * 1.8;
+  const clamp = function(v) { return Math.min(Math.max(v / scale * 100, 2), 97); };
+
+  const rangeStart = clamp(bmMin);
+  const rangeEnd   = clamp(bmMax);
+  const dotAtual   = clamp(cpkAtual);
+  const dotOtim    = clamp(cpkOtim);
+
+  const rangeEl = document.getElementById('res-gauge-range');
+  if (rangeEl) {
+    rangeEl.style.left  = rangeStart + '%';
+    rangeEl.style.width = (rangeEnd - rangeStart) + '%';
+  }
+  const dAtual = document.getElementById('res-gauge-dot-atual');
+  if (dAtual) dAtual.style.left = dotAtual + '%';
+  const dOtim = document.getElementById('res-gauge-dot-otim');
+  if (dOtim) dOtim.style.left = dotOtim + '%';
+
+  setText('res-gauge-min', 'R$ ' + fmtDec(bmMin, 2));
+  setText('res-gauge-max', 'R$ ' + fmtDec(bmMax, 2));
+}
+
+function setPillarCard(prefix, custo, economia) {
+  const pct = custo > 0 ? Math.round((economia / custo) * 100) : 0;
+  const barW = Math.min(pct, 100);
+  setText(prefix + '-custo', fmt(custo));
+  setText(prefix + '-eco',   fmt(economia));
+  setText(prefix + '-pct',   pct + '%');
+  const bar = document.getElementById(prefix + '-bar');
+  if (bar) setTimeout(function() { bar.style.width = barW + '%'; }, 200);
 }
 
 function buildResult() {
@@ -306,34 +358,40 @@ function buildResult() {
   const cpkBM         = BM.cpk[state.frota] || BM.cpk['Média'];
   const cpkSt         = cpkStatus(cpkAtual);
   const pctEco        = totalAtual > 0 ? Math.round((totalEconomia / totalAtual) * 100) : 0;
+  const allAttn       = [].concat(comb.atencao, mant.atencao, pneu.atencao);
 
-  const allAttn = [].concat(comb.atencao, mant.atencao, pneu.atencao);
+  /* fleet summary */
+  setText('res-frota-tipo',     state.frota);
+  setText('res-frota-veiculos', state.veiculos + ' veíc.');
+  setText('res-frota-km',       fmtNum(state.km_mes) + ' km');
 
-  /* hero numbers */
-  setText('res-economia-mes',  fmt(totalEconomia));
-  setText('res-economia-ano',  fmt(totalEconomia * 12));
-  setText('res-cpk-atual',     'R$ ' + fmtDec(cpkAtual, 2));
-  setText('res-cpk-otim',      'R$ ' + fmtDec(cpkOtim, 2));
-  setText('res-cpk-badge',     cpkSt.label);
+  /* hero count-up */
+  countUp('res-economia-mes', totalEconomia, 'R$ ', '', 1200);
+  setTimeout(function() {
+    setText('res-economia-ano', fmt(totalEconomia * 12));
+  }, 1200);
+
+  /* CPK */
+  setText('res-cpk-atual',  'R$ ' + fmtDec(cpkAtual, 2));
+  setText('res-cpk-otim',   'R$ ' + fmtDec(cpkOtim, 2));
+  setText('res-cpk-badge',  cpkSt.label);
   setClass('res-cpk-badge', 'badge-pill ' + cpkSt.cls);
-  setText('res-bench-range',   'Referência: R$ ' + fmtDec(cpkBM.min, 2) + '–' + fmtDec(cpkBM.max, 2) + '/km (' + cpkBM.label + ')');
+  setText('res-bench-range', 'Ref: R$ ' + fmtDec(cpkBM.min, 2) + '–' + fmtDec(cpkBM.max, 2) + '/km (' + cpkBM.label + ')');
+  setTimeout(function() { setGauge(cpkAtual, cpkOtim, cpkBM.min, cpkBM.max); }, 100);
 
-  /* metrics breakdown */
-  setText('res-comb-custo',   fmt(comb.custoAtual));
-  setText('res-comb-eco',     fmt(comb.economia));
-  setText('res-mant-custo',   fmt(mant.custoAtual));
-  setText('res-mant-eco',     fmt(mant.economia));
-  setText('res-pneu-custo',   fmt(pneu.custoAtual));
-  setText('res-pneu-eco',     fmt(pneu.economia));
-  setText('res-total-custo',  fmt(totalAtual));
-  setText('res-total-eco',    fmt(totalEconomia));
-  setText('res-pct-eco',      pctEco + '%');
+  /* pillar cards */
+  setPillarCard('res-comb', comb.custoAtual, comb.economia);
+  setPillarCard('res-mant', mant.custoAtual, mant.economia);
+  setPillarCard('res-pneu', pneu.custoAtual, pneu.economia);
 
-  /* eco-total bar */
-  setText('res-eco-mes-big',  fmt(totalEconomia));
-  setText('res-eco-ano-big',  fmt(totalEconomia * 12));
+  /* eco total */
+  setText('res-eco-mes-big', fmt(totalEconomia));
+  setText('res-eco-ano-big', fmt(totalEconomia * 12));
+  setText('res-pct-eco', pctEco + '%');
+  const ecoBar = document.getElementById('res-eco-bar');
+  if (ecoBar) setTimeout(function() { ecoBar.style.width = Math.min(pctEco, 100) + '%'; }, 300);
 
-  /* attention items */
+  /* attention */
   const attnEl = document.getElementById('res-atencao');
   if (attnEl) {
     if (allAttn.length) {
