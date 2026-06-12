@@ -1,54 +1,54 @@
 'use strict';
 
-/* BENCHMARKS */
+/* ── BENCHMARKS ─────────────────────────────────────────────────────────── */
 const BM = {
   comb: {
-    controlConsumo: 0.065,
-    ecodriving:     0.10,
+    controlConsumo: 0.065, // 5–8% (Cobli/GolFleet/MiX Telematics)
+    ecodriving:     0.10,  // 8–15% (Volvo Trucks BR / Scania Brasil / ICCT)
   },
   mant: {
-    ratioIdealCorr: 0.20,
-    excessoCorr:    0.30,
-    semPlano:       0.25,
+    ratioIdealCorr: 0.20, // máx 20% corretiva (Geotab Brasil / CNT)
+    excessoCorr:    0.30, // +30% custo corretiva>prev (Geotab / ANFAVEA)
+    semPlano:       0.25, // sem plano = +25% (NTC&Logística)
     parcial:        0.12,
     quebras:        0.08,
   },
   pneu: {
-    semRecap:    0.38,
-    umaRecap:    0.17,
-    pressao_comb: 0.03,
+    semRecap:    0.38, // 35–40% mais caro sem recapagem (Bandag/Bridgestone)
+    umaRecap:    0.17, // com 1 vs 2 recapagens (Bandag)
+    pressao_comb: 0.03, // +3% combustível com pressão errada (ANIP/Mercedes-Benz)
     pressao_pneu: 0.12,
-    rodizio:      0.15,
-    alinhamento:  0.12,
+    rodizio:      0.15, // +20% vida útil (ProLog App)
+    alinhamento:  0.12, // +15–20% vida útil (ProLog App)
   },
-  cpk: {
+  cpk: { // CPK parcial combustível+manutenção+pneus ≈ 58–69% do total
     Leve:   { min: 0.70, max: 1.30, label: 'VUC / Furgão' },
     Média:  { min: 1.20, max: 2.10, label: 'Toco / Truck' },
     Pesada: { min: 2.00, max: 3.60, label: 'Carreta / Bitrem' },
   },
 };
 
-/* FORM STATE */
+/* ── FORM STATE ─────────────────────────────────────────────────────────── */
 const state = {
-  frota:      null,
+  frota:      null, // Leve | Média | Pesada
   veiculos:   0,
   km_mes:     0,
   comb_litros: 0,
   comb_preco:  0,
-  comb_controle: null,
-  comb_eco:      null,
-  mant_plano:    null,
-  mant_tipo:     null,
+  comb_controle: null,  // sim | nao
+  comb_eco:      null,  // sim | nao
+  mant_plano:    null,  // sim | parcial | nao
+  mant_tipo:     null,  // prev | mista | corr
   mant_custo:    0,
   pneu_custo:    0,
-  pneu_recap:    null,
-  pneu_pressao:  null,
-  pneu_rodizio:  null,
-  pneu_alinham:  null,
+  pneu_recap:    null,  // duas | uma | nao
+  pneu_pressao:  null,  // sim | nao
+  pneu_rodizio:  null,  // sim | nao
+  pneu_alinham:  null,  // sim | nao
 };
 
-/* NAVIGATION */
-let currentStep = 0;
+/* ── NAVIGATION ─────────────────────────────────────────────────────────── */
+let currentStep = 0; // 0=landing, 1-6=form steps, 7=result
 const TOTAL_STEPS = 6;
 
 function show(screenId) {
@@ -106,7 +106,7 @@ function updateTopbar() {
   if (bar) bar.style.width = ((currentStep / TOTAL_STEPS) * 100) + '%';
 }
 
-/* VALIDATION */
+/* ── VALIDATION ─────────────────────────────────────────────────────────── */
 function showError(msg) {
   const toast = document.getElementById('toast');
   if (!toast) return;
@@ -160,7 +160,7 @@ function validateStep(step) {
   }
 }
 
-/* DATA COLLECTION */
+/* ── DATA COLLECTION ────────────────────────────────────────────────────── */
 function collectStep(step) {
   switch (step) {
     case 1:
@@ -191,7 +191,7 @@ function collectStep(step) {
   }
 }
 
-/* CALCULATIONS */
+/* ── CALCULATIONS ───────────────────────────────────────────────────────── */
 function calcCombustivel() {
   const custoAtual = (state.km_mes / state.comb_litros) * state.comb_preco * state.veiculos;
   let economia = 0;
@@ -271,7 +271,7 @@ function calcCPK(custoTotalMes, kmMes, veiculos) {
   return totalKm > 0 ? custoTotalMes / totalKm : 0;
 }
 
-/* RESULT RENDERING */
+/* ── RESULT RENDERING ───────────────────────────────────────────────────── */
 function fmt(val) {
   return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
@@ -360,15 +360,18 @@ function buildResult() {
   const pctEco        = totalAtual > 0 ? Math.round((totalEconomia / totalAtual) * 100) : 0;
   const allAttn       = [].concat(comb.atencao, mant.atencao, pneu.atencao);
 
+  /* fleet summary */
   setText('res-frota-tipo',     state.frota);
   setText('res-frota-veiculos', state.veiculos + ' veíc.');
   setText('res-frota-km',       fmtNum(state.km_mes) + ' km');
 
+  /* hero count-up */
   countUp('res-economia-mes', totalEconomia, 'R$ ', '', 1200);
   setTimeout(function() {
     setText('res-economia-ano', fmt(totalEconomia * 12));
   }, 1200);
 
+  /* CPK */
   setText('res-cpk-atual',  'R$ ' + fmtDec(cpkAtual, 2));
   setText('res-cpk-otim',   'R$ ' + fmtDec(cpkOtim, 2));
   setText('res-cpk-badge',  cpkSt.label);
@@ -376,16 +379,19 @@ function buildResult() {
   setText('res-bench-range', 'Ref: R$ ' + fmtDec(cpkBM.min, 2) + '–' + fmtDec(cpkBM.max, 2) + '/km (' + cpkBM.label + ')');
   setTimeout(function() { setGauge(cpkAtual, cpkOtim, cpkBM.min, cpkBM.max); }, 100);
 
+  /* pillar cards */
   setPillarCard('res-comb', comb.custoAtual, comb.economia);
   setPillarCard('res-mant', mant.custoAtual, mant.economia);
   setPillarCard('res-pneu', pneu.custoAtual, pneu.economia);
 
+  /* eco total */
   setText('res-eco-mes-big', fmt(totalEconomia));
   setText('res-eco-ano-big', fmt(totalEconomia * 12));
   setText('res-pct-eco', pctEco + '%');
   const ecoBar = document.getElementById('res-eco-bar');
   if (ecoBar) setTimeout(function() { ecoBar.style.width = Math.min(pctEco, 100) + '%'; }, 300);
 
+  /* attention */
   const attnEl = document.getElementById('res-atencao');
   if (attnEl) {
     if (allAttn.length) {
@@ -396,10 +402,11 @@ function buildResult() {
     }
   }
 
+  /* store last result for PDF */
   window._lastResult = { comb, mant, pneu, totalEconomia, totalAtual, cpkAtual, cpkOtim, cpkBM, cpkSt, pctEco, allAttn };
 }
 
-/* PDF GENERATION */
+/* ── PDF GENERATION ─────────────────────────────────────────────────────── */
 function gerarPDF() {
   const r = window._lastResult;
   if (!r) return;
@@ -409,90 +416,94 @@ function gerarPDF() {
     ? r.allAttn.map(t => '<li>' + t + '</li>').join('')
     : '<li>Nenhum ponto crítico identificado.</li>';
 
-  const html = '<html><head><meta charset="UTF-8">'
-    + '<style>'
-    + '@page { size: A4; margin: 18mm 16mm; }'
-    + 'body { font-family: Arial, sans-serif; font-size: 12px; color: #0F172A; line-height: 1.5; }'
-    + '.header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #2563EB; padding-bottom: 10px; margin-bottom: 18px; }'
-    + '.header h1 { font-size: 18px; font-weight: 900; color: #2563EB; margin: 0; }'
-    + '.header p  { font-size: 10px; color: #64748B; margin: 2px 0 0; }'
-    + '.date { font-size: 10px; color: #64748B; text-align: right; }'
-    + '.hero-box { background: #0F172A; color: #fff; border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; text-align: center; }'
-    + '.hero-box .lbl { font-size: 10px; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .5px; }'
-    + '.hero-box .val { font-size: 32px; font-weight: 900; color: #22C55E; line-height: 1.1; }'
-    + '.hero-box .sub { font-size: 12px; color: rgba(255,255,255,.6); margin-top: 4px; }'
-    + '.strip { display: flex; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 14px; overflow: hidden; }'
-    + '.strip-item { flex: 1; padding: 10px; text-align: center; border-right: 1px solid #E2E8F0; }'
-    + '.strip-item:last-child { border-right: none; }'
-    + '.strip-lbl { font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .4px; }'
-    + '.strip-val { font-size: 13px; font-weight: 700; color: #0F172A; }'
-    + '.section-title { font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .5px; margin: 14px 0 8px; }'
-    + '.cpk-row { display: flex; gap: 10px; margin-bottom: 14px; }'
-    + '.cpk-box { flex: 1; border: 1.5px solid #E2E8F0; border-radius: 8px; padding: 12px; text-align: center; }'
-    + '.cpk-box.atual { border-color: #EF4444; }'
-    + '.cpk-box.otim  { border-color: #22C55E; }'
-    + '.cpk-lbl { font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .4px; }'
-    + '.cpk-val { font-size: 22px; font-weight: 900; color: #0F172A; }'
-    + '.cpk-val.green { color: #16A34A; }'
-    + '.cpk-bench { font-size: 9px; color: #64748B; margin-top: 6px; padding: 6px; background: #F0FDF4; border-radius: 4px; }'
-    + 'table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }'
-    + 'th { background: #F8FAFC; font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .4px; padding: 8px 10px; text-align: left; border-bottom: 1px solid #E2E8F0; }'
-    + 'td { padding: 9px 10px; font-size: 12px; border-bottom: 1px solid #F1F5F9; }'
-    + 'td.eco { font-weight: 700; color: #16A34A; }'
-    + 'td.pct { font-weight: 700; color: #16A34A; text-align: right; }'
-    + 'tr.total td { font-weight: 800; border-top: 2px solid #E2E8F0; background: #F8FAFC; }'
-    + '.eco-box { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }'
-    + '.eco-box .left .lbl { font-size: 9px; font-weight: 700; color: #16A34A; text-transform: uppercase; letter-spacing: .5px; }'
-    + '.eco-box .left .mes { font-size: 26px; font-weight: 900; color: #16A34A; line-height: 1.1; }'
-    + '.eco-box .left .ano { font-size: 13px; color: #16A34A; }'
-    + '.eco-box .right { text-align: right; }'
-    + '.eco-box .right .pct-val { font-size: 28px; font-weight: 900; color: #16A34A; line-height: 1; }'
-    + '.eco-box .right .pct-lbl { font-size: 10px; color: #16A34A; opacity: .7; }'
-    + '.attn-list { margin: 0; padding: 0 0 0 16px; }'
-    + '.attn-list li { font-size: 12px; color: #0F172A; margin-bottom: 6px; line-height: 1.45; }'
-    + '.sources { margin-top: 14px; border-top: 1px solid #E2E8F0; padding-top: 10px; }'
-    + '.sources p { font-size: 9px; color: #94A3B8; line-height: 1.6; }'
-    + '.footer { margin-top: 20px; text-align: center; font-size: 9px; color: #94A3B8; border-top: 1px solid #E2E8F0; padding-top: 8px; }'
-    + '</style></head><body>'
-    + '<div class="header">'
-    + '  <div><h1>Diagnóstico de Custos de Frota</h1><p>Relatório gerado automaticamente com base nos dados informados</p></div>'
-    + '  <div class="date">Data: ' + hoje + '</div>'
-    + '</div>'
-    + '<div class="hero-box">'
-    + '  <p class="lbl">Sua frota pode economizar</p>'
-    + '  <p class="val">' + fmt(r.totalEconomia) + '</p>'
-    + '  <p class="sub">por mês &nbsp;·&nbsp; <strong>' + fmt(r.totalEconomia * 12) + '</strong> por ano</p>'
-    + '</div>'
-    + '<div class="strip">'
-    + '  <div class="strip-item"><div class="strip-lbl">Tipo de frota</div><div class="strip-val">' + state.frota + '</div></div>'
-    + '  <div class="strip-item"><div class="strip-lbl">Veículos</div><div class="strip-val">' + state.veiculos + '</div></div>'
-    + '  <div class="strip-item"><div class="strip-lbl">km/mês por veículo</div><div class="strip-val">' + fmtNum(state.km_mes) + ' km</div></div>'
-    + '  <div class="strip-item"><div class="strip-lbl">km/mês total</div><div class="strip-val">' + fmtNum(state.km_mes * state.veiculos) + ' km</div></div>'
-    + '</div>'
-    + '<p class="section-title">CPK — Custo por Quilômetro</p>'
-    + '<div class="cpk-row">'
-    + '  <div class="cpk-box atual"><div class="cpk-lbl">CPK Atual</div><div class="cpk-val">R$ ' + fmtDec(r.cpkAtual, 2) + '</div><div style="font-size:10px;color:#64748B">por km rodado</div></div>'
-    + '  <div class="cpk-box otim"><div class="cpk-lbl">CPK Otimizado</div><div class="cpk-val green">R$ ' + fmtDec(r.cpkOtim, 2) + '</div><div style="font-size:10px;color:#16A34A">por km rodado</div></div>'
-    + '</div>'
-    + '<div class="cpk-bench">Benchmark do setor (' + r.cpkBM.label + '): R$ ' + fmtDec(r.cpkBM.min, 2) + ' – R$ ' + fmtDec(r.cpkBM.max, 2) + ' /km &nbsp;|&nbsp; Situação: <strong>' + r.cpkSt.label + '</strong> &nbsp;|&nbsp; Fonte: ANTT SUROC 1/2024 · NTC&Logística</div>'
-    + '<p class="section-title">Detalhamento por pilar</p>'
-    + '<table>'
-    + '<thead><tr><th>Pilar</th><th>Custo atual / mês</th><th>Potencial de economia</th><th style="text-align:right">Redução</th></tr></thead>'
-    + '<tbody>'
-    + '<tr><td>Combustível</td><td>' + fmt(r.comb.custoAtual) + '</td><td class="eco">' + fmt(r.comb.economia) + '</td><td class="pct">' + (r.comb.custoAtual > 0 ? Math.round(r.comb.economia / r.comb.custoAtual * 100) : 0) + '%</td></tr>'
-    + '<tr><td>Manutenção</td><td>' + fmt(r.mant.custoAtual) + '</td><td class="eco">' + fmt(r.mant.economia) + '</td><td class="pct">' + (r.mant.custoAtual > 0 ? Math.round(r.mant.economia / r.mant.custoAtual * 100) : 0) + '%</td></tr>'
-    + '<tr><td>Pneus</td><td>' + fmt(r.pneu.custoAtual) + '</td><td class="eco">' + fmt(r.pneu.economia) + '</td><td class="pct">' + (r.pneu.custoAtual > 0 ? Math.round(r.pneu.economia / r.pneu.custoAtual * 100) : 0) + '%</td></tr>'
-    + '<tr class="total"><td><strong>Total</strong></td><td><strong>' + fmt(r.totalAtual) + '</strong></td><td class="eco"><strong>' + fmt(r.totalEconomia) + '</strong></td><td class="pct">' + r.pctEco + '%</td></tr>'
-    + '</tbody></table>'
-    + '<div class="eco-box">'
-    + '  <div class="left"><div class="lbl">Potencial total de redução</div><div class="mes">' + fmt(r.totalEconomia) + '</div><div class="ano">por mês</div></div>'
-    + '  <div class="right"><div class="pct-val">' + fmt(r.totalEconomia * 12) + '</div><div class="pct-lbl">por ano</div></div>'
-    + '</div>'
-    + '<p class="section-title">⚠ Pontos de atenção identificados</p>'
-    + '<ul class="attn-list">' + attnHTML + '</ul>'
-    + '<div class="sources"><p><strong>Fontes e referências:</strong> ANTT SUROC 1/2024 · NTC&Logística · Geotab Brasil · CNT · ANFAVEA · Bandag · Bridgestone · ANIP · Mercedes-Benz Trucks · Volvo Trucks BR · Scania Brasil · ICCT · ProLog App</p></div>'
-    + '<div class="footer">Diagnóstico de Custos de Frota · Gerado em ' + hoje + ' · Os valores são estimativas baseadas em benchmarks do setor</div>'
-    + '</body></html>';
+  const html = '\
+<html><head><meta charset="UTF-8">\
+<style>\
+  @page { size: A4; margin: 18mm 16mm; }\
+  body { font-family: Arial, sans-serif; font-size: 12px; color: #0F172A; line-height: 1.5; }\
+  .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #2563EB; padding-bottom: 10px; margin-bottom: 18px; }\
+  .header h1 { font-size: 18px; font-weight: 900; color: #2563EB; margin: 0; }\
+  .header p  { font-size: 10px; color: #64748B; margin: 2px 0 0; }\
+  .date { font-size: 10px; color: #64748B; text-align: right; }\
+  .hero-box { background: #0F172A; color: #fff; border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; text-align: center; }\
+  .hero-box .lbl { font-size: 10px; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .5px; }\
+  .hero-box .val { font-size: 32px; font-weight: 900; color: #22C55E; line-height: 1.1; }\
+  .hero-box .sub { font-size: 12px; color: rgba(255,255,255,.6); margin-top: 4px; }\
+  .strip { display: flex; border: 1px solid #E2E8F0; border-radius: 8px; margin-bottom: 14px; overflow: hidden; }\
+  .strip-item { flex: 1; padding: 10px; text-align: center; border-right: 1px solid #E2E8F0; }\
+  .strip-item:last-child { border-right: none; }\
+  .strip-lbl { font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .4px; }\
+  .strip-val { font-size: 13px; font-weight: 700; color: #0F172A; }\
+  .section-title { font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .5px; margin: 14px 0 8px; }\
+  .cpk-row { display: flex; gap: 10px; margin-bottom: 14px; }\
+  .cpk-box { flex: 1; border: 1.5px solid #E2E8F0; border-radius: 8px; padding: 12px; text-align: center; }\
+  .cpk-box.atual { border-color: #EF4444; }\
+  .cpk-box.otim  { border-color: #22C55E; }\
+  .cpk-lbl { font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .4px; }\
+  .cpk-val { font-size: 22px; font-weight: 900; color: #0F172A; }\
+  .cpk-val.green { color: #16A34A; }\
+  .cpk-bench { font-size: 9px; color: #64748B; margin-top: 6px; padding: 6px; background: #F0FDF4; border-radius: 4px; }\
+  table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }\
+  th { background: #F8FAFC; font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .4px; padding: 8px 10px; text-align: left; border-bottom: 1px solid #E2E8F0; }\
+  td { padding: 9px 10px; font-size: 12px; border-bottom: 1px solid #F1F5F9; }\
+  td.eco { font-weight: 700; color: #16A34A; }\
+  td.pct { font-weight: 700; color: #16A34A; text-align: right; }\
+  tr.total td { font-weight: 800; border-top: 2px solid #E2E8F0; background: #F8FAFC; }\
+  .eco-box { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; overflow: hidden; }\
+  .eco-box .left { float: left; }\
+  .eco-box .left .lbl { font-size: 9px; font-weight: 700; color: #16A34A; text-transform: uppercase; letter-spacing: .5px; }\
+  .eco-box .left .mes { font-size: 26px; font-weight: 900; color: #16A34A; line-height: 1.1; }\
+  .eco-box .left .ano { font-size: 13px; color: #16A34A; }\
+  .eco-box .right { float: right; text-align: right; }\
+  .eco-box .right .pct-val { font-size: 28px; font-weight: 900; color: #16A34A; line-height: 1; }\
+  .eco-box .right .pct-lbl { font-size: 10px; color: #16A34A; opacity: .7; }\
+  .attn-list { margin: 0; padding: 0 0 0 16px; }\
+  .attn-list li { font-size: 12px; color: #0F172A; margin-bottom: 6px; line-height: 1.45; }\
+  .sources { margin-top: 14px; border-top: 1px solid #E2E8F0; padding-top: 10px; }\
+  .sources p { font-size: 9px; color: #94A3B8; line-height: 1.6; }\
+  .footer { margin-top: 20px; text-align: center; font-size: 9px; color: #94A3B8; border-top: 1px solid #E2E8F0; padding-top: 8px; }\
+</style></head><body>\
+<div class="header">\
+  <div><h1>Diagnóstico de Custos de Frota</h1><p>Relatório gerado automaticamente com base nos dados informados</p></div>\
+  <div class="date">Data: ' + hoje + '</div>\
+</div>\
+<div class="hero-box">\
+  <p class="lbl">Sua frota pode economizar</p>\
+  <p class="val">' + fmt(r.totalEconomia) + '</p>\
+  <p class="sub">por mês &nbsp;·&nbsp; <strong>' + fmt(r.totalEconomia * 12) + '</strong> por ano</p>\
+</div>\
+<div class="strip">\
+  <div class="strip-item"><div class="strip-lbl">Tipo de frota</div><div class="strip-val">' + state.frota + '</div></div>\
+  <div class="strip-item"><div class="strip-lbl">Veículos</div><div class="strip-val">' + state.veiculos + '</div></div>\
+  <div class="strip-item"><div class="strip-lbl">km/mês por veículo</div><div class="strip-val">' + fmtNum(state.km_mes) + ' km</div></div>\
+  <div class="strip-item"><div class="strip-lbl">km/mês total</div><div class="strip-val">' + fmtNum(state.km_mes * state.veiculos) + ' km</div></div>\
+</div>\
+<p class="section-title">CPK — Custo por Quilômetro</p>\
+<div class="cpk-row">\
+  <div class="cpk-box atual"><div class="cpk-lbl">CPK Atual</div><div class="cpk-val">R$ ' + fmtDec(r.cpkAtual, 2) + '</div><div style="font-size:10px;color:#64748B">por km rodado</div></div>\
+  <div class="cpk-box otim"><div class="cpk-lbl">CPK Otimizado</div><div class="cpk-val green">R$ ' + fmtDec(r.cpkOtim, 2) + '</div><div style="font-size:10px;color:#16A34A">por km rodado</div></div>\
+</div>\
+<div class="cpk-bench">Benchmark do setor (' + r.cpkBM.label + '): R$ ' + fmtDec(r.cpkBM.min, 2) + ' – R$ ' + fmtDec(r.cpkBM.max, 2) + ' /km &nbsp;|&nbsp; Situação: <strong>' + r.cpkSt.label + '</strong> &nbsp;|&nbsp; Fonte: ANTT SUROC 1/2024 · NTC&Logística</div>\
+<p class="section-title">Detalhamento por pilar</p>\
+<table>\
+<thead><tr><th>Pilar</th><th>Custo atual / mês</th><th>Potencial de economia</th><th style="text-align:right">Redução</th></tr></thead>\
+<tbody>\
+<tr><td>Combustível</td><td>' + fmt(r.comb.custoAtual) + '</td><td class="eco">' + fmt(r.comb.economia) + '</td><td class="pct">' + (r.comb.custoAtual > 0 ? Math.round(r.comb.economia / r.comb.custoAtual * 100) : 0) + '%</td></tr>\
+<tr><td>Manutenção</td><td>' + fmt(r.mant.custoAtual) + '</td><td class="eco">' + fmt(r.mant.economia) + '</td><td class="pct">' + (r.mant.custoAtual > 0 ? Math.round(r.mant.economia / r.mant.custoAtual * 100) : 0) + '%</td></tr>\
+<tr><td>Pneus</td><td>' + fmt(r.pneu.custoAtual) + '</td><td class="eco">' + fmt(r.pneu.economia) + '</td><td class="pct">' + (r.pneu.custoAtual > 0 ? Math.round(r.pneu.economia / r.pneu.custoAtual * 100) : 0) + '%</td></tr>\
+<tr class="total"><td><strong>Total</strong></td><td><strong>' + fmt(r.totalAtual) + '</strong></td><td class="eco"><strong>' + fmt(r.totalEconomia) + '</strong></td><td class="pct">' + r.pctEco + '%</td></tr>\
+</tbody></table>\
+<div class="eco-box">\
+  <div class="left"><div class="lbl">Potencial total de redução</div><div class="mes">' + fmt(r.totalEconomia) + '</div><div class="ano">por mês</div></div>\
+  <div class="right"><div class="pct-val">' + fmt(r.totalEconomia * 12) + '</div><div class="pct-lbl">por ano</div></div>\
+</div>\
+<p class="section-title">⚠ Pontos de atenção identificados</p>\
+<ul class="attn-list">' + attnHTML + '</ul>\
+<div class="sources">\
+  <p><strong>Fontes e referências:</strong> ANTT SUROC 1/2024 · NTC&Logística · Geotab Brasil · CNT · ANFAVEA · Bandag · Bridgestone · ANIP · Mercedes-Benz Trucks · Volvo Trucks BR · Scania Brasil · ICCT · ProLog App</p>\
+</div>\
+<div class="footer">Diagnóstico de Custos de Frota · Gerado em ' + hoje + ' · Os valores são estimativas baseadas em benchmarks do setor</div>\
+</body></html>';
 
   const w = window.open('', '_blank');
   if (!w) { alert('Permita pop-ups para gerar o PDF.'); return; }
@@ -512,7 +523,7 @@ function setClass(id, cls) {
   if (el) el.className = cls;
 }
 
-/* INIT */
+/* ── INIT ───────────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function() {
   show('landing');
 });
