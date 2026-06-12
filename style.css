@@ -1291,3 +1291,28 @@ body {
   .cpk-value { font-size: 20px; }
   .fleet-strip-val { font-size: 12px; }
 }
+
+/* URGENCY NOTE */
+.urgency-note {
+  font-size: 12px;
+  font-weight: 600;
+  color: #92400E;
+  background: var(--yellow-light);
+  border: 1px solid #FDE68A;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 14px;
+}
+
+/* COMB PREVIEW */
+.comb-preview-box {
+  background: var(--primary-light);
+  border: 1px solid #BFDBFE;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-top: -10px;
+  margin-bottom: 18px;
+}

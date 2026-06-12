@@ -45,6 +45,8 @@ const state = {
   pneu_pressao:  null,  // sim | nao
   pneu_rodizio:  null,  // sim | nao
   pneu_alinham:  null,  // sim | nao
+  nome:          null,
+  whatsapp:      null,
 };
 
 /* ── NAVIGATION ─────────────────────────────────────────────────────────── */
@@ -70,9 +72,8 @@ function goNext() {
   if (!validateStep(currentStep)) return;
   collectStep(currentStep);
   if (currentStep === TOTAL_STEPS) {
-    buildResult();
-    show('result');
     currentStep = 7;
+    show('lead-capture');
   } else {
     currentStep++;
     show('step-' + currentStep);
@@ -81,6 +82,12 @@ function goNext() {
 }
 
 function goBack() {
+  if (currentStep === 7) {
+    currentStep = TOTAL_STEPS;
+    show('step-' + TOTAL_STEPS);
+    updateTopbar();
+    return;
+  }
   if (currentStep <= 1) {
     currentStep = 0;
     show('landing');
@@ -97,6 +104,53 @@ function restart() {
     state[k] = typeof state[k] === 'number' ? 0 : null;
   });
   show('landing');
+}
+
+function submitLead() {
+  const nome = (document.getElementById('lead-nome').value || '').trim();
+  const wpp  = (document.getElementById('lead-whatsapp').value || '').trim();
+  if (!nome) { showError('Informe seu nome.'); return; }
+  if (!wpp || wpp.replace(/\D/g, '').length < 10) { showError('Informe um WhatsApp válido.'); return; }
+  state.nome     = nome;
+  state.whatsapp = wpp;
+  buildResult();
+  show('result');
+  currentStep = 8;
+}
+
+function skipLead() {
+  state.nome     = null;
+  state.whatsapp = null;
+  buildResult();
+  show('result');
+  currentStep = 8;
+}
+
+function abrirWhatsApp() {
+  const r = window._lastResult;
+  const economia = r ? fmt(r.totalEconomia) : '';
+  const saudacao = state.nome ? 'Olá, sou ' + state.nome + '.' : 'Olá!';
+  const msg = encodeURIComponent(
+    saudacao + ' Fiz o diagnóstico da minha frota ' + (state.frota || '') +
+    ' (' + state.veiculos + ' veículos) e identifiquei potencial de economia de ' +
+    economia + '/mês. Gostaria de conversar sobre como implementar.'
+  );
+  window.open('https://wa.me/5542998582489?text=' + msg, '_blank');
+}
+
+function updateCombPreview() {
+  const litros = parseFloat((document.getElementById('comb_litros').value || '').replace(',', '.')) || 0;
+  const preco  = parseFloat((document.getElementById('comb_preco').value  || '').replace(',', '.')) || 0;
+  const box = document.getElementById('comb-preview-box');
+  const txt = document.getElementById('comb-preview-txt');
+  if (!box || !txt) return;
+  if (litros > 0 && preco > 0 && state.km_mes > 0 && state.veiculos > 0) {
+    const custo = (state.km_mes / litros) * preco * state.veiculos;
+    txt.textContent = 'Estimativa de combustível: ' + fmt(custo) + '/mês — isso parece correto?';
+    box.style.display = '';
+  } else {
+    box.style.display = 'none';
+  }
 }
 
 function updateTopbar() {
@@ -404,6 +458,16 @@ function buildResult() {
 
   /* store last result for PDF */
   window._lastResult = { comb, mant, pneu, totalEconomia, totalAtual, cpkAtual, cpkOtim, cpkBM, cpkSt, pctEco, allAttn };
+
+  /* segmented CTA message */
+  const v = state.veiculos;
+  let ctaMsg = '';
+  if      (v >= 50) ctaMsg = 'Para frotas acima de 50 veículos, desenvolvemos um plano de gestão completo com acompanhamento mensal de CPK.';
+  else if (v >= 20) ctaMsg = 'Para frotas acima de 20 veículos, criamos um plano de ação personalizado por pilar com metas e cronograma.';
+  else if (v >= 5)  ctaMsg = 'Nosso time pode ajudar sua frota a atingir esse potencial com um plano de ação prático e mensurável.';
+  else              ctaMsg = 'Mesmo em frotas menores, a otimização de CPK tem retorno rápido. Vamos detalhar as oportunidades identificadas?';
+  setText('cta-segment-msg', ctaMsg);
+  if (state.nome) setText('cta-greeting', state.nome + ', quer implementar essas melhorias?');
 }
 
 /* ── PDF GENERATION ─────────────────────────────────────────────────────── */
