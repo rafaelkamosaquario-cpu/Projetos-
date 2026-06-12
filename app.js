@@ -449,11 +449,12 @@ function gerarPDF() {
   td.eco { font-weight: 700; color: #16A34A; }\
   td.pct { font-weight: 700; color: #16A34A; text-align: right; }\
   tr.total td { font-weight: 800; border-top: 2px solid #E2E8F0; background: #F8FAFC; }\
-  .eco-box { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }\
+  .eco-box { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; overflow: hidden; }\
+  .eco-box .left { float: left; }\
   .eco-box .left .lbl { font-size: 9px; font-weight: 700; color: #16A34A; text-transform: uppercase; letter-spacing: .5px; }\
   .eco-box .left .mes { font-size: 26px; font-weight: 900; color: #16A34A; line-height: 1.1; }\
   .eco-box .left .ano { font-size: 13px; color: #16A34A; }\
-  .eco-box .right { text-align: right; }\
+  .eco-box .right { float: right; text-align: right; }\
   .eco-box .right .pct-val { font-size: 28px; font-weight: 900; color: #16A34A; line-height: 1; }\
   .eco-box .right .pct-lbl { font-size: 10px; color: #16A34A; opacity: .7; }\
   .attn-list { margin: 0; padding: 0 0 0 16px; }\
