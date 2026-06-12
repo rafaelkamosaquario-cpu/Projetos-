@@ -11,7 +11,6 @@
 </head>
 <body>
 
-<!-- LANDING -->
 <div id="landing" class="screen active">
   <div class="hero">
     <div class="hero-badge">Diagnóstico Gratuito</div>
@@ -68,7 +67,6 @@
   </div>
 </div>
 
-<!-- STEP 1 -->
 <div id="step-1" class="screen">
   <div class="form-topbar">
     <button class="back-btn" onclick="goBack()">← Voltar</button>
@@ -134,7 +132,6 @@
   </div>
 </div>
 
-<!-- STEP 2 -->
 <div id="step-2" class="screen">
   <div class="form-topbar">
     <button class="back-btn" onclick="goBack()">← Voltar</button>
@@ -155,12 +152,16 @@
 
       <div class="field">
         <label class="field-label" for="comb_litros">Consumo médio (km/l)</label>
-        <input class="field-input" type="number" id="comb_litros" min="0.1" step="0.1" placeholder="Ex: 3,5">
+        <input class="field-input" type="number" id="comb_litros" min="0.1" step="0.1" placeholder="Ex: 3,5" oninput="updateCombPreview()">
       </div>
 
       <div class="field">
         <label class="field-label" for="comb_preco">Preço do combustível (R$/l)</label>
-        <input class="field-input" type="number" id="comb_preco" min="0.1" step="0.01" placeholder="Ex: 6,50">
+        <input class="field-input" type="number" id="comb_preco" min="0.1" step="0.01" placeholder="Ex: 6,50" oninput="updateCombPreview()">
+      </div>
+
+      <div id="comb-preview-box" class="comb-preview-box" style="display:none">
+        <span id="comb-preview-txt"></span>
       </div>
 
       <div class="field">
@@ -202,7 +203,6 @@
   </div>
 </div>
 
-<!-- STEP 3 -->
 <div id="step-3" class="screen">
   <div class="form-topbar">
     <button class="back-btn" onclick="goBack()">← Voltar</button>
@@ -293,7 +293,6 @@
   </div>
 </div>
 
-<!-- STEP 4 -->
 <div id="step-4" class="screen">
   <div class="form-topbar">
     <button class="back-btn" onclick="goBack()">← Voltar</button>
@@ -354,7 +353,6 @@
   </div>
 </div>
 
-<!-- STEP 5 -->
 <div id="step-5" class="screen">
   <div class="form-topbar">
     <button class="back-btn" onclick="goBack()">← Voltar</button>
@@ -428,7 +426,6 @@
   </div>
 </div>
 
-<!-- STEP 6 -->
 <div id="step-6" class="screen">
   <div class="form-topbar">
     <button class="back-btn" onclick="goBack()">← Voltar</button>
@@ -474,7 +471,47 @@
   </div>
 </div>
 
-<!-- RESULT -->
+<div id="lead-capture" class="screen">
+  <div class="form-topbar">
+    <button class="back-btn" onclick="goBack()">← Voltar</button>
+    <span class="step-counter" style="color:var(--green-dark)">Quase lá!</span>
+    <span></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+
+  <div class="content-wrap">
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-num" style="background:var(--green-light);color:var(--green-dark)">✓</span>
+        <div>
+          <h2 class="step-title">Seu diagnóstico está pronto!</h2>
+          <p class="step-desc">Deixe seu contato para receber uma consultoria gratuita</p>
+        </div>
+      </div>
+
+      <div class="alert-box blue">
+        <p class="alert-title">O que acontece depois?</p>
+        <p class="alert-body">Nosso especialista entra em contato via WhatsApp para detalhar as oportunidades identificadas e apresentar um plano de ação personalizado para sua frota — sem compromisso.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="lead-nome">Seu nome</label>
+        <input class="field-input" type="text" id="lead-nome" placeholder="Ex: João Silva">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="lead-whatsapp">WhatsApp</label>
+        <input class="field-input" type="tel" id="lead-whatsapp" placeholder="(42) 99999-9999">
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-primary" onclick="submitLead()">Ver meu diagnóstico →</button>
+      </div>
+      <button class="btn-ghost" onclick="skipLead()">Prefiro ver sem deixar contato</button>
+    </div>
+  </div>
+</div>
+
 <div id="result" class="screen">
   <div class="result-hero">
     <div class="result-hero-inner">
@@ -607,10 +644,11 @@
     </div>
 
     <div class="cta-card">
-      <p class="cta-title">Quer implementar essas melhorias?</p>
-      <p class="cta-body">Nosso time pode ajudar sua frota a atingir esse potencial de economia com um plano de ação personalizado.</p>
+      <p class="cta-title" id="cta-greeting">Quer implementar essas melhorias?</p>
+      <p class="cta-body" id="cta-segment-msg">Nosso time pode ajudar sua frota a atingir esse potencial de economia com um plano de ação personalizado.</p>
+      <p class="urgency-note">📅 Agenda limitada — atendemos até 5 novos clientes por mês</p>
       <button class="btn-pdf-report" onclick="gerarPDF()">⬇ Baixar Relatório em PDF</button>
-      <button class="btn-cta-full">Falar com especialista</button>
+      <button class="btn-cta-full" onclick="abrirWhatsApp()">💬 Falar com especialista no WhatsApp</button>
       <button class="btn-ghost" onclick="restart()">Refazer diagnóstico</button>
     </div>
 
