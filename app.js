@@ -1,54 +1,56 @@
 'use strict';
 
-/* ── BENCHMARKS ─────────────────────────────────────────────────────────── */
+/* ── BENCHMARKS ──────────────────────────────────────────────────────── */
 const BM = {
   comb: {
-    controlConsumo: 0.065, // 5–8% (Cobli/GolFleet/MiX Telematics)
-    ecodriving:     0.10,  // 8–15% (Volvo Trucks BR / Scania Brasil / ICCT)
+    controlConsumo: 0.065,
+    ecodriving:     0.10,
   },
   mant: {
-    ratioIdealCorr: 0.20, // máx 20% corretiva (Geotab Brasil / CNT)
-    excessoCorr:    0.30, // +30% custo corretiva>prev (Geotab / ANFAVEA)
-    semPlano:       0.25, // sem plano = +25% (NTC&Logística)
+    ratioIdealCorr: 0.20,
+    excessoCorr:    0.30,
+    semPlano:       0.25,
     parcial:        0.12,
     quebras:        0.08,
   },
   pneu: {
-    semRecap:    0.38, // 35–40% mais caro sem recapagem (Bandag/Bridgestone)
-    umaRecap:    0.17, // com 1 vs 2 recapagens (Bandag)
-    pressao_comb: 0.03, // +3% combustível com pressão errada (ANIP/Mercedes-Benz)
+    semRecap:    0.38,
+    umaRecap:    0.17,
+    pressao_comb: 0.03,
     pressao_pneu: 0.12,
-    rodizio:      0.15, // +20% vida útil (ProLog App)
-    alinhamento:  0.12, // +15–20% vida útil (ProLog App)
+    rodizio:      0.15,
+    alinhamento:  0.12,
   },
-  cpk: { // CPK parcial combustível+manutenção+pneus ≈ 58–69% do total
+  cpk: {
     Leve:   { min: 0.70, max: 1.30, label: 'VUC / Furgão' },
     Média:  { min: 1.20, max: 2.10, label: 'Toco / Truck' },
     Pesada: { min: 2.00, max: 3.60, label: 'Carreta / Bitrem' },
   },
 };
 
-/* ── FORM STATE ─────────────────────────────────────────────────────────── */
+/* ── FORM STATE ────────────────────────────────────────────────────────── */
 const state = {
-  frota:      null, // Leve | Média | Pesada
+  frota:      null,
   veiculos:   0,
   km_mes:     0,
   comb_litros: 0,
   comb_preco:  0,
-  comb_controle: null,  // sim | nao
-  comb_eco:      null,  // sim | nao
-  mant_plano:    null,  // sim | parcial | nao
-  mant_tipo:     null,  // prev | mista | corr
+  comb_controle: null,
+  comb_eco:      null,
+  mant_plano:    null,
+  mant_tipo:     null,
   mant_custo:    0,
   pneu_custo:    0,
-  pneu_recap:    null,  // duas | uma | nao
-  pneu_pressao:  null,  // sim | nao
-  pneu_rodizio:  null,  // sim | nao
-  pneu_alinham:  null,  // sim | nao
+  pneu_recap:    null,
+  pneu_pressao:  null,
+  pneu_rodizio:  null,
+  pneu_alinham:  null,
+  nome:          null,
+  whatsapp:      null,
 };
 
-/* ── NAVIGATION ─────────────────────────────────────────────────────────── */
-let currentStep = 0; // 0=landing, 1-6=form steps, 7=result
+/* ── NAVIGATION ───────────────────────────────────────────────────────── */
+let currentStep = 0;
 const TOTAL_STEPS = 6;
 
 function show(screenId) {
@@ -70,9 +72,8 @@ function goNext() {
   if (!validateStep(currentStep)) return;
   collectStep(currentStep);
   if (currentStep === TOTAL_STEPS) {
-    buildResult();
-    show('result');
     currentStep = 7;
+    show('lead-capture');
   } else {
     currentStep++;
     show('step-' + currentStep);
@@ -81,6 +82,12 @@ function goNext() {
 }
 
 function goBack() {
+  if (currentStep === 7) {
+    currentStep = TOTAL_STEPS;
+    show('step-' + TOTAL_STEPS);
+    updateTopbar();
+    return;
+  }
   if (currentStep <= 1) {
     currentStep = 0;
     show('landing');
@@ -99,6 +106,53 @@ function restart() {
   show('landing');
 }
 
+function submitLead() {
+  const nome = (document.getElementById('lead-nome').value || '').trim();
+  const wpp  = (document.getElementById('lead-whatsapp').value || '').trim();
+  if (!nome) { showError('Informe seu nome.'); return; }
+  if (!wpp || wpp.replace(/\D/g, '').length < 10) { showError('Informe um WhatsApp válido.'); return; }
+  state.nome     = nome;
+  state.whatsapp = wpp;
+  buildResult();
+  show('result');
+  currentStep = 8;
+}
+
+function skipLead() {
+  state.nome     = null;
+  state.whatsapp = null;
+  buildResult();
+  show('result');
+  currentStep = 8;
+}
+
+function abrirWhatsApp() {
+  const r = window._lastResult;
+  const economia = r ? fmt(r.totalEconomia) : '';
+  const saudacao = state.nome ? 'Olá, sou ' + state.nome + '.' : 'Olá!';
+  const msg = encodeURIComponent(
+    saudacao + ' Fiz o diagnóstico da minha frota ' + (state.frota || '') +
+    ' (' + state.veiculos + ' veículos) e identifiquei potencial de economia de ' +
+    economia + '/mês. Gostaria de conversar sobre como implementar.'
+  );
+  window.open('https://wa.me/5542998582489?text=' + msg, '_blank');
+}
+
+function updateCombPreview() {
+  const litros = parseFloat((document.getElementById('comb_litros').value || '').replace(',', '.')) || 0;
+  const preco  = parseFloat((document.getElementById('comb_preco').value  || '').replace(',', '.')) || 0;
+  const box = document.getElementById('comb-preview-box');
+  const txt = document.getElementById('comb-preview-txt');
+  if (!box || !txt) return;
+  if (litros > 0 && preco > 0 && state.km_mes > 0 && state.veiculos > 0) {
+    const custo = (state.km_mes / litros) * preco * state.veiculos;
+    txt.textContent = 'Estimativa de combustível: ' + fmt(custo) + '/mês — isso parece correto?';
+    box.style.display = '';
+  } else {
+    box.style.display = 'none';
+  }
+}
+
 function updateTopbar() {
   const el = document.getElementById('step-counter-' + currentStep);
   if (el) el.textContent = 'Etapa ' + currentStep + ' de ' + TOTAL_STEPS;
@@ -106,7 +160,7 @@ function updateTopbar() {
   if (bar) bar.style.width = ((currentStep / TOTAL_STEPS) * 100) + '%';
 }
 
-/* ── VALIDATION ─────────────────────────────────────────────────────────── */
+/* ── VALIDATION ────────────────────────────────────────────────────────── */
 function showError(msg) {
   const toast = document.getElementById('toast');
   if (!toast) return;
@@ -160,7 +214,7 @@ function validateStep(step) {
   }
 }
 
-/* ── DATA COLLECTION ────────────────────────────────────────────────────── */
+/* ── DATA COLLECTION ───────────────────────────────────────────────────────────── */
 function collectStep(step) {
   switch (step) {
     case 1:
@@ -191,7 +245,7 @@ function collectStep(step) {
   }
 }
 
-/* ── CALCULATIONS ───────────────────────────────────────────────────────── */
+/* ── CALCULATIONS ──────────────────────────────────────────────────────────── */
 function calcCombustivel() {
   const custoAtual = (state.km_mes / state.comb_litros) * state.comb_preco * state.veiculos;
   let economia = 0;
@@ -271,7 +325,7 @@ function calcCPK(custoTotalMes, kmMes, veiculos) {
   return totalKm > 0 ? custoTotalMes / totalKm : 0;
 }
 
-/* ── RESULT RENDERING ───────────────────────────────────────────────────── */
+/* ── RESULT RENDERING ────────────────────────────────────────────────────────── */
 function fmt(val) {
   return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
@@ -360,18 +414,15 @@ function buildResult() {
   const pctEco        = totalAtual > 0 ? Math.round((totalEconomia / totalAtual) * 100) : 0;
   const allAttn       = [].concat(comb.atencao, mant.atencao, pneu.atencao);
 
-  /* fleet summary */
   setText('res-frota-tipo',     state.frota);
   setText('res-frota-veiculos', state.veiculos + ' veíc.');
   setText('res-frota-km',       fmtNum(state.km_mes) + ' km');
 
-  /* hero count-up */
   countUp('res-economia-mes', totalEconomia, 'R$ ', '', 1200);
   setTimeout(function() {
     setText('res-economia-ano', fmt(totalEconomia * 12));
   }, 1200);
 
-  /* CPK */
   setText('res-cpk-atual',  'R$ ' + fmtDec(cpkAtual, 2));
   setText('res-cpk-otim',   'R$ ' + fmtDec(cpkOtim, 2));
   setText('res-cpk-badge',  cpkSt.label);
@@ -379,19 +430,16 @@ function buildResult() {
   setText('res-bench-range', 'Ref: R$ ' + fmtDec(cpkBM.min, 2) + '–' + fmtDec(cpkBM.max, 2) + '/km (' + cpkBM.label + ')');
   setTimeout(function() { setGauge(cpkAtual, cpkOtim, cpkBM.min, cpkBM.max); }, 100);
 
-  /* pillar cards */
   setPillarCard('res-comb', comb.custoAtual, comb.economia);
   setPillarCard('res-mant', mant.custoAtual, mant.economia);
   setPillarCard('res-pneu', pneu.custoAtual, pneu.economia);
 
-  /* eco total */
   setText('res-eco-mes-big', fmt(totalEconomia));
   setText('res-eco-ano-big', fmt(totalEconomia * 12));
   setText('res-pct-eco', pctEco + '%');
   const ecoBar = document.getElementById('res-eco-bar');
   if (ecoBar) setTimeout(function() { ecoBar.style.width = Math.min(pctEco, 100) + '%'; }, 300);
 
-  /* attention */
   const attnEl = document.getElementById('res-atencao');
   if (attnEl) {
     if (allAttn.length) {
@@ -402,11 +450,19 @@ function buildResult() {
     }
   }
 
-  /* store last result for PDF */
   window._lastResult = { comb, mant, pneu, totalEconomia, totalAtual, cpkAtual, cpkOtim, cpkBM, cpkSt, pctEco, allAttn };
+
+  const v = state.veiculos;
+  let ctaMsg = '';
+  if      (v >= 50) ctaMsg = 'Para frotas acima de 50 veículos, desenvolvemos um plano de gestão completo com acompanhamento mensal de CPK.';
+  else if (v >= 20) ctaMsg = 'Para frotas acima de 20 veículos, criamos um plano de ação personalizado por pilar com metas e cronograma.';
+  else if (v >= 5)  ctaMsg = 'Nosso time pode ajudar sua frota a atingir esse potencial com um plano de ação prático e mensurável.';
+  else              ctaMsg = 'Mesmo em frotas menores, a otimização de CPK tem retorno rápido. Vamos detalhar as oportunidades identificadas?';
+  setText('cta-segment-msg', ctaMsg);
+  if (state.nome) setText('cta-greeting', state.nome + ', quer implementar essas melhorias?');
 }
 
-/* ── PDF GENERATION ─────────────────────────────────────────────────────── */
+/* ── PDF GENERATION ──────────────────────────────────────────────────────────── */
 function gerarPDF() {
   const r = window._lastResult;
   if (!r) return;
@@ -523,7 +579,7 @@ function setClass(id, cls) {
   if (el) el.className = cls;
 }
 
-/* ── INIT ───────────────────────────────────────────────────────────────── */
+/* ── INIT ───────────────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function() {
   show('landing');
 });
