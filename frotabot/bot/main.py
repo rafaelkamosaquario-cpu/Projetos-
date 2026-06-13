@@ -5,7 +5,6 @@ Gerencia alertas, checklists e controle documental via WhatsApp
 
 import os
 import json
-import anthropic
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -342,6 +341,7 @@ def webhook_whatsapp():
     )
 
     try:
+        import anthropic
         cliente = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
         resposta = cliente.messages.create(
             model="claude-haiku-4-5-20251001",
