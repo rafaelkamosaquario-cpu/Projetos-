@@ -5,12 +5,51 @@ Gerencia alertas, checklists e controle documental via WhatsApp
 
 import os
 import json
+import anthropic
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
 from database import db, Veiculo, Motorista, Manutencao, Documento, ChecklistLog, Config
 from whatsapp import enviar_mensagem
+
+SYSTEM_PROMPT = """Você é o FrotaBot, assistente inteligente de gestão de frotas via WhatsApp, criado por quem tem 17 anos de experiência prática em transportadoras.
+
+SEU PAPEL:
+Interagir com motoristas e gestores de frota, interpretando mensagens de texto e imagens sobre o estado dos veículos, manutenção, documentação e checklists diários.
+
+FUNÇÕES PRINCIPAIS:
+
+1. INTERPRETAR CHECKLIST DIÁRIO
+Quando o motorista responder o checklist (pneus, freios, luzes, combustível), classifique como:
+- OK: tudo normal
+- ATENÇÃO: problema leve, não impede viagem (ex: "luz de farol queimada")
+- URGENTE: risco de segurança ou parada (ex: "freio fazendo ruído estranho", "pneu murchando rápido")
+
+2. GERAR ALERTAS CONTEXTUALIZADOS
+Ao avisar sobre manutenção/documentação vencendo, seja cordial e direto, sempre oferecendo ação (ex: "posso agendar para sexta às 8h?").
+
+3. ESCALAR AVISOS IGNORADOS
+Se um alerta foi enviado e não respondido, gere uma mensagem de cobrança mais firme mas respeitosa. Se persistir, sinalize que o gestor deve ser notificado.
+
+4. ANALISAR IMAGENS
+Quando receber foto de pneu, painel, documento ou peça, descreva o que vê de forma objetiva e indique se há algo que precise de atenção.
+
+5. RESUMOS PARA O GESTOR
+Quando solicitado, gere um resumo do dia em linguagem natural, destacando: problemas urgentes, motoristas que não responderam, e ações recomendadas.
+
+TOM:
+Direto, profissional, sem jargão técnico desnecessário. Trate motoristas com respeito e cordialidade — eles são parte essencial da operação.
+
+FORMATO DE SAÍDA:
+Quando classificar uma situação, sempre responda em JSON assim:
+{
+  "classificacao": "ok" | "atencao" | "urgente",
+  "resumo": "breve descrição",
+  "acao_recomendada": "o que fazer"
+}
+
+Para mensagens diretas ao motorista/gestor, responda em texto natural normal (sem JSON)."""
 
 app = Flask(__name__)
 CORS(app)
@@ -208,6 +247,75 @@ def webhook():
             enviar_mensagem(numero, f"📅 Manutenção agendada! Logística e manutenção já foram avisados.")
 
     return jsonify({"status": "ok"})
+
+
+# ─────────────────────────────────────────
+# WEBHOOK IA – Claude (Anthropic)
+# ─────────────────────────────────────────
+
+@app.route("/webhook/whatsapp", methods=["POST"])
+def webhook_whatsapp():
+    data = request.json or {}
+    numero = data.get("whatsapp", "").strip()
+    mensagem = data.get("mensagem", "").strip()
+
+    if not numero or not mensagem:
+        return jsonify({"erro": "Campos 'whatsapp' e 'mensagem' são obrigatórios"}), 400
+
+    motorista = Motorista.query.filter_by(whatsapp=numero).first()
+
+    hoje = datetime.today().date()
+    linhas_contexto = []
+
+    if motorista:
+        linhas_contexto.append(f"Motorista: {motorista.nome} (WhatsApp: {motorista.whatsapp})")
+
+        veiculo = None
+        if motorista.veiculo_placa:
+            veiculo = Veiculo.query.filter_by(placa=motorista.veiculo_placa).first()
+        if veiculo:
+            linhas_contexto.append(f"Veículo: {veiculo.placa} – {veiculo.modelo} ({veiculo.ano or 'ano não informado'})")
+
+            manutencoes = Manutencao.query.filter_by(
+                veiculo_id=veiculo.id, concluida=False, agendada=False
+            ).order_by(Manutencao.vencimento).all()
+            if manutencoes:
+                linhas_contexto.append("Manutenções pendentes:")
+                for m in manutencoes:
+                    dias = (m.vencimento - hoje).days
+                    linhas_contexto.append(f"  - {m.tipo}: vence em {dias} dia(s) ({m.vencimento})")
+
+        docs = Documento.query.filter_by(renovado=False).order_by(Documento.vencimento).all()
+        if docs:
+            linhas_contexto.append("Documentos pendentes:")
+            for d in docs:
+                dias = (d.vencimento - hoje).days
+                linhas_contexto.append(f"  - {d.tipo} ({d.referencia}): vence em {dias} dia(s) ({d.vencimento})")
+
+        log_hoje = ChecklistLog.query.filter_by(motorista_id=motorista.id, data=hoje).first()
+        if log_hoje:
+            status = "respondido" if log_hoje.respondido else "pendente"
+            linhas_contexto.append(f"Checklist de hoje: {status}")
+        else:
+            linhas_contexto.append("Checklist de hoje: não enviado")
+    else:
+        linhas_contexto.append(f"Motorista com WhatsApp {numero} não encontrado no sistema.")
+
+    contexto = "\n".join(linhas_contexto)
+    prompt_usuario = f"Contexto do sistema:\n{contexto}\n\nMensagem recebida do motorista:\n{mensagem}"
+
+    try:
+        cliente = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        resposta = cliente.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1024,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": prompt_usuario}]
+        )
+        texto = resposta.content[0].text
+        return jsonify({"resposta": texto, "motorista": motorista.nome if motorista else None})
+    except Exception as e:
+        return jsonify({"erro": f"Erro ao chamar Claude API: {str(e)}"}), 500
 
 
 # ─────────────────────────────────────────
