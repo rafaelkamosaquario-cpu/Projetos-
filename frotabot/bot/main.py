@@ -250,118 +250,88 @@ def webhook():
             db.session.commit()
             _notificar_equipe_manutencao(manutencao)
             enviar_mensagem(numero, f"📅 Manutenção agendada! Logística e manutenção já foram avisados.")
+        return jsonify({"status": "ok"})
+
+    # Qualquer outra mensagem → processa com Claude IA
+    try:
+        _processar_com_claude(numero, mensagem)
+    except Exception as e:
+        print(f"[WARN] Erro Claude no webhook: {e}")
 
     return jsonify({"status": "ok"})
 
 
 # ─────────────────────────────────────────
-# WEBHOOK IA – Claude (Anthropic)
+# CLAUDE IA – função compartilhada
 # ─────────────────────────────────────────
 
 def _parsear_resposta_ia(texto_bruto):
-    """
-    Extrai JSON de classificação e mensagem de texto da resposta do Claude.
-    Espera o formato: <bloco JSON> ---MENSAGEM--- <texto ao motorista>
-    Retorna (dict_classificacao, str_mensagem). Qualquer parte pode ser None.
-    """
+    import re
     separador = "---MENSAGEM---"
     classificacao = None
-    mensagem_texto = None
-
     if separador in texto_bruto:
         parte_json, parte_texto = texto_bruto.split(separador, 1)
         mensagem_texto = parte_texto.strip()
     else:
         parte_json = texto_bruto
         mensagem_texto = texto_bruto.strip()
-
-    # Extrai o objeto JSON do bloco (pode vir com markdown ```json ... ```)
-    import re
     match = re.search(r'\{.*?\}', parte_json, re.DOTALL)
     if match:
         try:
             classificacao = json.loads(match.group())
         except json.JSONDecodeError:
-            classificacao = None
-
+            pass
     return classificacao, mensagem_texto
 
 
-@app.route("/webhook/whatsapp", methods=["POST"])
-def webhook_whatsapp():
-    data = request.json or {}
-    numero = data.get("whatsapp", "").strip()
-    mensagem = data.get("mensagem", "").strip()
-
-    if not numero or not mensagem:
-        return jsonify({"erro": "Campos 'whatsapp' e 'mensagem' são obrigatórios"}), 400
-
+def _processar_com_claude(numero, mensagem):
+    """Chama Claude com contexto do DB, salva resultado e envia via Z-API."""
     motorista = Motorista.query.filter_by(whatsapp=numero).first()
-
     hoje = datetime.today().date()
-    linhas_contexto = []
+    linhas = []
 
     if motorista:
-        linhas_contexto.append(f"Motorista: {motorista.nome} (WhatsApp: {motorista.whatsapp})")
-
-        veiculo = None
-        if motorista.veiculo_placa:
-            veiculo = Veiculo.query.filter_by(placa=motorista.veiculo_placa).first()
+        linhas.append(f"Motorista: {motorista.nome} (WhatsApp: {motorista.whatsapp})")
+        veiculo = Veiculo.query.filter_by(placa=motorista.veiculo_placa).first() if motorista.veiculo_placa else None
         if veiculo:
-            linhas_contexto.append(f"Veículo: {veiculo.placa} – {veiculo.modelo} ({veiculo.ano or 'ano não informado'})")
-
+            linhas.append(f"Veículo: {veiculo.placa} – {veiculo.modelo} ({veiculo.ano or 'ano não informado'})")
             manutencoes = Manutencao.query.filter_by(
                 veiculo_id=veiculo.id, concluida=False, agendada=False
             ).order_by(Manutencao.vencimento).all()
             if manutencoes:
-                linhas_contexto.append("Manutenções pendentes:")
+                linhas.append("Manutenções pendentes:")
                 for m in manutencoes:
-                    dias = (m.vencimento - hoje).days
-                    linhas_contexto.append(f"  - {m.tipo}: vence em {dias} dia(s) ({m.vencimento})")
-
+                    linhas.append(f"  - {m.tipo}: vence em {(m.vencimento - hoje).days} dia(s) ({m.vencimento})")
         docs = Documento.query.filter_by(renovado=False).order_by(Documento.vencimento).all()
         if docs:
-            linhas_contexto.append("Documentos pendentes:")
+            linhas.append("Documentos pendentes:")
             for d in docs:
-                dias = (d.vencimento - hoje).days
-                linhas_contexto.append(f"  - {d.tipo} ({d.referencia}): vence em {dias} dia(s) ({d.vencimento})")
-
+                linhas.append(f"  - {d.tipo} ({d.referencia}): vence em {(d.vencimento - hoje).days} dia(s)")
         log_hoje = ChecklistLog.query.filter_by(motorista_id=motorista.id, data=hoje).first()
-        if log_hoje:
-            status = "respondido" if log_hoje.respondido else "pendente"
-            linhas_contexto.append(f"Checklist de hoje: {status}")
-        else:
-            linhas_contexto.append("Checklist de hoje: não enviado")
+        linhas.append(f"Checklist de hoje: {'respondido' if (log_hoje and log_hoje.respondido) else ('pendente' if log_hoje else 'não enviado')}")
     else:
-        linhas_contexto.append(f"Motorista com WhatsApp {numero} não encontrado no sistema.")
+        linhas.append(f"Motorista com WhatsApp {numero} não encontrado no sistema.")
 
-    contexto = "\n".join(linhas_contexto)
     prompt_usuario = (
         "Analise a mensagem abaixo e responda em DOIS blocos separados por '---MENSAGEM---':\n\n"
         "BLOCO 1: JSON de classificação no formato exato:\n"
         "{\"classificacao\": \"ok|atencao|urgente\", \"resumo\": \"breve descrição\", \"acao_recomendada\": \"o que fazer\"}\n\n"
         "---MENSAGEM---\n\n"
         "BLOCO 2: Mensagem em texto natural para enviar ao motorista via WhatsApp.\n\n"
-        f"Contexto do sistema:\n{contexto}\n\n"
+        f"Contexto do sistema:\n{chr(10).join(linhas)}\n\n"
         f"Mensagem recebida do motorista:\n{mensagem}"
     )
 
-    try:
-        import anthropic
-        cliente = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-        resposta = cliente.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=1024,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": prompt_usuario}]
-        )
-        texto_bruto = resposta.content[0].text
-    except Exception as e:
-        return jsonify({"erro": f"Erro ao chamar Claude API: {str(e)}"}), 500
+    import anthropic
+    cliente = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    resposta = cliente.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=1024,
+        system=SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": prompt_usuario}]
+    )
+    classificacao, mensagem_texto = _parsear_resposta_ia(resposta.content[0].text)
 
-    classificacao, mensagem_texto = _parsear_resposta_ia(texto_bruto)
-
-    # Salva checklist na tabela checklists
     checklist = ChecklistIA(
         motorista_id=motorista.id if motorista else None,
         whatsapp=numero,
@@ -372,21 +342,19 @@ def webhook_whatsapp():
         resposta_texto=mensagem_texto,
     )
     db.session.add(checklist)
-    db.session.flush()  # garante checklist.id antes do alerta
+    db.session.flush()
 
-    # Cria alerta se urgente ou atencao
     alerta_criado = False
     nivel = classificacao.get("classificacao") if classificacao else None
     if nivel in ("urgente", "atencao"):
-        alerta = Alerta(
+        db.session.add(Alerta(
             motorista_id=motorista.id if motorista else None,
             whatsapp=numero,
             checklist_id=checklist.id,
             nivel=nivel,
             descricao=classificacao.get("resumo"),
             acao_recomendada=classificacao.get("acao_recomendada"),
-        )
-        db.session.add(alerta)
+        ))
         alerta_criado = True
 
     db.session.commit()
@@ -394,13 +362,27 @@ def webhook_whatsapp():
     if mensagem_texto:
         enviar_mensagem(numero, mensagem_texto)
 
-    return jsonify({
+    return {
         "mensagem_whatsapp": mensagem_texto,
         "classificacao": classificacao,
         "alerta_criado": alerta_criado,
         "checklist_id": checklist.id,
         "motorista": motorista.nome if motorista else None,
-    })
+    }
+
+
+@app.route("/webhook/whatsapp", methods=["POST"])
+def webhook_whatsapp():
+    data = request.json or {}
+    numero = data.get("whatsapp", "").strip()
+    mensagem = data.get("mensagem", "").strip()
+    if not numero or not mensagem:
+        return jsonify({"erro": "Campos 'whatsapp' e 'mensagem' são obrigatórios"}), 400
+    try:
+        resultado = _processar_com_claude(numero, mensagem)
+        return jsonify(resultado)
+    except Exception as e:
+        return jsonify({"erro": f"Erro ao chamar Claude API: {str(e)}"}), 500
 
 
 # ─────────────────────────────────────────
