@@ -70,11 +70,7 @@ if database_url.startswith("postgresql"):
 
 db.init_app(app)
 
-with app.app_context():
-    try:
-        db.create_all()
-    except Exception as e:
-        print(f"[WARN] db.create_all() falhou: {e}")
+# db.create_all() removido do startup — use GET /setup-db para criar tabelas
 
 scheduler = BackgroundScheduler()
 
@@ -108,6 +104,15 @@ def alerta_gestor(mensagem):
 @app.route("/ping", methods=["GET"])
 def ping():
     return jsonify({"status": "ok", "bot": "FrotaBot rodando!"})
+
+
+@app.route("/setup-db", methods=["GET"])
+def setup_db():
+    try:
+        db.create_all()
+        return jsonify({"status": "ok", "msg": "Tabelas criadas/verificadas com sucesso"})
+    except Exception as e:
+        return jsonify({"status": "erro", "erro": str(e)}), 500
 
 
 @app.route("/debug-db", methods=["GET"])
