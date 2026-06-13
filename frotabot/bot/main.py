@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from apscheduler.schedulers.background import BackgroundScheduler
-from database import db, Veiculo, Motorista, Manutencao, Documento, ChecklistLog, Config
+from database import db, Veiculo, Motorista, Manutencao, Documento, ChecklistLog, Config, ChecklistIA, Alerta
 from whatsapp import enviar_mensagem
 
 SYSTEM_PROMPT = """Você é o FrotaBot, assistente inteligente de gestão de frotas via WhatsApp, criado por quem tem 17 anos de experiência prática em transportadoras.
@@ -253,6 +253,35 @@ def webhook():
 # WEBHOOK IA – Claude (Anthropic)
 # ─────────────────────────────────────────
 
+def _parsear_resposta_ia(texto_bruto):
+    """
+    Extrai JSON de classificação e mensagem de texto da resposta do Claude.
+    Espera o formato: <bloco JSON> ---MENSAGEM--- <texto ao motorista>
+    Retorna (dict_classificacao, str_mensagem). Qualquer parte pode ser None.
+    """
+    separador = "---MENSAGEM---"
+    classificacao = None
+    mensagem_texto = None
+
+    if separador in texto_bruto:
+        parte_json, parte_texto = texto_bruto.split(separador, 1)
+        mensagem_texto = parte_texto.strip()
+    else:
+        parte_json = texto_bruto
+        mensagem_texto = texto_bruto.strip()
+
+    # Extrai o objeto JSON do bloco (pode vir com markdown ```json ... ```)
+    import re
+    match = re.search(r'\{.*?\}', parte_json, re.DOTALL)
+    if match:
+        try:
+            classificacao = json.loads(match.group())
+        except json.JSONDecodeError:
+            classificacao = None
+
+    return classificacao, mensagem_texto
+
+
 @app.route("/webhook/whatsapp", methods=["POST"])
 def webhook_whatsapp():
     data = request.json or {}
@@ -302,7 +331,15 @@ def webhook_whatsapp():
         linhas_contexto.append(f"Motorista com WhatsApp {numero} não encontrado no sistema.")
 
     contexto = "\n".join(linhas_contexto)
-    prompt_usuario = f"Contexto do sistema:\n{contexto}\n\nMensagem recebida do motorista:\n{mensagem}"
+    prompt_usuario = (
+        "Analise a mensagem abaixo e responda em DOIS blocos separados por '---MENSAGEM---':\n\n"
+        "BLOCO 1: JSON de classificação no formato exato:\n"
+        "{\"classificacao\": \"ok|atencao|urgente\", \"resumo\": \"breve descrição\", \"acao_recomendada\": \"o que fazer\"}\n\n"
+        "---MENSAGEM---\n\n"
+        "BLOCO 2: Mensagem em texto natural para enviar ao motorista via WhatsApp.\n\n"
+        f"Contexto do sistema:\n{contexto}\n\n"
+        f"Mensagem recebida do motorista:\n{mensagem}"
+    )
 
     try:
         cliente = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
@@ -312,10 +349,49 @@ def webhook_whatsapp():
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": prompt_usuario}]
         )
-        texto = resposta.content[0].text
-        return jsonify({"resposta": texto, "motorista": motorista.nome if motorista else None})
+        texto_bruto = resposta.content[0].text
     except Exception as e:
         return jsonify({"erro": f"Erro ao chamar Claude API: {str(e)}"}), 500
+
+    classificacao, mensagem_texto = _parsear_resposta_ia(texto_bruto)
+
+    # Salva checklist na tabela checklists
+    checklist = ChecklistIA(
+        motorista_id=motorista.id if motorista else None,
+        whatsapp=numero,
+        mensagem_original=mensagem,
+        classificacao=classificacao.get("classificacao") if classificacao else None,
+        resumo=classificacao.get("resumo") if classificacao else None,
+        acao_recomendada=classificacao.get("acao_recomendada") if classificacao else None,
+        resposta_texto=mensagem_texto,
+    )
+    db.session.add(checklist)
+    db.session.flush()  # garante checklist.id antes do alerta
+
+    # Cria alerta se urgente ou atencao
+    alerta_criado = False
+    nivel = classificacao.get("classificacao") if classificacao else None
+    if nivel in ("urgente", "atencao"):
+        alerta = Alerta(
+            motorista_id=motorista.id if motorista else None,
+            whatsapp=numero,
+            checklist_id=checklist.id,
+            nivel=nivel,
+            descricao=classificacao.get("resumo"),
+            acao_recomendada=classificacao.get("acao_recomendada"),
+        )
+        db.session.add(alerta)
+        alerta_criado = True
+
+    db.session.commit()
+
+    return jsonify({
+        "mensagem_whatsapp": mensagem_texto,
+        "classificacao": classificacao,
+        "alerta_criado": alerta_criado,
+        "checklist_id": checklist.id,
+        "motorista": motorista.nome if motorista else None,
+    })
 
 
 # ─────────────────────────────────────────

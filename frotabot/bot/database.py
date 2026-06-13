@@ -63,3 +63,29 @@ class ChecklistLog(db.Model):
     horario_resposta = db.Column(db.DateTime)
     tentativas = db.Column(db.Integer, default=0)
     criado_em = db.Column(db.DateTime, default=datetime.now)
+
+
+class ChecklistIA(db.Model):
+    __tablename__ = "checklists"
+    id = db.Column(db.Integer, primary_key=True)
+    motorista_id = db.Column(db.Integer, db.ForeignKey("motoristas.id"), nullable=True)
+    whatsapp = db.Column(db.String(20), nullable=False)
+    mensagem_original = db.Column(db.Text, nullable=False)
+    classificacao = db.Column(db.String(20))        # ok | atencao | urgente
+    resumo = db.Column(db.Text)
+    acao_recomendada = db.Column(db.Text)
+    resposta_texto = db.Column(db.Text)
+    criado_em = db.Column(db.DateTime, default=datetime.now)
+
+
+class Alerta(db.Model):
+    __tablename__ = "alertas"
+    id = db.Column(db.Integer, primary_key=True)
+    motorista_id = db.Column(db.Integer, db.ForeignKey("motoristas.id"), nullable=True)
+    whatsapp = db.Column(db.String(20), nullable=False)
+    checklist_id = db.Column(db.Integer, db.ForeignKey("checklists.id"), nullable=True)
+    nivel = db.Column(db.String(20), nullable=False)  # atencao | urgente
+    descricao = db.Column(db.Text)
+    acao_recomendada = db.Column(db.Text)
+    resolvido = db.Column(db.Boolean, default=False)
+    criado_em = db.Column(db.DateTime, default=datetime.now)
