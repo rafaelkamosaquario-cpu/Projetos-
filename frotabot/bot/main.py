@@ -391,6 +391,9 @@ def webhook_whatsapp():
 
     db.session.commit()
 
+    if mensagem_texto:
+        enviar_mensagem(numero, mensagem_texto)
+
     return jsonify({
         "mensagem_whatsapp": mensagem_texto,
         "classificacao": classificacao,
