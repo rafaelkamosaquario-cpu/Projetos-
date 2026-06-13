@@ -63,9 +63,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 if database_url.startswith("postgresql"):
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "connect_args": {"sslmode": "require"},
+        "connect_args": {"sslmode": "require", "connect_timeout": 10},
         "pool_pre_ping": True,
         "pool_recycle": 300,
+        "pool_timeout": 15,
     }
 
 db.init_app(app)
