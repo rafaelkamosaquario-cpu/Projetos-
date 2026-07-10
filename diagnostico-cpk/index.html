@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico de Custos de Frota</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- LANDING                                                               -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="landing" class="screen active">
+  <div class="hero">
+    <div class="hero-badge">Diagnóstico Gratuito</div>
+    <h1 class="hero-title">Quanto sua frota está perdendo por mês?</h1>
+    <p class="hero-sub">Descubra em 3 minutos onde estão os vazamentos de custo no seu CPK — com base em benchmarks reais do setor.</p>
+    <button class="btn-cta" onclick="startForm()">Iniciar Diagnóstico Gratuito →</button>
+    <p class="hero-note">Leva apenas 3 minutos · 6 etapas</p>
+  </div>
+
+  <div class="content-wrap">
+    <div class="card">
+      <p class="card-label">O que você vai descobrir</p>
+      <ul class="discover-list">
+        <li><span class="disc-icon green">✓</span> Estimativa de economia mensal real</li>
+        <li><span class="disc-icon green">✓</span> Seu CPK comparado com a média do setor</li>
+        <li><span class="disc-icon green">✓</span> Os principais pontos de desperdício da sua frota</li>
+        <li><span class="disc-icon green">✓</span> Diagnóstico de combustível, manutenção e pneus</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <p class="card-label">Baseado em dados de</p>
+      <div class="pillar-list">
+        <div class="pillar-item">
+          <span class="pillar-dot blue"></span>
+          <div>
+            <p class="pillar-name">Combustível</p>
+            <p class="pillar-src">Volvo Trucks BR · Scania Brasil · ICCT</p>
+          </div>
+        </div>
+        <div class="pillar-item">
+          <span class="pillar-dot orange"></span>
+          <div>
+            <p class="pillar-name">Manutenção</p>
+            <p class="pillar-src">Geotab Brasil · CNT · ANFAVEA · NTC&amp;Logística</p>
+          </div>
+        </div>
+        <div class="pillar-item">
+          <span class="pillar-dot green"></span>
+          <div>
+            <p class="pillar-name">Pneus</p>
+            <p class="pillar-src">Bandag · Bridgestone · ANIP · Mercedes-Benz Trucks</p>
+          </div>
+        </div>
+        <div class="pillar-item">
+          <span class="pillar-dot purple"></span>
+          <div>
+            <p class="pillar-name">CPK de referência</p>
+            <p class="pillar-src">ANTT SUROC 1/2024 · NTC&amp;Logística · ProLog App</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- STEP 1 — Frota                                                        -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="step-1" class="screen">
+  <div class="form-topbar">
+    <button class="back-btn" onclick="goBack()">← Voltar</button>
+    <span class="step-counter" id="step-counter-1">Etapa 1 de 6</span>
+    <span></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-bar-1" style="width:16.67%"></div></div>
+
+  <div class="content-wrap">
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-num">1</span>
+        <div>
+          <h2 class="step-title">Dados da Frota</h2>
+          <p class="step-desc">Informações básicas sobre os seus veículos</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Tipo de frota</label>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="frota" value="Leve">
+            <span class="radio-box"></span>
+            <div>
+              <span class="radio-title">Leve</span>
+              <span class="radio-sub">VUC, Furgão, Utilitário</span>
+            </div>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="frota" value="Média">
+            <span class="radio-box"></span>
+            <div>
+              <span class="radio-title">Média</span>
+              <span class="radio-sub">Toco, Truck, Semileve</span>
+            </div>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="frota" value="Pesada">
+            <span class="radio-box"></span>
+            <div>
+              <span class="radio-title">Pesada</span>
+              <span class="radio-sub">Carreta, Bitrem, Rodotrem</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="veiculos">Quantidade de veículos</label>
+        <input class="field-input" type="number" id="veiculos" min="1" placeholder="Ex: 10">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="km_mes">Média de km/mês por veículo</label>
+        <input class="field-input" type="number" id="km_mes" min="1" placeholder="Ex: 8000">
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-primary" onclick="goNext()">Próxima etapa →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- STEP 2 — Combustível                                                  -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="step-2" class="screen">
+  <div class="form-topbar">
+    <button class="back-btn" onclick="goBack()">← Voltar</button>
+    <span class="step-counter" id="step-counter-2">Etapa 2 de 6</span>
+    <span></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-bar-2" style="width:33.33%"></div></div>
+
+  <div class="content-wrap">
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-num">2</span>
+        <div>
+          <h2 class="step-title">Combustível</h2>
+          <p class="step-desc">Consumo e gestão de combustível da frota</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="comb_litros">Consumo médio (km/l)</label>
+        <input class="field-input" type="number" id="comb_litros" min="0.1" step="0.1" placeholder="Ex: 3,5" oninput="updateCombPreview()">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="comb_preco">Preço do combustível (R$/l)</label>
+        <input class="field-input" type="number" id="comb_preco" min="0.1" step="0.01" placeholder="Ex: 6,50" oninput="updateCombPreview()">
+      </div>
+
+      <div id="comb-preview-box" class="comb-preview-box" style="display:none">
+        <span id="comb-preview-txt"></span>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Há controle de consumo por veículo?</label>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="comb_controle" value="sim">
+            <span class="radio-box"></span>
+            <span class="radio-title">Sim, acompanho por veículo</span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="comb_controle" value="nao">
+            <span class="radio-box"></span>
+            <span class="radio-title">Não faço controle individual</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Existe política de condução econômica?</label>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="comb_eco" value="sim">
+            <span class="radio-box"></span>
+            <span class="radio-title">Sim, treinamos os motoristas</span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="comb_eco" value="nao">
+            <span class="radio-box"></span>
+            <span class="radio-title">Não temos essa política</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-primary" onclick="goNext()">Próxima etapa →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- STEP 3 — Manutenção                                                   -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="step-3" class="screen">
+  <div class="form-topbar">
+    <button class="back-btn" onclick="goBack()">← Voltar</button>
+    <span class="step-counter" id="step-counter-3">Etapa 3 de 6</span>
+    <span></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-bar-3" style="width:50%"></div></div>
+
+  <div class="content-wrap">
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-num">3</span>
+        <div>
+          <h2 class="step-title">Manutenção</h2>
+          <p class="step-desc">Custos e gestão de manutenção da frota</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="mant_custo">Custo total de manutenção por mês (R$)</label>
+        <input class="field-input" type="number" id="mant_custo" min="1" placeholder="Ex: 8000">
+      </div>
+
+      <div class="field">
+        <label class="field-label">Plano de manutenção</label>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="mant_plano" value="sim">
+            <span class="radio-box"></span>
+            <div>
+              <span class="radio-title">Plano completo</span>
+              <span class="radio-sub">Manutenção preventiva programada</span>
+            </div>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="mant_plano" value="parcial">
+            <span class="radio-box"></span>
+            <div>
+              <span class="radio-title">Plano parcial</span>
+              <span class="radio-sub">Parte preventiva, parte corretiva</span>
+            </div>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="mant_plano" value="nao">
+            <span class="radio-box"></span>
+            <div>
+              <span class="radio-title">Sem plano</span>
+              <span class="radio-sub">Conserto quando quebra</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Perfil de manutenção atual</label>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="mant_tipo" value="prev">
+            <span class="radio-box"></span>
+            <div>
+              <span class="radio-title">Principalmente preventiva</span>
+              <span class="radio-sub">Mais de 80% preventiva</span>
+            </div>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="mant_tipo" value="mista">
+            <span class="radio-box"></span>
+            <div>
+              <span class="radio-title">Mista</span>
+              <span class="radio-sub">Cerca de 60% preventiva / 40% corretiva</span>
+            </div>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="mant_tipo" value="corr">
+            <span class="radio-box"></span>
+            <div>
+              <span class="radio-title">Principalmente corretiva</span>
+              <span class="radio-sub">Mais de 60% corretiva</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-primary" onclick="goNext()">Próxima etapa →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- STEP 4 — Pneus (custo + recapagem)                                    -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="step-4" class="screen">
+  <div class="form-topbar">
+    <button class="back-btn" onclick="goBack()">← Voltar</button>
+    <span class="step-counter" id="step-counter-4">Etapa 4 de 6</span>
+    <span></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-bar-4" style="width:66.67%"></div></div>
+
+  <div class="content-wrap">
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-num">4</span>
+        <div>
+          <h2 class="step-title">Pneus</h2>
+          <p class="step-desc">Custos com pneus e política de recapagem</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="pneu_custo">Custo total com pneus por mês (R$)</label>
+        <input class="field-input" type="number" id="pneu_custo" min="1" placeholder="Ex: 3500">
+      </div>
+
+      <div class="field">
+        <label class="field-label">Política de recapagem</label>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="pneu_recap" value="duas">
+            <span class="radio-box"></span>
+            <div>
+              <span class="radio-title">2 ou mais recapagens por pneu</span>
+              <span class="radio-sub">Máximo aproveitamento da carcaça</span>
+            </div>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="pneu_recap" value="uma">
+            <span class="radio-box"></span>
+            <div>
+              <span class="radio-title">1 recapagem por pneu</span>
+              <span class="radio-sub">Aproveitamento parcial</span>
+            </div>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="pneu_recap" value="nao">
+            <span class="radio-box"></span>
+            <div>
+              <span class="radio-title">Não utiliza recapagem</span>
+              <span class="radio-sub">Compra apenas pneus novos</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-primary" onclick="goNext()">Próxima etapa →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- STEP 5 — Pneus (gestão)                                               -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="step-5" class="screen">
+  <div class="form-topbar">
+    <button class="back-btn" onclick="goBack()">← Voltar</button>
+    <span class="step-counter" id="step-counter-5">Etapa 5 de 6</span>
+    <span></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-bar-5" style="width:83.33%"></div></div>
+
+  <div class="content-wrap">
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-num">5</span>
+        <div>
+          <h2 class="step-title">Gestão dos Pneus</h2>
+          <p class="step-desc">Práticas de manutenção e controle dos pneus</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Realiza controle de pressão periódico?</label>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="pneu_pressao" value="sim">
+            <span class="radio-box"></span>
+            <span class="radio-title">Sim, regularmente</span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="pneu_pressao" value="nao">
+            <span class="radio-box"></span>
+            <span class="radio-title">Não faço controle regular</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Realiza rodízio periódico dos pneus?</label>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="pneu_rodizio" value="sim">
+            <span class="radio-box"></span>
+            <span class="radio-title">Sim, conforme recomendação</span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="pneu_rodizio" value="nao">
+            <span class="radio-box"></span>
+            <span class="radio-title">Não realizo rodízio</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Realiza alinhamento e balanceamento periódico?</label>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="pneu_alinham" value="sim">
+            <span class="radio-box"></span>
+            <span class="radio-title">Sim, faço periodicamente</span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="pneu_alinham" value="nao">
+            <span class="radio-box"></span>
+            <span class="radio-title">Não faço com regularidade</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-primary" onclick="goNext()">Próxima etapa →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- STEP 6 — Confirmação                                                  -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="step-6" class="screen">
+  <div class="form-topbar">
+    <button class="back-btn" onclick="goBack()">← Voltar</button>
+    <span class="step-counter" id="step-counter-6">Etapa 6 de 6</span>
+    <span></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-bar-6" style="width:100%"></div></div>
+
+  <div class="content-wrap">
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-num">6</span>
+        <div>
+          <h2 class="step-title">Pronto para o diagnóstico!</h2>
+          <p class="step-desc">Vamos calcular o potencial de economia da sua frota</p>
+        </div>
+      </div>
+
+      <div class="alert-box blue">
+        <p class="alert-title">Como funciona o cálculo?</p>
+        <p class="alert-body">Combinamos os dados informados com benchmarks reais do setor (ANTT, NTC&amp;Logística, Geotab, Bandag, Volvo, Scania e outros) para estimar o potencial de redução de custos nos três maiores pilares: combustível, manutenção e pneus.</p>
+      </div>
+
+      <div class="info-items">
+        <div class="info-item">
+          <span class="info-dot blue"></span>
+          <span>Combustível: 5–15% de redução possível com controle e ecodriving</span>
+        </div>
+        <div class="info-item">
+          <span class="info-dot orange"></span>
+          <span>Manutenção: 8–30% de redução com plano preventivo</span>
+        </div>
+        <div class="info-item">
+          <span class="info-dot green"></span>
+          <span>Pneus: até 38% de redução com recapagem e gestão de pressão</span>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-primary btn-generate" onclick="goNext()">Gerar Diagnóstico →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- LEAD CAPTURE                                                          -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="lead-capture" class="screen">
+  <div class="form-topbar">
+    <button class="back-btn" onclick="goBack()">← Voltar</button>
+    <span class="step-counter" style="color:var(--green-dark)">Quase lá!</span>
+    <span></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+
+  <div class="content-wrap">
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-num" style="background:var(--green-light);color:var(--green-dark)">✓</span>
+        <div>
+          <h2 class="step-title">Seu diagnóstico está pronto!</h2>
+          <p class="step-desc">Deixe seu contato para receber uma consultoria gratuita</p>
+        </div>
+      </div>
+
+      <div class="alert-box blue">
+        <p class="alert-title">O que acontece depois?</p>
+        <p class="alert-body">Nosso especialista entra em contato via WhatsApp para detalhar as oportunidades identificadas e apresentar um plano de ação personalizado para sua frota — sem compromisso.</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="lead-nome">Seu nome</label>
+        <input class="field-input" type="text" id="lead-nome" placeholder="Ex: João Silva">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="lead-whatsapp">WhatsApp</label>
+        <input class="field-input" type="tel" id="lead-whatsapp" placeholder="(42) 99999-9999">
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn-primary" onclick="submitLead()">Ver meu diagnóstico →</button>
+      </div>
+      <button class="btn-ghost" onclick="skipLead()">Prefiro ver sem deixar contato</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- RESULT                                                                -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="result" class="screen">
+  <div class="result-hero">
+    <div class="result-hero-inner">
+      <div class="result-badge">✓ Diagnóstico Concluído</div>
+      <h1 class="result-title">Sua frota pode economizar</h1>
+      <p class="result-value" id="res-economia-mes">R$ 0</p>
+      <p class="result-sub">por mês · <strong id="res-economia-ano">R$ 0</strong> por ano</p>
+    </div>
+  </div>
+
+  <div class="content-wrap result-content">
+
+    <!-- Fleet summary strip -->
+    <div class="fleet-strip">
+      <div class="fleet-strip-item">
+        <span class="fleet-strip-label">Tipo de frota</span>
+        <span class="fleet-strip-val" id="res-frota-tipo">—</span>
+      </div>
+      <div class="fleet-strip-sep"></div>
+      <div class="fleet-strip-item">
+        <span class="fleet-strip-label">Veículos</span>
+        <span class="fleet-strip-val" id="res-frota-veiculos">—</span>
+      </div>
+      <div class="fleet-strip-sep"></div>
+      <div class="fleet-strip-item">
+        <span class="fleet-strip-label">km/mês (média)</span>
+        <span class="fleet-strip-val" id="res-frota-km">—</span>
+      </div>
+    </div>
+
+    <!-- CPK card with gauge -->
+    <div class="cpk-card">
+      <div class="cpk-row">
+        <div class="cpk-col">
+          <p class="cpk-label">CPK Atual</p>
+          <p class="cpk-value" id="res-cpk-atual">—</p>
+          <p class="cpk-unit">por km rodado</p>
+        </div>
+        <div class="cpk-arrow">→</div>
+        <div class="cpk-col">
+          <p class="cpk-label">CPK Otimizado</p>
+          <p class="cpk-value green" id="res-cpk-otim">—</p>
+          <p class="cpk-unit">por km rodado</p>
+        </div>
+      </div>
+
+      <!-- Gauge bar -->
+      <div class="cpk-gauge">
+        <div class="cpk-gauge-track">
+          <div class="cpk-gauge-range" id="res-gauge-range"></div>
+          <div class="cpk-gauge-dot atual" id="res-gauge-dot-atual" title="Seu CPK atual"></div>
+          <div class="cpk-gauge-dot otim" id="res-gauge-dot-otim" title="CPK otimizado"></div>
+        </div>
+        <div class="cpk-gauge-labels">
+          <span class="cpk-gauge-lbl-min" id="res-gauge-min">—</span>
+          <span class="cpk-gauge-lbl-mid">Benchmark do setor</span>
+          <span class="cpk-gauge-lbl-max" id="res-gauge-max">—</span>
+        </div>
+        <div class="cpk-gauge-legend">
+          <span class="l-atual">Seu CPK atual</span>
+          <span class="l-otim">CPK otimizado</span>
+          <span class="l-bench">Zona de referência</span>
+        </div>
+      </div>
+
+      <div class="cpk-footer">
+        <span id="res-cpk-badge" class="badge-pill yellow">Na média do setor</span>
+        <span id="res-bench-range" class="bench-range">—</span>
+      </div>
+    </div>
+
+    <!-- Pillar savings cards -->
+    <div class="pillar-cards">
+      <div class="pillar-card fuel">
+        <div class="pillar-card-header">
+          <span class="pillar-card-dot blue"></span>
+          <span class="pillar-card-name">Combustível</span>
+          <span class="pillar-card-pct" id="res-comb-pct">0%</span>
+        </div>
+        <p class="pillar-card-custo" id="res-comb-custo">—</p>
+        <p class="pillar-card-sublabel">custo atual / mês</p>
+        <div class="pillar-card-bar-wrap">
+          <div class="pillar-card-bar blue" id="res-comb-bar" style="width:0%"></div>
+        </div>
+        <p class="pillar-card-eco" id="res-comb-eco">—</p>
+        <p class="pillar-card-sublabel">potencial de economia</p>
+      </div>
+      <div class="pillar-card maint">
+        <div class="pillar-card-header">
+          <span class="pillar-card-dot orange"></span>
+          <span class="pillar-card-name">Manutenção</span>
+          <span class="pillar-card-pct" id="res-mant-pct">0%</span>
+        </div>
+        <p class="pillar-card-custo" id="res-mant-custo">—</p>
+        <p class="pillar-card-sublabel">custo atual / mês</p>
+        <div class="pillar-card-bar-wrap">
+          <div class="pillar-card-bar orange" id="res-mant-bar" style="width:0%"></div>
+        </div>
+        <p class="pillar-card-eco" id="res-mant-eco">—</p>
+        <p class="pillar-card-sublabel">potencial de economia</p>
+      </div>
+      <div class="pillar-card tire">
+        <div class="pillar-card-header">
+          <span class="pillar-card-dot green"></span>
+          <span class="pillar-card-name">Pneus</span>
+          <span class="pillar-card-pct" id="res-pneu-pct">0%</span>
+        </div>
+        <p class="pillar-card-custo" id="res-pneu-custo">—</p>
+        <p class="pillar-card-sublabel">custo atual / mês</p>
+        <div class="pillar-card-bar-wrap">
+          <div class="pillar-card-bar green" id="res-pneu-bar" style="width:0%"></div>
+        </div>
+        <p class="pillar-card-eco" id="res-pneu-eco">—</p>
+        <p class="pillar-card-sublabel">potencial de economia</p>
+      </div>
+    </div>
+
+    <!-- Eco total highlight -->
+    <div class="eco-total">
+      <p class="eco-label">Potencial total de redução</p>
+      <p class="eco-value" id="res-eco-mes-big">—</p>
+      <p class="eco-sub">por mês · <strong id="res-eco-ano-big">—</strong> por ano</p>
+      <div class="eco-pct-row">
+        <div class="eco-pct-bar-wrap">
+          <div class="eco-pct-bar" id="res-eco-bar" style="width:0%"></div>
+        </div>
+        <span class="eco-pct" id="res-pct-eco">0%</span>
+      </div>
+      <p class="eco-pct-label">do custo total analisado</p>
+    </div>
+
+    <!-- Attention items -->
+    <div id="attn-section" class="card attn-section">
+      <p class="card-label">⚠ Pontos de atenção identificados</p>
+      <div id="res-atencao" class="attn-group"></div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-card">
+      <p class="cta-title" id="cta-greeting">Quer implementar essas melhorias?</p>
+      <p class="cta-body" id="cta-segment-msg">Nosso time pode ajudar sua frota a atingir esse potencial de economia com um plano de ação personalizado.</p>
+      <p class="urgency-note">📅 Agenda limitada — atendemos até 5 novos clientes por mês</p>
+      <button class="btn-pdf-report" onclick="gerarPDF()">⬇ Baixar Relatório em PDF</button>
+      <button class="btn-cta-full" onclick="abrirWhatsApp()">💬 Falar com especialista no WhatsApp</button>
+      <button class="btn-ghost" onclick="restart()">Refazer diagnóstico</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
