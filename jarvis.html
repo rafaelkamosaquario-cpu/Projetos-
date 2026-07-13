@@ -263,6 +263,8 @@ var CONFIG = {
   persona: "sarcastico",
   wakeWord: "ei jarvis",
   voiceGender: "masculina",
+  voicePitch: 0.78,
+  voiceRate: 0.94,
   model: "claude-sonnet-5"
 };
 
@@ -501,20 +503,28 @@ if("speechSynthesis" in window){
   loadVoices();
 }
 function pickVoice(){
-  var pt = voices.filter(function(v){ return /pt(-|_)?BR|pt(-|_)?PT/i.test(v.lang) || /portugu/i.test(v.name); });
-  if(!pt.length) return null;
+  var ptBR = voices.filter(function(v){ return /pt(-|_)?BR/i.test(v.lang); });
+  var ptAny = voices.filter(function(v){ return /pt(-|_)?BR|pt(-|_)?PT/i.test(v.lang) || /portugu/i.test(v.name); });
+  var pool = ptBR.length ? ptBR : ptAny;
+  if(!pool.length) return null;
   var maleRe = /male|masculin|ricardo|daniel|felipe|joaquim|homem/i;
   var femaleRe = /female|feminin|luciana|vitoria|vitória|mulher/i;
   var wantMale = CONFIG.voiceGender === "masculina";
-  var re = wantMale ? maleRe : femaleRe;
-  var match = pt.find(function(v){ return re.test(v.name); });
-  return match || pt[0];
+  var genderRe = wantMale ? maleRe : femaleRe;
+  var googleGender = pool.find(function(v){ return /google/i.test(v.name) && genderRe.test(v.name); });
+  if(googleGender) return googleGender;
+  var gender = pool.find(function(v){ return genderRe.test(v.name); });
+  if(gender) return gender;
+  var google = pool.find(function(v){ return /google/i.test(v.name); });
+  return google || pool[0];
 }
 function speak(text){
   if(!("speechSynthesis" in window)){ return; }
   speechSynthesis.cancel();
   var utter = new SpeechSynthesisUtterance(text);
   utter.lang = "pt-BR";
+  utter.pitch = CONFIG.voicePitch;
+  utter.rate = CONFIG.voiceRate;
   var v = pickVoice();
   if(v) utter.voice = v;
   setBusy(true);
