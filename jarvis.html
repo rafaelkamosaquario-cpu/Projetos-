@@ -6,8 +6,8 @@
 <title>Jarvis</title>
 <style>
 :root{
-  --theme:#f2b73d;
-  --theme-soft:rgba(242,183,61,0.5);
+  --theme:#38b6ff;
+  --theme-soft:rgba(56,182,255,0.5);
   --violet:#8b5cf6;
   --cyan:#2dd4ff;
   --bg:#05060a;
@@ -86,7 +86,7 @@ input,textarea,select{font-family:inherit;}
 .orb-wrap{width:min(48vw,220px);height:min(48vw,220px);position:relative;cursor:pointer;}
 .orb-core{
   position:absolute;inset:0;border-radius:50%;
-  background:radial-gradient(circle at 35% 30%, #fff6df, var(--theme) 42%, #7a5300 100%);
+  background:radial-gradient(circle at 35% 30%, #eaf8ff, var(--theme) 42%, #0a3a66 100%);
   box-shadow:0 0 40px var(--theme-soft), 0 0 90px rgba(139,92,246,.35);
   animation:orb-idle 3.2s ease-in-out infinite;
 }
@@ -280,7 +280,7 @@ input,textarea,select{font-family:inherit;}
 var CONFIG = {
   name: "Jarvis",
   address: "chefe",
-  themeColor: "#f2b73d",
+  themeColor: "#38b6ff",
   persona: "sarcastico",
   wakeWord: "ei jarvis",
   voiceGender: "masculina",
@@ -954,7 +954,7 @@ function renderGraph(){
   var svgParts = [];
   svgParts.push('<defs>');
   svgParts.push('<linearGradient id="edgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">' +
-    '<stop offset="0%" stop-color="' + CONFIG.themeColor.replace('#f2b73d','#8b5cf6') + '" stop-opacity="0.75"/>' +
+    '<stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.75"/>' +
     '<stop offset="100%" stop-color="#2dd4ff" stop-opacity="0.75"/></linearGradient>');
   svgParts.push('<radialGradient id="coreGrad" cx="50%" cy="45%" r="60%">' +
     '<stop offset="0%" stop-color="#e6d6ff"/><stop offset="55%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#2a1660"/></radialGradient>');
