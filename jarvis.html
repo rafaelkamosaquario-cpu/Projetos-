@@ -70,6 +70,14 @@ input,textarea,select{font-family:inherit;}
   padding:8px 10px;font-size:.85rem;
 }
 .keybar input:focus{outline:1px solid var(--theme);}
+.keybar select{
+  background:var(--panel-2);border:1px solid var(--border);border-radius:8px;color:var(--text);
+  padding:8px 10px;font-size:.85rem;
+}
+.keybar select:focus{outline:1px solid var(--theme);}
+.keybar .btn{padding:8px 14px;font-size:.78rem;letter-spacing:.04em;white-space:nowrap;}
+.voice-info-line{width:100%;font-size:.7rem;letter-spacing:.03em;color:var(--text-dim);}
+.voice-info-line.warn{color:var(--danger);}
 
 .orb-section{
   display:flex;flex-direction:column;align-items:center;padding:34px 16px 20px;gap:14px;
@@ -188,6 +196,17 @@ input,textarea,select{font-family:inherit;}
     <label for="api-key-input">🔑 API Key</label>
     <input id="api-key-input" type="password" placeholder="Cole sua API key da Anthropic aqui">
   </div>
+  <div class="keybar">
+    <label for="voice-profile-select">🗣️ Perfil de voz</label>
+    <select id="voice-profile-select">
+      <option value="natural">Natural</option>
+      <option value="ia">IA</option>
+      <option value="ia_grave">IA Grave</option>
+      <option value="ia_cinematica">IA Cinemática</option>
+    </select>
+    <button class="btn primary" id="test-voice-btn" type="button">TESTAR VOZ</button>
+    <div class="voice-info-line" id="voice-info-line"></div>
+  </div>
   <div id="protocol-note" class="proto-note hidden"></div>
 
   <div class="orb-section">
@@ -265,10 +284,16 @@ var CONFIG = {
   persona: "sarcastico",
   wakeWord: "ei jarvis",
   voiceGender: "masculina",
-  voicePitch: 0.78,
-  voiceRate: 0.94,
   model: "claude-sonnet-5"
 };
+
+var VOICE_PROFILES = {
+  natural:       { label: "Natural",       rate: 1.00, pitch: 1.00 },
+  ia:            { label: "IA",            rate: 0.82, pitch: 0.66 },
+  ia_grave:      { label: "IA Grave",      rate: 0.80, pitch: 0.55 },
+  ia_cinematica: { label: "IA Cinemática", rate: 0.78, pitch: 0.45 }
+};
+var voiceProfile = "ia_cinematica";
 
 var AREA = {
   meta:        { label: "Você",        color: "#8a90a6" },
@@ -358,6 +383,19 @@ window.addEventListener("DOMContentLoaded", function(){
   var savedKey = localStorage.getItem("anthropic_key");
   if(savedKey) document.getElementById("api-key-input").value = savedKey;
 
+  var savedProfile = localStorage.getItem("jarvis_voice_profile");
+  if(savedProfile && VOICE_PROFILES[savedProfile]) voiceProfile = savedProfile;
+  document.getElementById("voice-profile-select").value = voiceProfile;
+  document.getElementById("voice-profile-select").addEventListener("change", function(){
+    voiceProfile = VOICE_PROFILES[this.value] ? this.value : "ia_cinematica";
+    localStorage.setItem("jarvis_voice_profile", voiceProfile);
+    updateVoiceInfoPanel(pickVoice());
+  });
+  document.getElementById("test-voice-btn").addEventListener("click", function(){
+    speak("Sistemas online, chefe. Todos os módulos foram inicializados. Os protocolos estão ativos. Aguardando sua próxima instrução.");
+  });
+  updateVoiceInfoPanel(null);
+
   if(location.protocol === "file:"){
     var note = document.getElementById("protocol-note");
     note.textContent = "Para maior estabilidade do microfone, execute pelo endereço http://localhost:8000/jarvis.html (dê 2 cliques em iniciar-jarvis.bat).";
@@ -380,7 +418,7 @@ window.addEventListener("DOMContentLoaded", function(){
   document.getElementById("mic-btn").addEventListener("click", toggleListening);
   document.getElementById("orb-wrap").addEventListener("click", toggleListening);
   document.getElementById("stop-btn").addEventListener("click", function(){
-    speechSynthesis.cancel();
+    stopSpeaking();
     setBusy(false);
     stopRecognitionManually();
     orbState("ocioso");
@@ -563,52 +601,141 @@ function startRecognition(){
 }
 
 /* ---------- speech synthesis ---------- */
-function loadVoices(){ voices = speechSynthesis.getVoices(); }
+function loadVoices(){
+  voices = speechSynthesis.getVoices();
+  updateVoiceInfoPanel(pickVoice());
+}
 if("speechSynthesis" in window){
   speechSynthesis.onvoiceschanged = loadVoices;
   loadVoices();
 }
-function pickVoice(){
-  var ptBR = voices.filter(function(v){ return /pt(-|_)?BR/i.test(v.lang); });
-  var ptAny = voices.filter(function(v){ return /pt(-|_)?BR|pt(-|_)?PT/i.test(v.lang) || /portugu/i.test(v.name); });
-  var pool = ptBR.length ? ptBR : ptAny;
-  if(!pool.length) return null;
-  var maleRe = /male|masculin|ricardo|daniel|felipe|joaquim|homem/i;
-  var femaleRe = /female|feminin|luciana|vitoria|vitória|mulher/i;
-  var wantMale = CONFIG.voiceGender === "masculina";
-  var genderRe = wantMale ? maleRe : femaleRe;
-  var googleGender = pool.find(function(v){ return /google/i.test(v.name) && genderRe.test(v.name); });
-  if(googleGender) return googleGender;
-  var gender = pool.find(function(v){ return genderRe.test(v.name); });
-  if(gender) return gender;
-  var google = pool.find(function(v){ return /google/i.test(v.name); });
-  return google || pool[0];
+
+function scoreVoice(v){
+  var name = v.name || "";
+  var lang = v.lang || "";
+  if(/microsoft\s*ant[oô]nio.*online.*natural/i.test(name)) return 1;
+  if(/microsoft\s*ant[oô]nio/i.test(name)) return 2;
+  if(/microsoft\s*daniel/i.test(name)) return 3;
+  if(/google/i.test(name) && /pt(-|_)?BR/i.test(lang)) return 4;
+  var maleRe = /male|masculin|ricardo|daniel|felipe|joaquim|homem|ant[oô]nio/i;
+  if(/pt(-|_)?BR/i.test(lang) && maleRe.test(name)) return 5;
+  if(/pt(-|_)?PT/i.test(lang) && maleRe.test(name)) return 6;
+  return 99;
 }
+function pickVoice(){
+  if(!voices.length) return null;
+  var best = null, bestScore = 99;
+  voices.forEach(function(v){
+    var s = scoreVoice(v);
+    if(s < bestScore){ bestScore = s; best = v; }
+  });
+  return best;
+}
+
+function updateVoiceInfoPanel(v){
+  var infoEl = document.getElementById("voice-info-line");
+  if(!infoEl) return;
+  var profile = VOICE_PROFILES[voiceProfile] || VOICE_PROFILES.ia_cinematica;
+  if(v){
+    infoEl.classList.remove("warn");
+    infoEl.textContent = "Voz: " + v.name + " · Idioma: " + v.lang + " · Rate: " + profile.rate.toFixed(2) + " · Pitch: " + profile.pitch.toFixed(2) + " · Perfil: " + profile.label;
+  } else {
+    infoEl.classList.add("warn");
+    infoEl.textContent = "Nenhuma voz masculina natural foi encontrada no sistema operacional. Para obter uma voz mais cinematográfica, instale uma voz Natural do Windows ou utilize um provedor neural compatível.";
+  }
+}
+
+function sanitizeForSpeech(text){
+  text = String(text || "");
+  text = text.replace(/\[\[SAVE:[\s\S]*?\]\]/g, "");
+  text = text.replace(/```[\s\S]*?```/g, "");
+  text = text.replace(/`([^`]*)`/g, "$1");
+  text = text.replace(/\[([^\]]+)\]\((?:[^)]+)\)/g, "$1");
+  text = text.replace(/https?:\/\/\S+/gi, "");
+  text = text.replace(/[*_#>~]+/g, "");
+  text = text.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{FE0F}]/gu, "");
+  text = text.replace(/\s+/g, " ").trim();
+  return text;
+}
+
+function buildSpeechQueue(rawText){
+  var text = sanitizeForSpeech(rawText);
+  if(!text) return [];
+  var PAUSE = { ",":180, ".":350, ":":250, "":600 };
+  text = text.replace(/\.\.\./g, "");
+  var parts = text.split(/([,.:])/);
+  var segments = [];
+  var buffer = "";
+  for(var i=0;i<parts.length;i++){
+    var p = parts[i];
+    if(PAUSE.hasOwnProperty(p)){
+      buffer = buffer.trim();
+      if(buffer){
+        segments.push({ text:buffer, pause:PAUSE[p] });
+        buffer = "";
+      } else if(segments.length){
+        segments[segments.length-1].pause = Math.max(segments[segments.length-1].pause, PAUSE[p]);
+      }
+    } else {
+      buffer += p;
+    }
+  }
+  buffer = buffer.trim();
+  if(buffer) segments.push({ text:buffer, pause:0 });
+  return segments;
+}
+
+var speechGeneration = 0;
+
 function speak(text){
   if(!("speechSynthesis" in window)){ return; }
+  var myGen = ++speechGeneration;
   speechSynthesis.cancel();
-  var utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "pt-BR";
-  utter.pitch = CONFIG.voicePitch;
-  utter.rate = CONFIG.voiceRate;
-  var v = pickVoice();
-  if(v) utter.voice = v;
+  var queue = buildSpeechQueue(text);
+  if(!queue.length) return;
   setBusy(true);
   orbState("falando");
   setStatus("falando");
-  utter.onend = function(){
-    setBusy(false);
-    orbState(manuallyStopped ? "ocioso" : "ouvindo");
-    setStatus(manuallyStopped ? "ocioso" : "ouvindo");
-    setTimeout(startRecognition, 500);
+  playSegment(queue, 0, myGen);
+}
+
+function playSegment(queue, index, gen){
+  if(gen !== speechGeneration) return;
+  if(index >= queue.length){
+    finishSpeaking();
+    return;
+  }
+  var seg = queue[index];
+  var profile = VOICE_PROFILES[voiceProfile] || VOICE_PROFILES.ia_cinematica;
+  var utter = new SpeechSynthesisUtterance(seg.text);
+  utter.lang = "pt-BR";
+  utter.rate = profile.rate;
+  utter.pitch = profile.pitch;
+  utter.volume = 1;
+  var v = pickVoice();
+  if(v) utter.voice = v;
+  if(index === 0) updateVoiceInfoPanel(v);
+  var advance = function(){
+    if(gen !== speechGeneration) return;
+    var pause = seg.pause || 0;
+    if(pause > 0){ setTimeout(function(){ playSegment(queue, index + 1, gen); }, pause); }
+    else { playSegment(queue, index + 1, gen); }
   };
-  utter.onerror = function(){
-    setBusy(false);
-    orbState(manuallyStopped ? "ocioso" : "ouvindo");
-    setStatus(manuallyStopped ? "ocioso" : "ouvindo");
-    setTimeout(startRecognition, 500);
-  };
+  utter.onend = advance;
+  utter.onerror = advance;
   speechSynthesis.speak(utter);
+}
+
+function stopSpeaking(){
+  speechGeneration++;
+  speechSynthesis.cancel();
+}
+
+function finishSpeaking(){
+  setBusy(false);
+  orbState(manuallyStopped ? "ocioso" : "ouvindo");
+  setStatus(manuallyStopped ? "ocioso" : "ouvindo");
+  setTimeout(startRecognition, 500);
 }
 
 /* ---------- claude brain ---------- */
