@@ -111,6 +111,7 @@ input,textarea,select{font-family:inherit;}
 .icon-btn.mic{border-color:var(--theme);color:var(--theme);}
 .icon-btn.stop{border-color:var(--danger);color:var(--danger);}
 .err-line{color:var(--danger);font-size:.8rem;text-align:center;min-height:1em;}
+.proto-note{color:var(--text-dim);font-size:.72rem;letter-spacing:.03em;text-align:center;padding:6px 16px;background:var(--panel);border-bottom:1px solid var(--border);}
 
 /* ---------- SECOND BRAIN ---------- */
 .brain-section{padding:26px 16px 60px;border-top:1px solid var(--border);margin-top:10px;}
@@ -187,6 +188,7 @@ input,textarea,select{font-family:inherit;}
     <label for="api-key-input">🔑 API Key</label>
     <input id="api-key-input" type="password" placeholder="Cole sua API key da Anthropic aqui">
   </div>
+  <div id="protocol-note" class="proto-note hidden"></div>
 
   <div class="orb-section">
     <div class="orb-name">JARVIS</div>
@@ -308,9 +310,12 @@ var rel = [];
 var sessionHistory = [];
 var edgesGlobal = [];
 var pulses = [];
-var recognizing = false;
+var recognitionActive = false;
 var busy = false;
 var awaitingCommand = false;
+var microphoneAllowed = false;
+var manuallyStopped = false;
+var micPermissionPromise = null;
 var voices = [];
 
 /* ---------- utils ---------- */
@@ -353,6 +358,12 @@ window.addEventListener("DOMContentLoaded", function(){
   var savedKey = localStorage.getItem("anthropic_key");
   if(savedKey) document.getElementById("api-key-input").value = savedKey;
 
+  if(location.protocol === "file:"){
+    var note = document.getElementById("protocol-note");
+    note.textContent = "Para maior estabilidade do microfone, execute pelo endereço http://localhost:8000/jarvis.html (dê 2 cliques em iniciar-jarvis.bat).";
+    note.classList.remove("hidden");
+  }
+
   setTimeout(function(){
     var boot = document.getElementById("boot-screen");
     boot.classList.add("fade-out");
@@ -366,23 +377,14 @@ window.addEventListener("DOMContentLoaded", function(){
   document.getElementById("api-key-input").addEventListener("change", function(){
     localStorage.setItem("anthropic_key", this.value.trim());
   });
-  document.getElementById("mic-btn").addEventListener("click", function(){
-    awaitingCommand = true;
-    setStatus("ouvindo");
-    orbState("ouvindo");
-    startRecognition();
-  });
+  document.getElementById("mic-btn").addEventListener("click", toggleListening);
+  document.getElementById("orb-wrap").addEventListener("click", toggleListening);
   document.getElementById("stop-btn").addEventListener("click", function(){
     speechSynthesis.cancel();
     setBusy(false);
-    orbState("ouvindo");
-    setStatus("ouvindo");
-  });
-  document.getElementById("orb-wrap").addEventListener("click", function(){
-    awaitingCommand = true;
-    setStatus("ouvindo");
-    orbState("ouvindo");
-    startRecognition();
+    stopRecognitionManually();
+    orbState("ocioso");
+    setStatus("ocioso");
   });
   document.getElementById("text-input").addEventListener("keydown", function(e){
     if(e.key === "Enter" && this.value.trim()){
@@ -414,8 +416,11 @@ function onActivate(){
   document.getElementById("app").classList.remove("hidden");
   renderGraph();
   updateCounter();
-  startRecognition();
-  greet();
+  manuallyStopped = false;
+  requestMicPermission().then(function(ok){
+    if(ok){ startRecognition(); }
+    greet();
+  });
 }
 
 function greet(){
@@ -433,7 +438,52 @@ function showError(msg){ document.getElementById("err-line").textContent = msg |
 
 function setBusy(v){
   busy = v;
-  if(v && recognizing){
+  if(v && recognitionActive){
+    try{ recognition.stop(); }catch(e){}
+  }
+}
+
+function requestMicPermission(){
+  if(microphoneAllowed) return Promise.resolve(true);
+  if(micPermissionPromise) return micPermissionPromise;
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    microphoneAllowed = true;
+    return Promise.resolve(true);
+  }
+  micPermissionPromise = navigator.mediaDevices.getUserMedia({ audio:true }).then(function(stream){
+    stream.getTracks().forEach(function(track){ track.stop(); });
+    microphoneAllowed = true;
+    micPermissionPromise = null;
+    return true;
+  }).catch(function(){
+    microphoneAllowed = false;
+    micPermissionPromise = null;
+    showError("Permissão do microfone bloqueada. Clique no cadeado ou ícone ao lado do endereço e permita o microfone.");
+    return false;
+  });
+  return micPermissionPromise;
+}
+
+function toggleListening(){
+  if(recognitionActive){
+    stopRecognitionManually();
+    orbState("ocioso");
+    setStatus("ocioso");
+    return;
+  }
+  manuallyStopped = false;
+  awaitingCommand = true;
+  showError("");
+  setStatus("ouvindo");
+  orbState("ouvindo");
+  requestMicPermission().then(function(ok){
+    if(ok) startRecognition();
+  });
+}
+
+function stopRecognitionManually(){
+  manuallyStopped = true;
+  if(recognitionActive){
     try{ recognition.stop(); }catch(e){}
   }
 }
@@ -446,18 +496,30 @@ if(SpeechRecognitionImpl){
   recognition.lang = "pt-BR";
   recognition.continuous = true;
   recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
 
-  recognition.onstart = function(){ recognizing = true; };
+  recognition.onstart = function(){ recognitionActive = true; };
   recognition.onend = function(){
-    recognizing = false;
-    if(!busy){ startRecognition(); }
+    recognitionActive = false;
+    if(microphoneAllowed && !busy && !manuallyStopped){
+      setTimeout(function(){
+        if(microphoneAllowed && !busy && !manuallyStopped){ startRecognition(); }
+      }, 600);
+    }
   };
   recognition.onerror = function(e){
     if(e.error === "not-allowed" || e.error === "service-not-allowed"){
-      showError("Não consegui acessar o microfone. Permita o acesso e recarregue a página.");
+      microphoneAllowed = false;
+      showError("Permissão do microfone bloqueada. Clique no cadeado ou ícone ao lado do endereço e permita o microfone.");
+    } else if(e.error === "audio-capture"){
+      showError("Nenhum microfone disponível ou ele está sendo usado por outro aplicativo.");
+    } else if(e.error === "network"){
+      showError("O reconhecimento de voz do navegador não conseguiu acessar o serviço.");
     }
+    /* "no-speech" and "aborted" are routine (silence timeout / our own stop calls) — ignored so they don't flash as errors. */
   };
   recognition.onresult = function(e){
+    if(busy) return;
     var res = e.results[e.results.length - 1];
     if(!res || !res.isFinal) return;
     var transcript = res[0].transcript || "";
@@ -492,7 +554,11 @@ function showErrorOnLoad(){
 }
 
 function startRecognition(){
-  if(!recognition || recognizing || busy) return;
+  if(!recognition || recognitionActive || busy || manuallyStopped) return;
+  if(!microphoneAllowed){
+    requestMicPermission().then(function(ok){ if(ok) startRecognition(); });
+    return;
+  }
   try{ recognition.start(); }catch(e){}
 }
 
@@ -532,15 +598,15 @@ function speak(text){
   setStatus("falando");
   utter.onend = function(){
     setBusy(false);
-    orbState("ouvindo");
-    setStatus("ouvindo");
-    startRecognition();
+    orbState(manuallyStopped ? "ocioso" : "ouvindo");
+    setStatus(manuallyStopped ? "ocioso" : "ouvindo");
+    setTimeout(startRecognition, 500);
   };
   utter.onerror = function(){
     setBusy(false);
-    orbState("ouvindo");
-    setStatus("ouvindo");
-    startRecognition();
+    orbState(manuallyStopped ? "ocioso" : "ouvindo");
+    setStatus(manuallyStopped ? "ocioso" : "ouvindo");
+    setTimeout(startRecognition, 500);
   };
   speechSynthesis.speak(utter);
 }
