@@ -1316,3 +1316,112 @@ body {
   margin-top: -10px;
   margin-bottom: 18px;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   LANDING PAGE (marketing splash — landing.html)
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── NAV ─────────────────────────────────────────────────────────────────── */
+.lp-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.lp-logo { font-size: 16px; font-weight: 800; color: var(--white); letter-spacing: -.2px; }
+.lp-logo span { color: #60A5FA; }
+.lp-nav-cta {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--white);
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 999px;
+  padding: 7px 14px;
+  text-decoration: none;
+}
+
+/* ── HOW IT WORKS ────────────────────────────────────────────────────────── */
+.lp-steps { display: flex; flex-direction: column; gap: 14px; }
+.lp-step { display: flex; align-items: flex-start; gap: 14px; }
+.lp-step-num {
+  flex-shrink: 0;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.lp-step-title { font-size: 13px; font-weight: 700; color: var(--dark); }
+.lp-step-desc { font-size: 12px; color: var(--gray); margin-top: 2px; line-height: 1.5; }
+
+/* ── BENEFIT GRID ────────────────────────────────────────────────────────── */
+.lp-benefit-grid { display: flex; flex-direction: column; gap: 10px; }
+.lp-benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.lp-benefit-icon {
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: var(--green-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.lp-benefit-title { font-size: 13px; font-weight: 700; color: var(--dark); }
+.lp-benefit-desc { font-size: 12px; color: var(--gray); margin-top: 2px; line-height: 1.5; }
+
+/* ── FAQ ──────────────────────────────────────────────────────────────────── */
+.lp-faq { border-bottom: 1px solid var(--border); }
+.lp-faq:last-child { border-bottom: none; }
+.lp-faq summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.lp-faq summary::-webkit-details-marker { display: none; }
+.lp-faq summary::after {
+  content: '+';
+  flex-shrink: 0;
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--gray);
+}
+.lp-faq[open] summary::after { content: '−'; }
+.lp-faq-a { font-size: 12px; color: var(--gray); line-height: 1.6; padding-bottom: 14px; }
+
+/* ── FINAL CTA BAND ──────────────────────────────────────────────────────── */
+.lp-cta-band {
+  background: linear-gradient(135deg, var(--dark) 0%, var(--dark2) 100%);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  text-align: center;
+  margin-bottom: 14px;
+}
+.lp-cta-band h2 { font-size: 18px; font-weight: 800; color: var(--white); margin-bottom: 8px; }
+.lp-cta-band p { font-size: 13px; color: rgba(255,255,255,.6); margin-bottom: 18px; }
+
+/* ── FOOTER ──────────────────────────────────────────────────────────────── */
+.lp-footer {
+  text-align: center;
+  padding: 24px 16px 40px;
+  font-size: 11px;
+  color: #94A3B8;
+}
+.lp-footer a { color: var(--gray); }
