@@ -359,7 +359,68 @@ function viewDashboard() {
         <div class="kpi-value">${pneus.length}</div>
         <div class="kpi-hint">pneu(s) em operação</div>
       </div>
+    </div>
+    ${dashboardRankings()}`;
+}
+
+/* Blocos de ranking condicionais: só aparecem quando há pneu com CPK válido.
+   Replicam as seções que o app original revela ao existir dados. */
+function dashboardRankings() {
+  const veics = veiculosRanked();
+  const pns = pneusRanked();
+  if (!pns.length) return '';   // estado vazio: nenhuma seção de ranking
+
+  const pior = veics[0];
+  const destaque = pior ? `
+    <div class="card-premium" style="margin-top:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div class="kpi-label">Veículo com maior CPK</div>
+          <div style="font-family:'Bebas Neue','Anton',sans-serif;font-size:34px">${esc(pior.v.placa)}</div>
+          <div class="item-meta">${esc(pior.v.modelo)}</div>
+        </div>
+        <div style="text-align:right">
+          <span class="tag" style="background:rgba(239,83,80,.18);border-color:rgba(239,83,80,.5);color:#EF5350">Requer atenção</span>
+          <div style="font-family:'Bebas Neue','Anton',sans-serif;font-size:34px;color:var(--cpk-gold);margin-top:6px">${fmtCPK(pior.cpk)}</div>
+        </div>
+      </div>
+    </div>` : '';
+
+  return `${destaque}
+    <div class="grid grid-2" style="margin-top:16px">
+      ${rankCard('Top 5 Veículos por CPK', veics.slice(0, 5).map(x => [x.v.placa, x.cpk]))}
+      ${rankCard('Top 5 Pneus com Maior CPK', pns.slice(0, 5).map(x => [(veiculoPlaca(x.p.veiculoId) || '—') + ' · ' + (x.p.posicao || '—'), x.cpk]))}
     </div>`;
+}
+
+function rankCard(titulo, rows) {
+  const body = rows.length ? rows.map(([label, cpk], i) =>
+    `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-soft)">
+        <span class="tag" style="min-width:26px;text-align:center">${i + 1}</span>
+        <span style="flex:1;font-size:14px;font-weight:600">${esc(label)}</span>
+        <span class="tag gold">${fmtCPK(cpk)}</span>
+      </div>`
+  ).join('') : '<div class="item-meta">Sem dados suficientes.</div>';
+  return `<div class="card-premium"><h2 style="font-size:22px;margin-bottom:10px">${esc(titulo)}</h2>${body}</div>`;
+}
+
+/* CPK por veículo = média dos CPKs válidos dos pneus daquele veículo */
+function veiculoCPK(veiculoId) {
+  const cpks = byEmpresa(db.pneus).filter(p => p.veiculoId === veiculoId)
+    .map(p => calcCPK(p.custo, p.kmInicial, p.kmReal)).filter(v => v != null);
+  return cpks.length ? cpks.reduce((a, b) => a + b, 0) / cpks.length : null;
+}
+function veiculosRanked() {
+  return byEmpresa(db.veiculos)
+    .map(v => ({ v, cpk: veiculoCPK(v.id) }))
+    .filter(x => x.cpk != null)
+    .sort((a, b) => b.cpk - a.cpk);
+}
+function pneusRanked() {
+  return byEmpresa(db.pneus)
+    .map(p => ({ p, cpk: calcCPK(p.custo, p.kmInicial, p.kmReal) }))
+    .filter(x => x.cpk != null)
+    .sort((a, b) => b.cpk - a.cpk);
 }
 
 function checklistScore(checks) {
@@ -505,7 +566,16 @@ function viewPneus() {
       <div class="card-premium kpi"><div class="kpi-label">CPK médio da frota</div><div class="kpi-value">${fmtCPK(cpkMedio)}</div></div>
       <div class="card-premium kpi"><div class="kpi-label">Total de pneus</div><div class="kpi-value">${byEmpresa(db.pneus).length}</div></div>
       <div class="card-premium kpi"><div class="kpi-label">Com CPK válido</div><div class="kpi-value">${validos.length}</div></div>
-    </div>${body}`;
+    </div>
+    ${topPneusCPK()}${body}`;
+}
+
+/* "Top 5 Pneus com Maior CPK (Atenção!)" — só aparece com pneu de CPK válido */
+function topPneusCPK() {
+  const pns = pneusRanked();
+  if (!pns.length) return '';
+  return `<div style="margin-bottom:18px">${rankCard('Top 5 Pneus com Maior CPK (Atenção!)',
+    pns.slice(0, 5).map(x => [(veiculoPlaca(x.p.veiculoId) || '—') + ' · ' + (x.p.posicao || '—'), x.cpk]))}</div>`;
 }
 function veiculoPlaca(id) { const v = db.veiculos.find(x => x.id === id); return v ? v.placa : ''; }
 function excluirPneu(id) {
