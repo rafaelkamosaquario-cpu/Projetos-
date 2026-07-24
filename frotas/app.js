@@ -74,7 +74,10 @@ function loadDB() {
     return Object.assign({}, DEFAULT_DB);
   }
 }
-function saveDB() { localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
+function saveDB() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
+  catch (e) { /* ambiente sem localStorage (ex.: iframe restrito) — mantém em memória */ }
+}
 
 /* ── Helpers ────────────────────────────────────────────────────────── */
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
