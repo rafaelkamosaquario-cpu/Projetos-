@@ -1,0 +1,12 @@
+{
+  "name": "frotaiaassistente",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Diagnóstico CPK FrotaBot - assistente IA para gestão de frotas",
+  "scripts": {
+    "start": "serve -s . -l tcp://0.0.0.0:${PORT:-3000}"
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  }
+}
