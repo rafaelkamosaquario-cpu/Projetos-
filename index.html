@@ -4,48 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RodoCore — Central de Operação de Frota · Paraná</title>
-  <meta name="description" content="RodoCore reúne diagnóstico gratuito de CPK, a assistente de IA FROIA e consultoria personalizada para redução de custos de frota no Paraná.">
+  <meta name="description" content="RodoCore reúne diagnóstico gratuito de CPK, o Frota IA e consultoria personalizada para redução de custos de frota no Paraná.">
+  <link rel="icon" href="rodocore-logo.jpg">
   <style>
     :root {
-      --carbon: #14171A;
-      --mist: #EDEFEE;
-      --mist-soft: #E1E4E2;
-      --signal: #3E6E8E;
-      --signal-deep: #2A4E64;
-      --amber: #C98A3C;
+      --carbon: #03050A;
+      --mist: #060911;
+      --mist-soft: #0D1420;
+      --signal: #2F8FFF;
+      --signal-deep: #1C6FDE;
       --brass: #A9832F;
-      --moss: #557A5E;
-      --line: rgba(20, 23, 26, 0.14);
-      --text: #14171A;
-      --text-soft: #4E5559;
-      --card: #F7F8F7;
-      --shadow: rgba(20, 23, 26, 0.09);
+      --moss: #2ECC71;
+      --line: rgba(226, 233, 245, 0.12);
+      --text: #F1F4FA;
+      --text-soft: #97A1B5;
+      --card: #0D1420;
+      --shadow: rgba(0, 0, 0, 0.4);
 
       --display: "Century Gothic", "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
       --body: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
       --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, "Roboto Mono", monospace;
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --mist: #101317; --mist-soft: #181C21; --line: rgba(237, 239, 238, 0.14);
-        --text: #EDEFEE; --text-soft: #A2A9AD; --card: #171B20; --shadow: rgba(0,0,0,0.4);
-        --signal: #5B96B8; --signal-deep: #7EB2D0; --amber: #E0A458; --brass: #C6A153; --moss: #7BA487;
-      }
-    }
-    :root[data-theme="dark"] {
-      --mist: #101317; --mist-soft: #181C21; --line: rgba(237, 239, 238, 0.14);
-      --text: #EDEFEE; --text-soft: #A2A9AD; --card: #171B20; --shadow: rgba(0,0,0,0.4);
-      --signal: #5B96B8; --signal-deep: #7EB2D0; --amber: #E0A458; --brass: #C6A153; --moss: #7BA487;
-    }
-    :root[data-theme="light"] {
-      --mist: #EDEFEE; --mist-soft: #E1E4E2; --line: rgba(20, 23, 26, 0.14);
-      --text: #14171A; --text-soft: #4E5559; --card: #F7F8F7; --shadow: rgba(20, 23, 26, 0.09);
-      --signal: #3E6E8E; --signal-deep: #2A4E64; --amber: #C98A3C; --brass: #A9832F; --moss: #557A5E;
-    }
 
     * { box-sizing: border-box; }
     body {
-      margin: 0; background: var(--mist); color: var(--text);
+      margin: 0;
+      background:
+        radial-gradient(ellipse 55% 42% at 80% 6%, rgba(47,143,255,0.18), transparent 60%),
+        radial-gradient(ellipse 45% 38% at 10% 65%, rgba(46,204,113,0.10), transparent 65%),
+        var(--mist);
+      background-attachment: fixed;
+      color: var(--text);
       font-family: var(--body); font-size: 1.0625rem; line-height: 1.6;
       -webkit-font-smoothing: antialiased;
     }
@@ -67,6 +56,8 @@
 
     header.brand-row { padding-block: 1.4rem; border-bottom: 1px solid var(--line); }
     .brand-row .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+    .brand-lockup { display: flex; align-items: center; gap: 0.7rem; }
+    .brand-logo-img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1px rgba(47,143,255,0.4), 0 0 18px rgba(47,143,255,0.3); }
     .logotype { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; font-size: 1.25rem; }
     .logotype span { color: var(--signal); }
     .jumplinks { display: flex; gap: 1.8rem; list-style: none; margin: 0; padding: 0; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -95,6 +86,7 @@
     .module.froia { --accent: var(--signal); }
     .module.consultoria { --accent: var(--brass); }
 
+    .module-logo { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-bottom: -0.4rem; box-shadow: 0 0 0 1px rgba(47,143,255,0.4), 0 0 14px rgba(47,143,255,0.3); }
     .module-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
     .module-tag {
       font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;
@@ -134,11 +126,14 @@
 
 <header class="brand-row">
   <div class="wrap">
-    <div class="logotype">Rodo<span>Core</span></div>
+    <div class="brand-lockup">
+      <img class="brand-logo-img" src="rodocore-logo.jpg" alt="Logo RodoCore">
+      <div class="logotype">Rodo<span>Core</span></div>
+    </div>
     <nav>
       <ul class="jumplinks">
         <li><a href="#diagnostico">Diagnóstico</a></li>
-        <li><a href="#froia">FROIA</a></li>
+        <li><a href="#frotaia">Frota IA</a></li>
         <li><a href="#consultoria">Consultoria</a></li>
       </ul>
     </nav>
@@ -164,6 +159,7 @@
     </a>
 
     <a id="frotaia" class="module froia" href="frotabot/">
+      <img class="module-logo" src="frotabot/frota-ia-logo.jpg" alt="Logo Frota IA">
       <div class="module-top">
         <span class="module-tag">Frota IA</span>
         <span class="module-status">WhatsApp</span>
@@ -192,7 +188,7 @@
 
 <footer>
   <div class="wrap">
-    <span>RodoCore — Diagnóstico · FROIA · Consultoria</span>
+    <span class="brand-lockup"><img class="brand-logo-img" src="rodocore-logo.jpg" alt="Logo RodoCore" style="width:26px;height:26px;">RodoCore — Diagnóstico · Frota IA · Consultoria</span>
     <span><a href="https://wa.me/5542998582489" target="_blank" rel="noopener">(42) 99858-2489</a> · <a href="mailto:frotanapratica@gmail.com">frotanapratica@gmail.com</a></span>
   </div>
 </footer>
