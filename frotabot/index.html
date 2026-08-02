@@ -1,310 +1,414 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FrotaBot – O Assistente Inteligente da Sua Frota</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FROIA — Assistente de IA para Gestão de Frota · RodoCore</title>
+<meta name="description" content="FROIA automatiza alertas, cobra verificações e mantém sua equipe alinhada — direto no WhatsApp. Parte do RodoCore.">
+<style>
+  :root {
+    --ink: #12161B;
+    --ink-soft: #1C2129;
+    --paper: #E9EBE7;
+    --paper-soft: #DDDFDA;
+    --accent: #D98A2B;
+    --accent-deep: #A85F1D;
+    --moss: #5B7A54;
+    --steel: #6B7680;
+    --line: rgba(18, 22, 27, 0.14);
+    --text: #181C20;
+    --text-soft: #4A5058;
+    --card: #F3F4F0;
+    --shadow: rgba(18, 22, 27, 0.10);
+    --bad: #A8442E;
+
+    --display: "Bahnschrift", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+    --body: Charter, "Iowan Old Style", Georgia, "Times New Roman", serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, "Roboto Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #14181D; --paper-soft: #1B2027; --line: rgba(233, 235, 231, 0.14);
+      --text: #E9EBE7; --text-soft: #A7ADB4; --card: #1A1F25; --shadow: rgba(0, 0, 0, 0.35);
+      --accent: #E8A33D; --accent-deep: #C9832C; --moss: #7FA374; --steel: #8A9199; --bad: #D9705A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14181D; --paper-soft: #1B2027; --line: rgba(233, 235, 231, 0.14);
+    --text: #E9EBE7; --text-soft: #A7ADB4; --card: #1A1F25; --shadow: rgba(0, 0, 0, 0.35);
+    --accent: #E8A33D; --accent-deep: #C9832C; --moss: #7FA374; --steel: #8A9199; --bad: #D9705A;
+  }
+  :root[data-theme="light"] {
+    --paper: #E9EBE7; --paper-soft: #DDDFDA; --line: rgba(18, 22, 27, 0.14);
+    --text: #181C20; --text-soft: #4A5058; --card: #F3F4F0; --shadow: rgba(18, 22, 27, 0.10);
+    --accent: #D98A2B; --accent-deep: #A85F1D; --moss: #5B7A54; --steel: #6B7680; --bad: #A8442E;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--text);
+    font-family: var(--body); font-size: 1.0625rem; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+  a { color: inherit; }
+  img { max-width: 100%; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  h1, h2, h3, h4 { font-family: var(--display); text-transform: uppercase; font-stretch: condensed; letter-spacing: 0.02em; text-wrap: balance; margin: 0; color: var(--text); }
+
+  .eyebrow { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--accent-deep); }
+  :root[data-theme="dark"] .eyebrow { color: var(--accent); }
+  @media (prefers-color-scheme: dark) { .eyebrow { color: var(--accent); } }
+  :root[data-theme="light"] .eyebrow { color: var(--accent-deep); }
+
+  .wrap { max-width: 74rem; margin: 0 auto; padding-inline: clamp(1.25rem, 4vw, 3rem); }
+  .divider { border: none; border-top: 1px solid var(--line); margin: 0; }
+  section { padding-block: clamp(3rem, 6vw, 5rem); }
+  .section-head { max-width: 40rem; margin-bottom: 2.5rem; }
+  .section-head h2 { font-size: clamp(1.7rem, 2.8vw, 2.2rem); margin-top: 0.5rem; }
+  .section-head p { color: var(--text-soft); margin-top: 0.6rem; }
+
+  /* ---------- Plate header/footer ---------- */
+  .plate { background: var(--ink); color: var(--paper); border-bottom: 3px solid var(--accent); }
+  .plate-bar { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding-block: 0.9rem; }
+  .brand { display: flex; flex-direction: column; line-height: 1.05; }
+  .brand-name { font-family: var(--display); font-stretch: condensed; text-transform: uppercase; font-weight: 700; font-size: 1.3rem; letter-spacing: 0.06em; }
+  .brand-tag { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.14em; color: #A7ADB4; margin-top: 0.2rem; }
+  .nav-links { display: flex; gap: 1.75rem; list-style: none; margin: 0; padding: 0; font-family: var(--display); font-stretch: condensed; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.06em; }
+  .nav-links a { text-decoration: none; opacity: 0.85; padding: 0.25rem 0; border-bottom: 2px solid transparent; }
+  .nav-links a:hover { opacity: 1; border-color: var(--accent); }
+  @media (max-width: 760px) { .nav-links, .plate-bar .btn-ghost { display: none; } }
+
+  .btn { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--display); font-stretch: condensed; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.85rem; padding: 0.75rem 1.4rem; border-radius: 3px; text-decoration: none; border: 1.5px solid transparent; cursor: pointer; }
+  .btn-accent { background: var(--accent); color: #14181D; font-weight: 700; }
+  .btn-accent:hover { background: var(--accent-deep); }
+  .btn-ghost { border-color: currentColor; color: inherit; background: transparent; }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+  .btn-outline { border: 1.5px solid var(--line); color: var(--text); background: transparent; }
+  .btn-outline:hover { border-color: var(--accent-deep); }
+
+  /* ---------- Hero ---------- */
+  .hero { padding-block: clamp(3rem, 8vw, 5.5rem); }
+  .hero-badge { display: inline-block; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-deep); border: 1px solid var(--accent-deep); padding: 0.3rem 0.7rem; border-radius: 2px; }
+  :root[data-theme="dark"] .hero-badge { color: var(--accent); border-color: var(--accent); }
+  @media (prefers-color-scheme: dark) { .hero-badge { color: var(--accent); border-color: var(--accent); } }
+  :root[data-theme="light"] .hero-badge { color: var(--accent-deep); border-color: var(--accent-deep); }
+  .hero h1 { font-size: clamp(2.2rem, 4.4vw, 3.6rem); line-height: 1.08; max-width: 42rem; margin-top: 1.1rem; }
+  .hero h1 span { color: var(--accent-deep); }
+  :root[data-theme="dark"] .hero h1 span { color: var(--accent); }
+  @media (prefers-color-scheme: dark) { .hero h1 span { color: var(--accent); } }
+  :root[data-theme="light"] .hero h1 span { color: var(--accent-deep); }
+  .hero-sub { margin-top: 1.25rem; max-width: 34rem; color: var(--text-soft); font-size: 1.1rem; }
+  .hero-ctas { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.9rem; }
+
+  .stat-strip { margin-top: 3rem; display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; max-width: 34rem; }
+  .stat { background: var(--card); padding: 1.1rem 1.4rem; border-right: 1px solid var(--line); }
+  .stat:last-child { border-right: none; }
+  .stat-num { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 1.5rem; color: var(--accent-deep); }
+  :root[data-theme="dark"] .stat-num { color: var(--accent); }
+  @media (prefers-color-scheme: dark) { .stat-num { color: var(--accent); } }
+  :root[data-theme="light"] .stat-num { color: var(--accent-deep); }
+  .stat-cap { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.04em; color: var(--text-soft); margin-top: 0.25rem; text-transform: uppercase; }
+
+  /* ---------- Ticket cards (reused for problema / funcionalidades) ---------- */
+  .tickets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.1rem; }
+  @media (max-width: 960px) { .tickets { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .tickets { grid-template-columns: 1fr; } }
+  .ticket { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 1.4rem; display: flex; flex-direction: column; gap: 0.7rem; }
+  .ticket-icon { font-size: 1.5rem; }
+  .ticket p { color: var(--text-soft); font-size: 0.94rem; margin: 0; }
+  .ticket h3 { font-size: 1rem; text-transform: none; letter-spacing: 0; font-family: var(--body); font-weight: 700; }
+  .ticket ul { margin: 0; padding-left: 1.1rem; color: var(--text-soft); font-size: 0.9rem; }
+  .ticket ul li { margin-bottom: 0.3rem; }
+  .conclusao { margin-top: 2rem; font-family: var(--display); text-transform: uppercase; font-stretch: condensed; letter-spacing: 0.02em; font-size: 1.1rem; text-align: center; color: var(--bad); }
+
+  /* ---------- Solução: readout + terminal chat ---------- */
+  .solucao-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 3rem; align-items: center; }
+  @media (max-width: 860px) { .solucao-grid { grid-template-columns: 1fr; } }
+  .solucao-text p { color: var(--text-soft); margin-top: 1rem; }
+  .beneficios { list-style: none; margin: 1.3rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+  .beneficios li { display: flex; gap: 0.6rem; font-size: 0.98rem; }
+  .beneficios li::before { content: "✓"; color: var(--moss); font-weight: 700; }
+
+  .terminal { background: var(--ink); border-radius: 4px; padding: 1.5rem; box-shadow: 0 14px 30px -16px var(--shadow); }
+  .terminal-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid rgba(233,235,231,0.15); padding-bottom: 0.7rem; margin-bottom: 1rem; }
+  .terminal-title { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; color: var(--paper); }
+  .terminal-live { font-family: var(--mono); font-size: 0.62rem; color: var(--accent); letter-spacing: 0.06em; }
+  .msg { font-family: var(--mono); font-size: 0.82rem; padding: 0.65rem 0.85rem; border-radius: 3px; margin-bottom: 0.6rem; max-width: 90%; line-height: 1.5; }
+  .msg.bot { background: var(--paper-soft); color: var(--text); }
+  :root[data-theme="dark"] .msg.bot {}
+  .msg.user { background: var(--accent); color: #14181D; margin-left: auto; }
+
+  /* ---------- Como funciona: real sequence, numbered ---------- */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  @media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
+  .step { border-top: 3px solid var(--accent); padding-top: 1rem; }
+  .step-num { font-family: var(--mono); font-size: 0.8rem; color: var(--accent-deep); }
+  :root[data-theme="dark"] .step-num { color: var(--accent); }
+  @media (prefers-color-scheme: dark) { .step-num { color: var(--accent); } }
+  :root[data-theme="light"] .step-num { color: var(--accent-deep); }
+  .step h4 { font-size: 1.05rem; text-transform: none; letter-spacing: 0; font-family: var(--body); font-weight: 700; margin-top: 0.4rem; }
+  .step p { color: var(--text-soft); font-size: 0.95rem; margin-top: 0.4rem; }
+
+  /* ---------- Depoimentos ---------- */
+  .depoimentos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  @media (max-width: 860px) { .depoimentos { grid-template-columns: 1fr; } }
+  .depo { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 1.5rem; }
+  .depo p { font-style: italic; color: var(--text); margin: 0 0 1rem; }
+  .depo strong { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.03em; color: var(--text-soft); font-weight: 400; text-transform: uppercase; }
+
+  /* ---------- Planos: ledger ---------- */
+  .planos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  @media (max-width: 860px) { .planos-grid { grid-template-columns: 1fr; } }
+  .plano { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 1.7rem; display: flex; flex-direction: column; gap: 1rem; }
+  .plano.destaque { border-top: 3px solid var(--accent); }
+  .plano-tag { align-self: flex-start; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-deep); border: 1px solid var(--accent-deep); padding: 0.2rem 0.5rem; border-radius: 2px; }
+  :root[data-theme="dark"] .plano-tag { color: var(--accent); border-color: var(--accent); }
+  @media (prefers-color-scheme: dark) { .plano-tag { color: var(--accent); border-color: var(--accent); } }
+  :root[data-theme="light"] .plano-tag { color: var(--accent-deep); border-color: var(--accent-deep); }
+  .plano-nome { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.04em; font-size: 1.05rem; }
+  .plano-preco { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 1.7rem; }
+  .plano-preco strong { font-size: 1.9rem; }
+  .plano-desc { color: var(--text-soft); font-size: 0.9rem; margin-top: -0.6rem; }
+  .plano ul { list-style: none; margin: 0; padding: 0; font-size: 0.92rem; display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1; }
+  .plano ul li.yes::before { content: "✓ "; color: var(--moss); }
+  .plano ul li.no { color: var(--text-soft); opacity: 0.6; }
+  .plano ul li.no::before { content: "— "; }
+
+  /* ---------- FAQ ---------- */
+  .faq-list { border-top: 1px solid var(--line); }
+  .faq-item { padding: 1.3rem 0; border-bottom: 1px solid var(--line); }
+  .faq-item h4 { font-family: var(--body); font-weight: 700; text-transform: none; letter-spacing: 0; font-size: 1rem; }
+  .faq-item p { color: var(--text-soft); margin-top: 0.5rem; font-size: 0.96rem; }
+
+  /* ---------- CTA final: dispatch ---------- */
+  .dispatch { background: var(--ink); color: var(--paper); border-radius: 6px; padding: clamp(2rem, 6vw, 3.5rem); text-align: center; }
+  .dispatch h2 { color: var(--paper); }
+  .dispatch p { color: #B7BCC2; margin-top: 0.8rem; }
+  .dispatch .btn-accent { margin-top: 1.6rem; }
+
+  footer.plate .plate-bar { flex-wrap: wrap; font-family: var(--mono); font-size: 0.7rem; color: #A7ADB4; padding-block: 1.1rem; }
+</style>
 </head>
 <body>
 
-  <!-- NAVBAR -->
-  <nav class="navbar">
-    <div class="container nav-inner">
-      <div class="logo">Frota<span>Bot</span></div>
-      <a href="#planos" class="btn btn-nav">Ver Planos</a>
+<header class="plate">
+  <div class="wrap plate-bar">
+    <div class="brand">
+      <span class="brand-name">FROIA</span>
+      <span class="brand-tag">ASSISTENTE DE IA — RODOCORE</span>
     </div>
-  </nav>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="#funcionalidades">Funcionalidades</a></li>
+        <li><a href="#planos">Planos</a></li>
+        <li><a href="#contato">Contato</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-ghost" href="https://wa.me/5542998582489?text=Quero+testar+a+FROIA+gr%C3%A1tis" target="_blank" rel="noopener">Testar grátis</a>
+  </div>
+</header>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="container hero-inner">
-      <div class="badge">🚛 Para Gestores de Frota</div>
-      <h1>Chega de perder dinheiro por falta de <span>comunicação e controle</span> na sua frota</h1>
-      <p class="hero-sub">O FrotaBot automatiza alertas, cobra verificações e mantém sua equipe alinhada — direto no WhatsApp, sem complicação.</p>
-      <div class="hero-cta">
-        <a href="#planos" class="btn btn-primary">Quero testar grátis por 7 dias</a>
-        <a href="#funcionalidades" class="btn btn-outline">Ver como funciona</a>
-      </div>
-      <div class="hero-stats">
-        <div class="stat">
-          <strong>-40%</strong>
-          <span>custos evitáveis</span>
-        </div>
-        <div class="stat">
-          <strong>100%</strong>
-          <span>via WhatsApp</span>
-        </div>
-        <div class="stat">
-          <strong>24h</strong>
-          <span>monitoramento</span>
-        </div>
-      </div>
+<main>
+  <section class="hero wrap">
+    <span class="hero-badge">🚛 Para gestores de frota</span>
+    <h1>Chega de perder dinheiro por falta de <span>comunicação e controle</span> na sua frota</h1>
+    <p class="hero-sub">A FROIA automatiza alertas, cobra verificações e mantém sua equipe alinhada — direto no WhatsApp, sem complicação.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-accent" href="#planos">Quero testar grátis por 7 dias</a>
+      <a class="btn btn-outline" href="#funcionalidades">Ver como funciona</a>
+    </div>
+    <div class="stat-strip">
+      <div class="stat"><div class="stat-num">-40%</div><div class="stat-cap">Custos evitáveis</div></div>
+      <div class="stat"><div class="stat-num">100%</div><div class="stat-cap">Via WhatsApp</div></div>
+      <div class="stat"><div class="stat-num">24h</div><div class="stat-cap">Monitoramento</div></div>
     </div>
   </section>
 
-  <!-- PROBLEMA -->
-  <section class="problema">
-    <div class="container">
+  <hr class="divider" />
+
+  <section class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">O problema</p>
       <h2>Você já passou por alguma dessas situações?</h2>
-      <div class="problema-grid">
-        <div class="problema-card">
-          <span class="icon">😤</span>
-          <p>Motorista avisou a manutenção, manutenção não avisou a logística, e o caminhão estava parado quando o cliente esperava a entrega.</p>
-        </div>
-        <div class="problema-card">
-          <span class="icon">💸</span>
-          <p>Troca de óleo vencida, tacógrafo irregular, garantia perdida — tudo por falta de um simples aviso no momento certo.</p>
-        </div>
-        <div class="problema-card">
-          <span class="icon">📋</span>
-          <p>Licenciamento vencido, exame toxicológico atrasado, motorista rodando com documentação irregular sem ninguém saber.</p>
-        </div>
-        <div class="problema-card">
-          <span class="icon">🔇</span>
-          <p>Checklist do dia enviado, ninguém respondeu, e você só descobriu o problema quando já era tarde demais.</p>
-        </div>
-      </div>
-      <p class="problema-conclusao">Se você respondeu sim para qualquer uma dessas perguntas, sua frota está <strong>perdendo dinheiro agora</strong>.</p>
     </div>
+    <div class="tickets">
+      <article class="ticket"><span class="ticket-icon">😤</span><p>Motorista avisou a manutenção, manutenção não avisou a logística, e o caminhão estava parado quando o cliente esperava a entrega.</p></article>
+      <article class="ticket"><span class="ticket-icon">💸</span><p>Troca de óleo vencida, tacógrafo irregular, garantia perdida — tudo por falta de um simples aviso no momento certo.</p></article>
+      <article class="ticket"><span class="ticket-icon">📋</span><p>Licenciamento vencido, exame toxicológico atrasado, motorista rodando com documentação irregular sem ninguém saber.</p></article>
+      <article class="ticket"><span class="ticket-icon">🔇</span><p>Checklist do dia enviado, ninguém respondeu, e você só descobriu o problema quando já era tarde demais.</p></article>
+    </div>
+    <p class="conclusao">Se você respondeu sim, sua frota está perdendo dinheiro agora.</p>
   </section>
 
-  <!-- SOLUÇÃO -->
-  <section class="solucao">
-    <div class="container solucao-inner">
+  <hr class="divider" />
+
+  <section class="wrap">
+    <div class="solucao-grid">
       <div class="solucao-text">
-        <div class="badge badge-dark">A Solução</div>
-        <h2>FrotaBot: o assistente que nunca esquece e nunca dorme</h2>
-        <p>Desenvolvido por quem tem <strong>17 anos de operação real em transportadoras</strong>, o FrotaBot age como um gestor de frota digital — avisando, cobrando e registrando tudo automaticamente no WhatsApp.</p>
+        <p class="eyebrow">A solução</p>
+        <h2 style="margin-top:0.5rem;">FROIA: a assistente que nunca esquece e nunca dorme</h2>
+        <p>Desenvolvida por quem tem 17 anos de operação real em transportadoras, a FROIA age como um gestor de frota digital — avisando, cobrando e registrando tudo automaticamente no WhatsApp.</p>
         <ul class="beneficios">
-          <li>✅ Alertas automáticos de manutenção e documentação</li>
-          <li>✅ Checklist diário para motoristas com cobrança automática</li>
-          <li>✅ Escalona para o gestor se ninguém responder</li>
-          <li>✅ Registro completo de tudo que acontece na frota</li>
-          <li>✅ Sem app novo para aprender — tudo pelo WhatsApp</li>
+          <li>Alertas automáticos de manutenção e documentação</li>
+          <li>Checklist diário para motoristas com cobrança automática</li>
+          <li>Escalona para o gestor se ninguém responder</li>
+          <li>Registro completo de tudo que acontece na frota</li>
+          <li>Sem app novo para aprender — tudo pelo WhatsApp</li>
         </ul>
       </div>
-      <div class="solucao-visual">
-        <div class="phone-mock">
-          <div class="phone-screen">
-            <div class="msg bot">🚛 <strong>FrotaBot</strong><br/>Bom dia! Checklist do dia para o veículo ABC-1234. Responda OK para confirmar.</div>
-            <div class="msg user">OK, tudo certo!</div>
-            <div class="msg bot">✅ Registrado! Lembrete: revisão dos 80.000km vence em <strong>3 dias</strong>. Agendar?</div>
-            <div class="msg user">Sim, pode agendar.</div>
-            <div class="msg bot">📅 Agendado para sexta-feira às 08h. Manutenção e logística já foram notificados.</div>
-          </div>
+      <div class="terminal">
+        <div class="terminal-head">
+          <span class="terminal-title">FROIA · WhatsApp</span>
+          <span class="terminal-live">● ao vivo</span>
         </div>
+        <div class="msg bot">Bom dia! Checklist do dia para o veículo ABC-1234. Responda OK para confirmar.</div>
+        <div class="msg user">OK, tudo certo!</div>
+        <div class="msg bot">Registrado! Lembrete: revisão dos 80.000km vence em 3 dias. Agendar?</div>
+        <div class="msg user">Sim, pode agendar.</div>
+        <div class="msg bot">Agendado para sexta-feira às 08h. Manutenção e logística já foram notificados.</div>
       </div>
     </div>
   </section>
 
-  <!-- FUNCIONALIDADES -->
-  <section class="funcionalidades" id="funcionalidades">
-    <div class="container">
-      <h2>Tudo que o FrotaBot faz pela sua frota</h2>
-      <p class="section-sub">4 módulos integrados para eliminar os maiores gargalos operacionais</p>
-      <div class="func-grid">
-        <div class="func-card">
-          <div class="func-icon">🔧</div>
-          <h3>Controle de Manutenção</h3>
-          <ul>
-            <li>Alertas 7 dias antes do vencimento</li>
-            <li>Cobra confirmação de execução</li>
-            <li>Histórico completo por veículo</li>
-            <li>Notifica toda a equipe envolvida</li>
-          </ul>
-        </div>
-        <div class="func-card">
-          <div class="func-icon">📄</div>
-          <h3>Controle Documental</h3>
-          <ul>
-            <li>CNH e habilitação dos motoristas</li>
-            <li>Licenciamento e RNTRC</li>
-            <li>Tacógrafo e laudos</li>
-            <li>Exames toxicológicos</li>
-          </ul>
-        </div>
-        <div class="func-card">
-          <div class="func-icon">👨‍✈️</div>
-          <h3>Acompanhamento de Motoristas</h3>
-          <ul>
-            <li>Checklist diário automatizado</li>
-            <li>Cobrança se não responder</li>
-            <li>Escalona para o gestor</li>
-            <li>Registro de ocorrências</li>
-          </ul>
-        </div>
-        <div class="func-card">
-          <div class="func-icon">📡</div>
-          <h3>Comunicação Integrada</h3>
-          <ul>
-            <li>Alerta cruzado entre setores</li>
-            <li>Ninguém fica sem resposta</li>
-            <li>Relatório diário automático</li>
-            <li>Tudo registrado e rastreável</li>
-          </ul>
-        </div>
-      </div>
+  <hr class="divider" />
+
+  <section class="wrap" id="funcionalidades">
+    <div class="section-head">
+      <p class="eyebrow">Funcionalidades</p>
+      <h2>Tudo que a FROIA faz pela sua frota</h2>
+      <p>4 módulos integrados para eliminar os maiores gargalos operacionais.</p>
+    </div>
+    <div class="tickets">
+      <article class="ticket">
+        <span class="ticket-icon">🔧</span>
+        <h3>Controle de Manutenção</h3>
+        <ul><li>Alertas 7 dias antes do vencimento</li><li>Cobra confirmação de execução</li><li>Histórico completo por veículo</li><li>Notifica toda a equipe envolvida</li></ul>
+      </article>
+      <article class="ticket">
+        <span class="ticket-icon">📄</span>
+        <h3>Controle Documental</h3>
+        <ul><li>CNH e habilitação dos motoristas</li><li>Licenciamento e RNTRC</li><li>Tacógrafo e laudos</li><li>Exames toxicológicos</li></ul>
+      </article>
+      <article class="ticket">
+        <span class="ticket-icon">👨‍✈️</span>
+        <h3>Acompanhamento de Motoristas</h3>
+        <ul><li>Checklist diário automatizado</li><li>Cobrança se não responder</li><li>Escalona para o gestor</li><li>Registro de ocorrências</li></ul>
+      </article>
+      <article class="ticket">
+        <span class="ticket-icon">📡</span>
+        <h3>Comunicação Integrada</h3>
+        <ul><li>Alerta cruzado entre setores</li><li>Ninguém fica sem resposta</li><li>Relatório diário automático</li><li>Tudo registrado e rastreável</li></ul>
+      </article>
     </div>
   </section>
 
-  <!-- COMO FUNCIONA -->
-  <section class="como-funciona">
-    <div class="container">
+  <hr class="divider" />
+
+  <section class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Fluxo operacional</p>
       <h2>Como funciona na prática</h2>
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <h4>Você cadastra sua frota</h4>
-          <p>Veículos, motoristas, datas de revisão e documentos — em minutos.</p>
-        </div>
-        <div class="step-arrow">→</div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <h4>FrotaBot assume o controle</h4>
-          <p>Envia alertas, cobra respostas e registra tudo automaticamente.</p>
-        </div>
-        <div class="step-arrow">→</div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <h4>Você só gerencia exceções</h4>
-          <p>Recebe apenas o que precisa da sua atenção. Nada passa despercebido.</p>
-        </div>
-      </div>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><h4>Você cadastra sua frota</h4><p>Veículos, motoristas, datas de revisão e documentos — em minutos.</p></div>
+      <div class="step"><div class="step-num">02</div><h4>FROIA assume o controle</h4><p>Envia alertas, cobra respostas e registra tudo automaticamente.</p></div>
+      <div class="step"><div class="step-num">03</div><h4>Você só gerencia exceções</h4><p>Recebe apenas o que precisa da sua atenção. Nada passa despercebido.</p></div>
     </div>
   </section>
 
-  <!-- PROVA SOCIAL -->
-  <section class="prova-social">
-    <div class="container">
+  <hr class="divider" />
+
+  <section class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Prova social</p>
       <h2>O que gestores de frota dizem</h2>
-      <div class="depoimentos">
-        <div class="depo">
-          <p>"Antes eu corria atrás de todo mundo. Agora o FrotaBot faz isso por mim. Economizei horas por semana e evitei duas quebras que seriam caras."</p>
-          <strong>— Carlos M., Gerente de Frota, SP</strong>
-        </div>
-        <div class="depo">
-          <p>"Minha frota tem 28 veículos. Controlar tudo manualmente era impossível. Com o FrotaBot, zero tacógrafo vencido nos últimos 6 meses."</p>
-          <strong>— Roberto A., Dono de Transportadora, MG</strong>
-        </div>
-        <div class="depo">
-          <p>"O melhor é que funciona pelo WhatsApp. Não precisei ensinar nada para os motoristas. Eles já sabem usar."</p>
-          <strong>— Marcos T., Supervisor de Frota, PR</strong>
-        </div>
-      </div>
+    </div>
+    <div class="depoimentos">
+      <div class="depo"><p>"Antes eu corria atrás de todo mundo. Agora a FROIA faz isso por mim. Economizei horas por semana e evitei duas quebras que seriam caras."</p><strong>Carlos M. — Gerente de Frota, SP</strong></div>
+      <div class="depo"><p>"Minha frota tem 28 veículos. Controlar tudo manualmente era impossível. Com a FROIA, zero tacógrafo vencido nos últimos 6 meses."</p><strong>Roberto A. — Dono de Transportadora, MG</strong></div>
+      <div class="depo"><p>"O melhor é que funciona pelo WhatsApp. Não precisei ensinar nada para os motoristas. Eles já sabem usar."</p><strong>Marcos T. — Supervisor de Frota, PR</strong></div>
     </div>
   </section>
 
-  <!-- PLANOS -->
-  <section class="planos" id="planos">
-    <div class="container">
+  <hr class="divider" />
+
+  <section class="wrap" id="planos">
+    <div class="section-head">
+      <p class="eyebrow">Planos</p>
       <h2>Escolha o plano ideal para sua frota</h2>
-      <p class="section-sub">Sem fidelidade. Cancele quando quiser.</p>
-      <div class="planos-grid">
-
-        <div class="plano">
-          <div class="plano-nome">Starter</div>
-          <div class="plano-preco">R$ <strong>197</strong>/mês</div>
-          <div class="plano-desc">Ideal para frotas de até 10 veículos</div>
-          <ul>
-            <li>✅ Até 10 veículos</li>
-            <li>✅ Alertas de manutenção</li>
-            <li>✅ Controle documental</li>
-            <li>✅ Checklist de motoristas</li>
-            <li>✅ Suporte por WhatsApp</li>
-            <li>❌ Relatórios avançados</li>
-            <li>❌ Integração com rastreador</li>
-          </ul>
-          <a href="#contato" class="btn btn-outline-dark">Começar agora</a>
-        </div>
-
-        <div class="plano plano-destaque">
-          <div class="plano-tag">Mais popular</div>
-          <div class="plano-nome">Profissional</div>
-          <div class="plano-preco">R$ <strong>397</strong>/mês</div>
-          <div class="plano-desc">Para frotas de 10 a 50 veículos</div>
-          <ul>
-            <li>✅ Até 50 veículos</li>
-            <li>✅ Alertas de manutenção</li>
-            <li>✅ Controle documental</li>
-            <li>✅ Checklist de motoristas</li>
-            <li>✅ Suporte prioritário</li>
-            <li>✅ Relatórios avançados</li>
-            <li>✅ Múltiplos gestores</li>
-          </ul>
-          <a href="#contato" class="btn btn-primary">Começar agora</a>
-        </div>
-
-        <div class="plano">
-          <div class="plano-nome">Empresarial</div>
-          <div class="plano-preco">Sob <strong>consulta</strong></div>
-          <div class="plano-desc">Para frotas acima de 50 veículos</div>
-          <ul>
-            <li>✅ Veículos ilimitados</li>
-            <li>✅ Todos os módulos</li>
-            <li>✅ Integração com sistemas</li>
-            <li>✅ Onboarding dedicado</li>
-            <li>✅ Suporte 24/7</li>
-            <li>✅ Personalização completa</li>
-            <li>✅ Gestor de conta exclusivo</li>
-          </ul>
-          <a href="#contato" class="btn btn-outline-dark">Falar com consultor</a>
-        </div>
-
+      <p>Sem fidelidade. Cancele quando quiser.</p>
+    </div>
+    <div class="planos-grid">
+      <div class="plano">
+        <div class="plano-nome">Starter</div>
+        <div class="plano-preco">R$ <strong>197</strong>/mês</div>
+        <p class="plano-desc">Ideal para frotas de até 10 veículos</p>
+        <ul>
+          <li class="yes">Até 10 veículos</li><li class="yes">Alertas de manutenção</li><li class="yes">Controle documental</li>
+          <li class="yes">Checklist de motoristas</li><li class="yes">Suporte por WhatsApp</li>
+          <li class="no">Relatórios avançados</li><li class="no">Integração com rastreador</li>
+        </ul>
+        <a href="https://wa.me/5542998582489?text=Quero+o+plano+Starter+da+FROIA" class="btn btn-outline" target="_blank" rel="noopener">Começar agora</a>
+      </div>
+      <div class="plano destaque">
+        <span class="plano-tag">Mais popular</span>
+        <div class="plano-nome">Profissional</div>
+        <div class="plano-preco">R$ <strong>397</strong>/mês</div>
+        <p class="plano-desc">Para frotas de 10 a 50 veículos</p>
+        <ul>
+          <li class="yes">Até 50 veículos</li><li class="yes">Alertas de manutenção</li><li class="yes">Controle documental</li>
+          <li class="yes">Checklist de motoristas</li><li class="yes">Suporte prioritário</li>
+          <li class="yes">Relatórios avançados</li><li class="yes">Múltiplos gestores</li>
+        </ul>
+        <a href="https://wa.me/5542998582489?text=Quero+o+plano+Profissional+da+FROIA" class="btn btn-accent" target="_blank" rel="noopener">Começar agora</a>
+      </div>
+      <div class="plano">
+        <div class="plano-nome">Empresarial</div>
+        <div class="plano-preco">Sob <strong>consulta</strong></div>
+        <p class="plano-desc">Para frotas acima de 50 veículos</p>
+        <ul>
+          <li class="yes">Veículos ilimitados</li><li class="yes">Todos os módulos</li><li class="yes">Integração com sistemas</li>
+          <li class="yes">Onboarding dedicado</li><li class="yes">Suporte 24/7</li>
+          <li class="yes">Personalização completa</li><li class="yes">Gestor de conta exclusivo</li>
+        </ul>
+        <a href="https://wa.me/5542998582489?text=Quero+falar+sobre+o+plano+Empresarial+da+FROIA" class="btn btn-outline" target="_blank" rel="noopener">Falar com consultor</a>
       </div>
     </div>
   </section>
 
-  <!-- FAQ -->
-  <section class="faq">
-    <div class="container">
+  <hr class="divider" />
+
+  <section class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">FAQ</p>
       <h2>Dúvidas frequentes</h2>
-      <div class="faq-list">
-        <div class="faq-item">
-          <h4>Preciso instalar algum aplicativo?</h4>
-          <p>Não. O FrotaBot funciona 100% pelo WhatsApp. Seus motoristas e equipe não precisam aprender nada novo.</p>
-        </div>
-        <div class="faq-item">
-          <h4>Como é feito o cadastro da frota?</h4>
-          <p>Nossa equipe faz o onboarding completo. Em menos de 24h sua frota já está configurada e operando.</p>
-        </div>
-        <div class="faq-item">
-          <h4>Posso cancelar quando quiser?</h4>
-          <p>Sim. Sem fidelidade, sem multa. Você cancela quando quiser diretamente pelo WhatsApp.</p>
-        </div>
-        <div class="faq-item">
-          <h4>Funciona para qualquer tipo de frota?</h4>
-          <p>Sim. Caminhões, vans, ônibus, frotas mistas. O FrotaBot se adapta ao seu tipo de operação.</p>
-        </div>
-        <div class="faq-item">
-          <h4>Tem período de teste grátis?</h4>
-          <p>Sim. 7 dias grátis, sem precisar de cartão de crédito. Você testa tudo antes de decidir.</p>
-        </div>
-      </div>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item"><h4>Preciso instalar algum aplicativo?</h4><p>Não. A FROIA funciona 100% pelo WhatsApp. Seus motoristas e equipe não precisam aprender nada novo.</p></div>
+      <div class="faq-item"><h4>Como é feito o cadastro da frota?</h4><p>Nossa equipe faz o onboarding completo. Em menos de 24h sua frota já está configurada e operando.</p></div>
+      <div class="faq-item"><h4>Posso cancelar quando quiser?</h4><p>Sim. Sem fidelidade, sem multa. Você cancela quando quiser diretamente pelo WhatsApp.</p></div>
+      <div class="faq-item"><h4>Funciona para qualquer tipo de frota?</h4><p>Sim. Caminhões, vans, ônibus, frotas mistas. A FROIA se adapta ao seu tipo de operação.</p></div>
+      <div class="faq-item"><h4>Tem período de teste grátis?</h4><p>Sim. 7 dias grátis, sem precisar de cartão de crédito. Você testa tudo antes de decidir.</p></div>
     </div>
   </section>
 
-  <!-- CTA FINAL -->
-  <section class="cta-final" id="contato">
-    <div class="container">
+  <section class="wrap" id="contato">
+    <div class="dispatch">
       <h2>Sua frota sob controle começa hoje</h2>
       <p>7 dias grátis. Sem cartão. Sem compromisso.</p>
-      <a href="https://wa.me/5542998582489?text=Quero+testar+o+FrotaBot+grátis" class="btn btn-primary btn-lg" target="_blank">
-        Quero começar meu teste grátis →
-      </a>
-      <p class="cta-obs">Ou fale diretamente com a gente pelo WhatsApp</p>
+      <a href="https://wa.me/5542998582489?text=Quero+testar+a+FROIA+gr%C3%A1tis" class="btn btn-accent" target="_blank" rel="noopener">Quero começar meu teste grátis →</a>
     </div>
   </section>
+</main>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="container">
-      <div class="logo">Frota<span>Bot</span></div>
-      <p>Desenvolvido por quem viveu a operação de frota por dentro.</p>
-      <p class="footer-copy">© 2025 FrotaBot. Todos os direitos reservados.</p>
-    </div>
-  </footer>
+<footer class="plate">
+  <div class="wrap plate-bar">
+    <span>FROIA — parte do RodoCore</span>
+    <span>Desenvolvido por quem viveu a operação de frota por dentro</span>
+  </div>
+</footer>
 
 </body>
 </html>
