@@ -3,228 +3,199 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Frota na Prática — Consultoria em Gestão de Frotas · Paraná</title>
-  <meta name="description" content="Consultoria especializada em redução de CPK para frotas no Paraná. Diagnóstico gratuito, FrotaBot e plano de ação personalizado.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="main.css">
+  <title>RodoCore — Central de Operação de Frota · Paraná</title>
+  <meta name="description" content="RodoCore reúne diagnóstico gratuito de CPK, a assistente de IA FROIA e consultoria personalizada para redução de custos de frota no Paraná.">
+  <style>
+    :root {
+      --carbon: #14171A;
+      --mist: #EDEFEE;
+      --mist-soft: #E1E4E2;
+      --signal: #3E6E8E;
+      --signal-deep: #2A4E64;
+      --amber: #C98A3C;
+      --brass: #A9832F;
+      --moss: #557A5E;
+      --line: rgba(20, 23, 26, 0.14);
+      --text: #14171A;
+      --text-soft: #4E5559;
+      --card: #F7F8F7;
+      --shadow: rgba(20, 23, 26, 0.09);
+
+      --display: "Century Gothic", "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
+      --body: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, "Roboto Mono", monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --mist: #101317; --mist-soft: #181C21; --line: rgba(237, 239, 238, 0.14);
+        --text: #EDEFEE; --text-soft: #A2A9AD; --card: #171B20; --shadow: rgba(0,0,0,0.4);
+        --signal: #5B96B8; --signal-deep: #7EB2D0; --amber: #E0A458; --brass: #C6A153; --moss: #7BA487;
+      }
+    }
+    :root[data-theme="dark"] {
+      --mist: #101317; --mist-soft: #181C21; --line: rgba(237, 239, 238, 0.14);
+      --text: #EDEFEE; --text-soft: #A2A9AD; --card: #171B20; --shadow: rgba(0,0,0,0.4);
+      --signal: #5B96B8; --signal-deep: #7EB2D0; --amber: #E0A458; --brass: #C6A153; --moss: #7BA487;
+    }
+    :root[data-theme="light"] {
+      --mist: #EDEFEE; --mist-soft: #E1E4E2; --line: rgba(20, 23, 26, 0.14);
+      --text: #14171A; --text-soft: #4E5559; --card: #F7F8F7; --shadow: rgba(20, 23, 26, 0.09);
+      --signal: #3E6E8E; --signal-deep: #2A4E64; --amber: #C98A3C; --brass: #A9832F; --moss: #557A5E;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--mist); color: var(--text);
+      font-family: var(--body); font-size: 1.0625rem; line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+    a { color: inherit; }
+    :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+
+    h1, h2 { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; text-wrap: balance; margin: 0; color: var(--text); }
+
+    .wrap { max-width: 68rem; margin: 0 auto; padding-inline: clamp(1.25rem, 4vw, 3rem); }
+
+    .statusbar { border-bottom: 1px solid var(--line); background: var(--carbon); color: var(--mist); }
+    .statusbar .wrap {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding-block: 0.6rem; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em;
+      text-transform: uppercase; color: #A2A9AD;
+    }
+    .statusbar .dot { display: inline-block; width: 0.4rem; height: 0.4rem; border-radius: 50%; background: var(--signal); margin-right: 0.5rem; }
+
+    header.brand-row { padding-block: 1.4rem; border-bottom: 1px solid var(--line); }
+    .brand-row .wrap { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+    .logotype { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; font-size: 1.25rem; }
+    .logotype span { color: var(--signal); }
+    .jumplinks { display: flex; gap: 1.8rem; list-style: none; margin: 0; padding: 0; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    .jumplinks a { text-decoration: none; opacity: 0.8; border-bottom: 1px solid transparent; padding-bottom: 0.2rem; }
+    .jumplinks a:hover { opacity: 1; border-color: var(--signal); }
+    @media (max-width: 640px) { .jumplinks { display: none; } }
+
+    .hero { padding-block: clamp(3rem, 7vw, 5rem); max-width: 40rem; }
+    .hero .eyebrow { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--signal); }
+    .hero h1 { font-size: clamp(2rem, 4vw, 2.9rem); margin-top: 0.6rem; line-height: 1.15; }
+    .hero p { margin-top: 1.1rem; color: var(--text-soft); font-size: 1.08rem; max-width: 34rem; }
+
+    .modules { padding-bottom: clamp(3rem, 7vw, 5rem); display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    @media (max-width: 860px) { .modules { grid-template-columns: 1fr; } }
+
+    .module {
+      --accent: var(--signal);
+      background: var(--card); border: 1px solid var(--line); border-top: 3px solid var(--accent);
+      border-radius: 4px; padding: 1.7rem; display: flex; flex-direction: column; gap: 1rem;
+      text-decoration: none; color: var(--text);
+      box-shadow: 0 10px 26px -18px var(--shadow);
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .module:hover { transform: translateY(-2px); }
+    .module.diagnostico { --accent: var(--moss); }
+    .module.froia { --accent: var(--amber); }
+    .module.consultoria { --accent: var(--brass); }
+
+    .module-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+    .module-tag {
+      font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent); border: 1px solid var(--accent); padding: 0.2rem 0.5rem; border-radius: 2px;
+    }
+    .module-status { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.05em; color: var(--text-soft); text-transform: uppercase; }
+    .module h2 { font-size: 1.3rem; text-transform: none; letter-spacing: 0; }
+    .module p { margin: 0; color: var(--text-soft); font-size: 0.96rem; flex-grow: 1; }
+    .module-cta {
+      font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.03em; color: var(--accent);
+      display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .module:hover .module-cta { text-decoration: underline; }
+
+    .about-strip { padding-bottom: clamp(3rem, 7vw, 5rem); }
+    .about-strip .wrap { border-top: 1px solid var(--line); padding-top: 2rem; max-width: 40rem; }
+    .about-strip p { color: var(--text-soft); margin: 0; font-size: 0.98rem; }
+    .about-strip .eyebrow { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-soft); display: block; margin-bottom: 0.6rem; }
+
+    footer { border-top: 1px solid var(--line); background: var(--carbon); color: #A2A9AD; }
+    footer .wrap {
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem;
+      padding-block: 1.3rem; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.04em;
+    }
+    footer a { text-decoration: none; }
+    footer a:hover { color: var(--mist); }
+  </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="#" class="nav-logo">Frota<span>na</span>Prática</a>
-    <div class="nav-links">
-      <a href="#ferramentas">Ferramentas</a>
-      <a href="#sobre">Sobre</a>
-      <a href="#contato">Contato</a>
-      <a href="https://wa.me/5542998582489?text=Ol%C3%A1+Rocha!+Quero+saber+mais+sobre+a+consultoria." class="nav-cta" target="_blank">💬 Falar com especialista</a>
-    </div>
-    <button class="nav-menu-btn" onclick="toggleMenu()">☰</button>
+<div class="statusbar">
+  <div class="wrap">
+    <span><span class="dot"></span>RodoCore — 3 módulos ativos</span>
+    <span>Paraná, Brasil</span>
   </div>
-  <div class="nav-mobile" id="nav-mobile">
-    <a href="#ferramentas" onclick="toggleMenu()">Ferramentas</a>
-    <a href="#sobre" onclick="toggleMenu()">Sobre</a>
-    <a href="#contato" onclick="toggleMenu()">Contato</a>
-    <a href="https://wa.me/5542998582489?text=Ol%C3%A1+Rocha!" class="mobile-cta" target="_blank">💬 Falar com especialista</a>
+</div>
+
+<header class="brand-row">
+  <div class="wrap">
+    <div class="logotype">Rodo<span>Core</span></div>
+    <nav>
+      <ul class="jumplinks">
+        <li><a href="#diagnostico">Diagnóstico</a></li>
+        <li><a href="#froia">FROIA</a></li>
+        <li><a href="#consultoria">Consultoria</a></li>
+      </ul>
+    </nav>
   </div>
-</nav>
+</header>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-badge">Consultoria especializada · Paraná</div>
-    <h1>Reduza o CPK da sua frota.<br><span class="hero-accent">Aumente sua margem.</span></h1>
-    <p class="hero-sub">Diagnóstico, ferramentas e consultoria para gestores de frota que querem resultados reais — com base em benchmarks do setor, não em achismo.</p>
-    <div class="hero-btns">
-      <a href="diagnostico/" class="btn-hero-primary">Diagnóstico gratuito em 3 min →</a>
-      <a href="https://wa.me/5542998582489?text=Ol%C3%A1+Rocha!+Quero+saber+mais+sobre+a+consultoria." class="btn-hero-outline" target="_blank">💬 Falar com Rocha</a>
-    </div>
-    <div class="hero-trust">
-      <span>✓ Sem compromisso</span>
-      <span>✓ Resultado em minutos</span>
-      <span>✓ Dados reais do setor</span>
-    </div>
-  </div>
-</section>
+<main>
+  <section class="hero wrap">
+    <p class="eyebrow">Central de operação de frota</p>
+    <h1>Um núcleo. Três formas de reduzir o CPK.</h1>
+    <p>O RodoCore reúne o diagnóstico gratuito, a assistente de IA FROIA e a consultoria personalizada em um só lugar. Escolha por onde começar.</p>
+  </section>
 
-<!-- FERRAMENTAS -->
-<section class="section" id="ferramentas">
-  <div class="container">
-    <div class="section-head">
-      <p class="section-label">Ferramentas &amp; Serviços</p>
-      <h2 class="section-title">Tudo que sua frota precisa</h2>
-      <p class="section-sub">Do diagnóstico à gestão diária — ferramentas e consultoria desenvolvidas para a realidade do transportador brasileiro.</p>
-    </div>
-    <div class="tools-grid">
-
-      <div class="tool-card featured">
-        <div class="tool-ribbon">Gratuito</div>
-        <div class="tool-icon-wrap blue">📊</div>
-        <h3>Diagnóstico de CPK</h3>
-        <p>Descubra em 3 minutos quanto sua frota está perdendo por mês. Análise de combustível, manutenção e pneus com benchmarks reais.</p>
-        <ul class="tool-list">
-          <li><span class="li-check">✓</span> Comparação com benchmark do setor (ANTT, NTC&amp;Logística)</li>
-          <li><span class="li-check">✓</span> Estimativa de economia mensal em R$</li>
-          <li><span class="li-check">✓</span> Relatório PDF para download</li>
-        </ul>
-        <a href="diagnostico/" class="btn-tc-primary">Iniciar diagnóstico gratuito →</a>
+  <section class="modules wrap">
+    <a id="diagnostico" class="module diagnostico" href="diagnostico/">
+      <div class="module-top">
+        <span class="module-tag">Diagnóstico</span>
+        <span class="module-status">Grátis · 3 min</span>
       </div>
+      <h2>Diagnóstico de CPK</h2>
+      <p>Responda um formulário rápido e descubra onde sua frota está perdendo dinheiro — combustível, manutenção ou pneus.</p>
+      <span class="module-cta">Fazer diagnóstico gratuito →</span>
+    </a>
 
-      <div class="tool-card">
-        <div class="tool-icon-wrap purple">🤖</div>
-        <h3>FrotaBot</h3>
-        <p>Assistente especializado em gestão de frotas. Tire dúvidas, calcule custos e obtenha orientações práticas para sua operação.</p>
-        <ul class="tool-list">
-          <li><span class="li-check">✓</span> Respostas especializadas em frotas</li>
-          <li><span class="li-check">✓</span> Cálculos e análises em tempo real</li>
-          <li><span class="li-check">✓</span> Disponível 24 horas</li>
-        </ul>
-        <a href="frotabot/admin/" class="btn-tc-outline">Acessar FrotaBot →</a>
+    <a id="froia" class="module froia" href="frotabot/">
+      <div class="module-top">
+        <span class="module-tag">FROIA · IA</span>
+        <span class="module-status">WhatsApp</span>
       </div>
+      <h2>FROIA</h2>
+      <p>Assistente de IA para gestão de frota direto no WhatsApp — dúvidas sobre manutenção preventiva, consumo e custos, a qualquer hora.</p>
+      <span class="module-cta">Conhecer a FROIA →</span>
+    </a>
 
-      <div class="tool-card">
-        <div class="tool-icon-wrap green">🎯</div>
-        <h3>Consultoria Personalizada</h3>
-        <p>Análise completa da operação com plano de ação estruturado para redução de custos e aumento de eficiência.</p>
-        <ul class="tool-list">
-          <li><span class="li-check">✓</span> Diagnóstico presencial ou remoto</li>
-          <li><span class="li-check">✓</span> Plano de ação por pilar de custo</li>
-          <li><span class="li-check">✓</span> Acompanhamento de metas e resultados</li>
-        </ul>
-        <a href="https://wa.me/5542998582489?text=Ol%C3%A1+Rocha!+Tenho+interesse+na+consultoria+personalizada." class="btn-tc-green" target="_blank">💬 Solicitar consultoria</a>
+    <a id="consultoria" class="module consultoria" href="https://wa.me/5542998582489?text=Ol%C3%A1+Rocha!+Tenho+interesse+na+consultoria+personalizada." target="_blank" rel="noopener">
+      <div class="module-top">
+        <span class="module-tag">Consultoria</span>
+        <span class="module-status">5 vagas/mês</span>
       </div>
+      <h2>Consultoria Personalizada</h2>
+      <p>Acompanhamento presencial ou remoto para colocar o plano de redução de CPK em prática e medir resultado mês a mês.</p>
+      <span class="module-cta">Falar sobre consultoria →</span>
+    </a>
+  </section>
 
-    </div>
-  </div>
-</section>
+  <section class="about-strip wrap">
+    <span class="eyebrow">Sobre o RodoCore</span>
+    <p>Metodologia baseada em benchmarks reais do setor — ANTT, NTC&amp;Logística, Geotab, Bandag, Volvo, Scania — conduzida por Rocha, profissional com experiência direta na gestão e análise de frotas de transporte no Paraná.</p>
+  </section>
+</main>
 
-<!-- PILARES -->
-<section class="section section-gray">
-  <div class="container">
-    <div class="section-head">
-      <p class="section-label">Como trabalhamos</p>
-      <h2 class="section-title">Os 3 pilares do CPK</h2>
-      <p class="section-sub">Combustível, manutenção e pneus respondem por até 70% do custo operacional de uma frota. É onde estão as maiores oportunidades.</p>
-    </div>
-    <div class="pillars-grid">
-      <div class="pillar-box fuel">
-        <div class="pillar-num">01</div>
-        <h4>Combustível</h4>
-        <p>Controle de consumo, política de ecodriving e gestão por veículo podem reduzir entre <strong>5–15%</strong> do gasto em combustível.</p>
-        <p class="pillar-src">Fonte: Volvo Trucks BR · Scania Brasil · ICCT</p>
-      </div>
-      <div class="pillar-box maint">
-        <div class="pillar-num">02</div>
-        <h4>Manutenção</h4>
-        <p>Migrar para manutenção preventiva reduz custos em <strong>8–30%</strong> e praticamente elimina paradas imprevistas.</p>
-        <p class="pillar-src">Fonte: Geotab Brasil · CNT · ANFAVEA · NTC&amp;Logística</p>
-      </div>
-      <div class="pillar-box tire">
-        <div class="pillar-num">03</div>
-        <h4>Pneus</h4>
-        <p>Recapagem, controle de pressão e rodízio corretos podem reduzir o custo com pneus em até <strong>38%</strong>.</p>
-        <p class="pillar-src">Fonte: Bandag · Bridgestone · ANIP · Mercedes-Benz Trucks</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SOBRE -->
-<section class="section section-dark" id="sobre">
-  <div class="container">
-    <div class="sobre-grid">
-      <div class="sobre-text-col">
-        <p class="section-label light">Sobre</p>
-        <h2 class="section-title light">Frota na Prática</h2>
-        <p class="sobre-p">Consultoria especializada em redução de custos operacionais para frotas no Paraná, conduzida por Rocha — profissional com experiência direta na gestão e análise de frotas de transporte.</p>
-        <p class="sobre-p">A metodologia é baseada em benchmarks reais do setor (ANTT, NTC&amp;Logística, Geotab, Bandag, Volvo, Scania) — não em estimativas genéricas. Cada diagnóstico usa os números da própria empresa do cliente.</p>
-        <div class="sobre-tags">
-          <span class="tag">Gestão de CPK</span>
-          <span class="tag">Redução de custos</span>
-          <span class="tag">Combustível</span>
-          <span class="tag">Manutenção preventiva</span>
-          <span class="tag">Gestão de pneus</span>
-          <span class="tag">Paraná</span>
-        </div>
-      </div>
-      <div class="sobre-cta-col">
-        <div class="sobre-cta-box">
-          <p class="cta-box-eyebrow">Pronto para começar?</p>
-          <h3 class="cta-box-title">Descubra quanto sua frota pode economizar</h3>
-          <p class="cta-box-sub">Diagnóstico gratuito em 3 minutos. Sem compromisso.</p>
-          <a href="diagnostico/" class="btn-cta-prim">Fazer diagnóstico gratuito →</a>
-          <a href="https://wa.me/5542998582489" class="btn-cta-out" target="_blank">💬 Falar via WhatsApp</a>
-          <p class="cta-note">📅 Agenda limitada — atendemos até 5 novos clientes por mês</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CONTATO -->
-<section class="section" id="contato">
-  <div class="container container-sm">
-    <div class="section-head">
-      <p class="section-label">Contato</p>
-      <h2 class="section-title">Fale com a gente</h2>
-      <p class="section-sub">Atendemos gestores de frota em todo o Paraná. Resposta rápida via WhatsApp.</p>
-    </div>
-    <div class="contact-cards">
-      <a href="https://wa.me/5542998582489?text=Ol%C3%A1+Rocha!+Quero+saber+mais+sobre+a+consultoria." class="contact-card green" target="_blank">
-        <span class="contact-icon">💬</span>
-        <div>
-          <p class="contact-label">WhatsApp — canal preferencial</p>
-          <p class="contact-val">(42) 99858-2489</p>
-        </div>
-        <span class="contact-arrow">→</span>
-      </a>
-      <a href="mailto:frotanapratica@gmail.com" class="contact-card">
-        <span class="contact-icon">✉️</span>
-        <div>
-          <p class="contact-label">E-mail</p>
-          <p class="contact-val">frotanapratica@gmail.com</p>
-        </div>
-      </a>
-      <div class="contact-card">
-        <span class="contact-icon">📍</span>
-        <div>
-          <p class="contact-label">Região de atuação</p>
-          <p class="contact-val">Paraná, Brasil</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer class="footer">
-  <div class="footer-inner">
-    <div>
-      <p class="footer-brand">Frota na Prática</p>
-      <p class="footer-sub">Consultoria em Gestão de Frotas · Paraná</p>
-    </div>
-    <div class="footer-links">
-      <a href="diagnostico/">Diagnóstico CPK</a>
-      <a href="frotabot/admin/">FrotaBot</a>
-      <a href="frotabot/">Conheça a consultoria</a>
-    </div>
-    <p class="footer-copy">© 2025 Frota na Prática</p>
+<footer>
+  <div class="wrap">
+    <span>RodoCore — Diagnóstico · FROIA · Consultoria</span>
+    <span><a href="https://wa.me/5542998582489" target="_blank" rel="noopener">(42) 99858-2489</a> · <a href="mailto:frotanapratica@gmail.com">frotanapratica@gmail.com</a></span>
   </div>
 </footer>
 
-<script>
-function toggleMenu() {
-  document.getElementById('nav-mobile').classList.toggle('open');
-}
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    const t = document.querySelector(a.getAttribute('href'));
-    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
-  });
-});
-</script>
 </body>
 </html>
