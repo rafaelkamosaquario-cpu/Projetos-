@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Frota IA — Analise fretes e custos pelo WhatsApp · Uma solução RodoCore</title>
-<meta name="description" content="O Frota IA analisa fretes, calcula CPK e margem, compara propostas e organiza sua operação — por texto, áudio ou foto do CT-e, direto no WhatsApp.">
+<title>Frota IA — A Inteligência Artificial do Transporte no WhatsApp · Uma solução RodoCore</title>
+<meta name="description" content="Conecte-se ao Frota IA, a inteligência artificial do transporte direto no seu WhatsApp. Analise fretes, calcule custos e tome decisões melhores — por texto, áudio ou foto.">
 <link rel="icon" href="frota-ia-logo.jpg">
 <style>
   :root {
@@ -16,10 +16,13 @@
     --accent-deep: #1C6FDE;
     --accent-glow: rgba(47, 143, 255, 0.5);
     --moss: #2ECC71;
-    --moss-glow: rgba(46, 204, 113, 0.35);
     --line: rgba(226, 233, 245, 0.12);
     --text: #F1F4FA;
     --text-soft: #97A1B5;
+    --paper: #F1F1EE;
+    --paper-text: #14171E;
+    --paper-text-soft: #4B5262;
+    --gold: #E8B84B;
 
     --display: "Bahnschrift", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
     --body: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
@@ -31,11 +34,7 @@
     margin: 0; color: var(--text);
     font-family: var(--body); font-size: 1.0625rem; line-height: 1.65;
     -webkit-font-smoothing: antialiased;
-    background:
-      radial-gradient(ellipse 55% 42% at 80% 6%, rgba(47,143,255,0.22), transparent 60%),
-      radial-gradient(ellipse 45% 38% at 10% 65%, rgba(46,204,113,0.12), transparent 65%),
-      var(--void);
-    background-attachment: fixed;
+    background: var(--void);
   }
   @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
   a { color: inherit; }
@@ -49,9 +48,6 @@
   .wrap-narrow { max-width: 44rem; margin: 0 auto; padding-inline: clamp(1.25rem, 4vw, 3rem); }
   .divider { border: none; border-top: 1px solid var(--line); margin: 0; }
   section { padding-block: clamp(2.75rem, 5.5vw, 4.5rem); }
-  .section-head { max-width: 44rem; margin-bottom: 2.25rem; }
-  .section-head h2 { font-size: clamp(1.7rem, 2.8vw, 2.2rem); margin-top: 0.5rem; }
-  .section-head p { color: var(--text-soft); margin-top: 0.6rem; font-size: 1.05rem; max-width: 40rem; }
 
   .plate { background: rgba(3,5,10,0.75); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
   .plate-bar { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding-block: 0.9rem; }
@@ -65,10 +61,9 @@
   .nav-links a:hover { opacity: 1; border-color: var(--accent); }
   @media (max-width: 760px) { .nav-links, .plate-bar .btn-ghost { display: none; } }
 
-  /* ---------- Pill buttons with neon glow ---------- */
   .btn {
     display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--display); font-stretch: condensed;
-    text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.85rem; padding: 0.85rem 1.8rem;
+    text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.85rem; padding: 0.9rem 2rem;
     border-radius: 999px; text-decoration: none; border: 1.5px solid transparent; cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
@@ -80,30 +75,33 @@
   .btn-accent:hover { transform: translateY(-1px); box-shadow: 0 0 0 1px rgba(47,143,255,0.4), 0 0 40px 6px var(--accent-glow), 0 12px 26px -10px rgba(0,0,0,0.8); }
   .btn-ghost { border-color: rgba(242,237,230,0.35); color: var(--text); background: transparent; }
   .btn-ghost:hover { background: rgba(242,237,230,0.08); }
-  .btn-outline { border: 1.5px solid var(--line); color: var(--text); background: transparent; }
-  .btn-outline:hover { border-color: var(--accent-deep); }
 
-  /* ---------- Hero ---------- */
-  .hero { padding-block: clamp(3rem, 7vw, 5.5rem); }
-  .hero-badge {
-    display: inline-block; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--accent); border: 1px solid rgba(47,143,255,0.4); padding: 0.35rem 0.85rem; border-radius: 999px;
-    background: rgba(47,143,255,0.08);
+  /* ---------- Hero — stylized night-highway backdrop ---------- */
+  .hero { position: relative; padding-block: clamp(3.5rem, 9vw, 6rem); overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; z-index: -1; }
+  .hero-bg::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 55% at 82% 12%, rgba(47,143,255,0.30), transparent 62%),
+      radial-gradient(ellipse 55% 40% at 8% 85%, rgba(46,204,113,0.14), transparent 65%),
+      linear-gradient(180deg, #070a12 0%, #0b0f18 55%, #060911 100%);
   }
-  .hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; margin-top: 1.6rem; }
+  .hero-bg::after {
+    content: ""; position: absolute; left: 50%; bottom: 6%; transform: translateX(-50%);
+    width: 46%; height: 3px; border-radius: 2px;
+    background: repeating-linear-gradient(90deg, rgba(241,244,250,0.55) 0 26px, transparent 26px 52px);
+    filter: drop-shadow(0 0 6px rgba(47,143,255,0.4));
+  }
+  .hero-bg-note { position: absolute; right: 1rem; bottom: 0.6rem; font-family: var(--mono); font-size: 0.6rem; color: rgba(241,244,250,0.28); letter-spacing: 0.04em; }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
   @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
-  .hero h1 { font-size: clamp(2.1rem, 4.2vw, 3.3rem); line-height: 1.1; }
-  .hero-sub { margin-top: 1.3rem; max-width: 34rem; color: var(--text-soft); font-size: 1.12rem; }
-  .hero-tagline { margin-top: 1rem; font-family: var(--mono); font-size: 0.8rem; color: var(--text-soft); font-style: italic; }
-  .hero-ctas { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.9rem; }
-  .hero-trust { margin-top: 1.5rem; display: flex; gap: 1.2rem; flex-wrap: wrap; font-family: var(--mono); font-size: 0.72rem; color: var(--text-soft); }
-  .hero-trust span::before { content: "✓ "; color: var(--moss); }
+  .hero h1 { font-size: clamp(2.2rem, 4.4vw, 3.5rem); line-height: 1.08; }
+  .hero h1 em { font-style: normal; color: var(--accent); text-shadow: 0 0 30px rgba(47,143,255,0.45); }
+  .hero-sub { margin-top: 1.4rem; max-width: 33rem; color: var(--text-soft); font-size: 1.1rem; }
+  .hero-sub strong { color: var(--text); }
+  .hero-ctas { margin-top: 2.2rem; }
 
-  /* ---------- Terminal mock ---------- */
-  .terminal {
-    background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 1.6rem;
-    box-shadow: 0 0 60px -12px rgba(47,143,255,0.18), 0 20px 44px -20px rgba(0,0,0,0.8);
-  }
+  .terminal { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 1.6rem; position: relative; box-shadow: 0 0 60px -12px rgba(47,143,255,0.22), 0 20px 44px -20px rgba(0,0,0,0.8); }
   .terminal-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: 0.7rem; margin-bottom: 1rem; }
   .terminal-title { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; }
   .terminal-live { font-family: var(--mono); font-size: 0.62rem; color: var(--accent); letter-spacing: 0.06em; }
@@ -111,78 +109,119 @@
   .msg.bot { background: var(--card-soft); color: var(--text); border-bottom-left-radius: 4px; }
   .msg.user { background: linear-gradient(135deg, var(--accent), var(--accent-deep)); color: #05070D; margin-left: auto; border-bottom-right-radius: 4px; }
   .msg.attach { display: flex; align-items: center; gap: 0.5rem; }
-  .terminal-foot { margin-top: 0.8rem; font-family: var(--mono); font-size: 0.63rem; color: var(--text-soft); }
+  .terminal-ask { margin-top: 0.9rem; display: flex; align-items: center; gap: 0.6rem; background: var(--void); border: 1px solid var(--line); border-radius: 999px; padding: 0.6rem 0.6rem 0.6rem 1rem; }
+  .terminal-ask span { color: var(--text-soft); font-family: var(--mono); font-size: 0.78rem; flex-grow: 1; }
+  .terminal-ask .send { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #05070D; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+  .float-badge {
+    position: absolute; width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(160deg, var(--accent), var(--accent-deep));
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 8px 20px -6px rgba(47,143,255,0.5);
+  }
+  .float-badge.b1 { top: -18px; left: -18px; }
+  .float-badge.b2 { top: -14px; right: -14px; background: linear-gradient(160deg, var(--moss), #1f9d57); box-shadow: 0 8px 20px -6px rgba(46,204,113,0.5); }
+  .float-badge.b3 { bottom: 30%; right: -20px; }
+  .float-badge.b4 { bottom: -16px; left: 20%; background: linear-gradient(160deg, var(--moss), #1f9d57); box-shadow: 0 8px 20px -6px rgba(46,204,113,0.5); }
+  @media (max-width: 600px) { .float-badge { display: none; } }
 
-  /* ---------- Como funciona ---------- */
-  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-  @media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
-  .step { border-top: 3px solid var(--accent); padding-top: 1rem; }
-  .step-num { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); }
-  .step h3 { font-size: 1.05rem; text-transform: none; letter-spacing: 0; font-family: var(--body); font-weight: 700; margin-top: 0.5rem; }
-  .step p { color: var(--text-soft); font-size: 0.95rem; margin-top: 0.5rem; }
-  .como-funciona-foot { margin-top: 1.75rem; color: var(--text-soft); font-size: 0.95rem; }
+  /* ---------- Demo / video section ---------- */
+  .demo-badge {
+    display: inline-block; transform: skewX(-10deg); background: var(--accent); color: #05070D;
+    font-family: var(--display); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 0.35rem 1.4rem; font-size: 1.1rem;
+  }
+  .demo-badge span { display: inline-block; transform: skewX(10deg); }
+  .demo-head h2 { font-size: clamp(2rem, 4vw, 3rem); margin-top: 0.7rem; line-height: 1.12; }
+  .demo-head h2 em { font-style: italic; color: var(--accent); }
+  .video-frame {
+    margin-top: 2.5rem; max-width: 30rem; aspect-ratio: 9 / 16; border-radius: 20px;
+    border: 1px dashed var(--line); background: var(--card);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem;
+    color: var(--text-soft); font-family: var(--mono); font-size: 0.8rem; text-align: center; padding: 2rem;
+  }
+  .video-frame .play { width: 56px; height: 56px; border-radius: 50%; border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--accent); }
+  .demo-cta { margin-top: 2.2rem; text-align: center; }
 
-  /* ---------- Funcionalidades: cards ---------- */
-  .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
-  @media (max-width: 960px) { .feature-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 620px) { .feature-grid { grid-template-columns: 1fr; } }
-  .feature-item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 1.3rem 1.4rem; }
-  .feature-item h3 { font-family: var(--body); font-weight: 700; text-transform: none; letter-spacing: 0; font-size: 1rem; }
-  .feature-item p { color: var(--text-soft); font-size: 0.92rem; margin: 0.5rem 0 0; }
+  /* ---------- Funções section ---------- */
+  .funcoes-head { text-align: center; max-width: 46rem; margin: 0 auto; }
+  .funcoes-head h2 { font-size: clamp(1.9rem, 3.6vw, 2.7rem); margin-top: 0.6rem; }
+  .funcoes-head h2 em { font-style: normal; color: var(--accent); }
+  .funcoes-head p { color: var(--text-soft); margin-top: 1rem; font-size: 1.05rem; }
+  .funcoes-grid { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; margin-top: 3rem; }
+  @media (max-width: 860px) { .funcoes-grid { grid-template-columns: 1fr; } }
+  .funcoes-visual { display: flex; align-items: center; justify-content: center; }
+  .funcoes-logo-wrap { position: relative; width: 240px; height: 240px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .funcoes-logo-wrap::before { content: ""; position: absolute; inset: -30px; border-radius: 50%; background: radial-gradient(circle, rgba(47,143,255,0.35), transparent 70%); }
+  .funcoes-logo-wrap img { position: relative; width: 200px; height: 200px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1px rgba(47,143,255,0.4), 0 0 60px rgba(47,143,255,0.4); }
+  .funcoes-title { font-size: 1.05rem; margin-bottom: 1rem; }
+  .funcoes-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+  .funcoes-list li { display: flex; gap: 0.6rem; font-weight: 600; font-size: 0.98rem; }
+  .funcoes-list li::before { content: "✓"; color: var(--moss); flex-shrink: 0; }
+  .funcoes-cta { margin-top: 2.5rem; text-align: center; }
 
-  /* ---------- Quem constrói ---------- */
-  .quem { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 3rem; align-items: start; }
-  @media (max-width: 860px) { .quem { grid-template-columns: 1fr; } }
-  .quem p { color: var(--text-soft); }
-  blockquote { margin: 0; padding-left: 1.4rem; border-left: 2px solid var(--accent); font-family: var(--display); font-size: 1.15rem; text-transform: none; letter-spacing: 0; font-stretch: normal; color: var(--text); }
+  /* ---------- Quem somos — light band ---------- */
+  .quem-somos { background: var(--paper); color: var(--paper-text); }
+  .quem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+  @media (max-width: 860px) { .quem-grid { grid-template-columns: 1fr; } }
+  .quem-somos .eyebrow { color: var(--accent-deep); }
+  .quem-somos h2 { color: var(--paper-text); font-size: clamp(1.9rem, 3.4vw, 2.6rem); margin-top: 0.6rem; }
+  .quem-somos h2 em { font-style: normal; color: var(--accent-deep); }
+  .quem-somos p { color: var(--paper-text-soft); margin-top: 1.1rem; font-size: 1.02rem; }
+  .quem-somos p strong { color: var(--paper-text); }
+  .quem-photo {
+    aspect-ratio: 4 / 3; border-radius: 16px; border: 1.5px dashed rgba(20,23,30,0.25);
+    background: rgba(20,23,30,0.04); display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 0.6rem; color: var(--paper-text-soft); font-family: var(--mono); font-size: 0.75rem; text-align: center; padding: 1.5rem;
+  }
+  .quem-photo img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
 
-  /* ---------- Garantia ---------- */
-  .garantia { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--moss); border-radius: 14px; padding: 1.6rem 1.8rem; display: flex; gap: 1rem; align-items: flex-start; }
-  .garantia-icon { font-size: 1.6rem; }
-  .garantia h3 { font-family: var(--body); font-weight: 700; text-transform: none; letter-spacing: 0; font-size: 1.05rem; }
-  .garantia p { color: var(--text-soft); margin: 0.3rem 0 0; font-size: 0.95rem; }
+  /* ---------- Garantia / selo ---------- */
+  .selo-section { position: relative; overflow: hidden; }
+  .selo-bg { position: absolute; inset: 0; z-index: -1; }
+  .selo-bg::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 15% 30%, rgba(47,143,255,0.22), transparent 65%),
+      linear-gradient(180deg, #0a0d16 0%, #0d1119 100%);
+  }
+  .selo-bg::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 10%; height: 2px;
+    background: repeating-linear-gradient(90deg, rgba(241,244,250,0.35) 0 30px, transparent 30px 60px);
+  }
+  .selo-grid { display: grid; grid-template-columns: auto 1fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+  @media (max-width: 760px) { .selo-grid { grid-template-columns: 1fr; justify-items: center; text-align: center; } }
+  .selo-svg { flex-shrink: 0; }
+  .selo-text h2 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); }
+  .selo-text h2 em { font-style: italic; color: var(--accent); }
+  .selo-text p { color: var(--text-soft); margin-top: 1.1rem; font-size: 1.02rem; max-width: 36rem; }
+  .selo-text .btn { margin-top: 1.8rem; }
 
   /* ---------- Pricing ---------- */
-  .planos-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 1.25rem; }
-  @media (max-width: 760px) { .planos-grid { grid-template-columns: 1fr; } }
-  .plano { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 1.9rem; display: flex; flex-direction: column; gap: 1rem; }
-  .plano.destaque { border-color: rgba(47,143,255,0.35); box-shadow: 0 0 50px -18px rgba(47,143,255,0.35); }
-  .plano.futuro { border-style: dashed; }
-  .plano-tag {
-    align-self: flex-start; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--accent); border: 1px solid rgba(47,143,255,0.4); padding: 0.25rem 0.65rem; border-radius: 999px;
-    background: rgba(47,143,255,0.08);
+  .planos-head { text-align: center; }
+  .planos-head h2 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); }
+  .planos-head h2 em { font-style: italic; color: var(--accent); }
+  .plano-card { max-width: 28rem; margin: 2.5rem auto 0; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 0 60px -18px rgba(47,143,255,0.3); }
+  .plano-ribbon {
+    background: var(--void-deep); color: var(--text); font-family: var(--display); font-weight: 700; text-transform: uppercase;
+    font-size: 0.85rem; letter-spacing: 0.03em; padding: 0.8rem 1.5rem; text-align: center;
   }
-  .plano-nome { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.04em; font-size: 1.1rem; }
-  .plano-preco { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 2rem; }
-  .plano-preco strong { font-size: 2.1rem; color: var(--accent); }
-  .plano-preco.futuro { font-size: 1.1rem; color: var(--text-soft); font-family: var(--body); }
-  .plano-desc { color: var(--text-soft); font-size: 0.92rem; margin-top: -0.6rem; }
-  .plano ul { list-style: none; margin: 0; padding: 0; font-size: 0.92rem; display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1; }
-  .plano ul li::before { content: "✓ "; color: var(--moss); }
-  .plano ul li.planned::before { content: "→ "; color: var(--text-soft); }
-  .plano ul li.planned { color: var(--text-soft); }
+  .plano-ribbon em { font-style: normal; color: var(--accent); }
+  .plano-body { background: linear-gradient(160deg, var(--card-soft), var(--card)); padding: 2rem 1.8rem; text-align: center; }
+  .plano-eyebrow { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-soft); }
+  .plano-nome { font-size: 1.7rem; font-style: italic; margin-top: 0.2rem; color: var(--accent); }
+  .plano-list { list-style: none; margin: 1.6rem 0; padding: 1.4rem; background: rgba(47,143,255,0.06); border-radius: 12px; text-align: left; display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.94rem; }
+  .plano-list li { display: flex; gap: 0.5rem; }
+  .plano-list li::before { content: "✓"; color: var(--accent); flex-shrink: 0; }
+  .plano-price-cap { color: var(--text-soft); font-size: 0.95rem; }
+  .plano-price { font-family: var(--mono); font-variant-numeric: tabular-nums; margin: 0.4rem 0 1.6rem; }
+  .plano-price .num { font-size: 3rem; font-weight: 800; color: var(--accent); }
+  .plano-price .per { font-size: 1rem; color: var(--text-soft); }
 
-  /* ---------- FAQ ---------- */
-  .faq-list { border-top: 1px solid var(--line); }
-  .faq-item { padding: 1.3rem 0; border-bottom: 1px solid var(--line); }
-  .faq-item h4 { font-family: var(--body); font-weight: 700; text-transform: none; letter-spacing: 0; font-size: 1rem; }
-  .faq-item p { color: var(--text-soft); margin-top: 0.5rem; font-size: 0.96rem; }
-
-  /* ---------- CTA final ---------- */
-  .dispatch {
-    border-radius: 24px; padding: clamp(2.5rem, 7vw, 4rem); text-align: center;
-    background:
-      radial-gradient(ellipse 70% 90% at 50% -10%, rgba(47,143,255,0.28), transparent 60%),
-      var(--card);
-    border: 1px solid var(--line);
-  }
-  .dispatch h2 { font-size: clamp(1.8rem, 3.2vw, 2.5rem); }
-  .dispatch p { color: var(--text-soft); margin-top: 0.8rem; }
-  .dispatch .btn-accent { margin-top: 1.8rem; }
-
-  footer.plate { position: static; backdrop-filter: none; background: var(--void-deep); }
-  footer.plate .plate-bar { flex-wrap: wrap; font-family: var(--mono); font-size: 0.7rem; color: var(--text-soft); padding-block: 1.4rem; }
+  /* ---------- Footer ---------- */
+  footer.plate { position: static; backdrop-filter: none; background: var(--void-deep); text-align: center; padding-block: 3rem 2rem; }
+  .footer-logo { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 1.4rem; }
+  .footer-logo span { color: var(--accent); }
+  .footer-tag { max-width: 34rem; margin: 1.2rem auto 0; color: var(--text-soft); font-size: 0.95rem; }
+  .footer-copy { margin-top: 1.6rem; color: var(--text-soft); font-family: var(--mono); font-size: 0.75rem; }
+  .footer-legal { margin-top: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: rgba(151,161,181,0.6); }
 </style>
 </head>
 <body>
@@ -209,232 +248,181 @@
 </header>
 
 <main>
-  <section class="hero wrap">
-    <span class="hero-badge">🚛 Para transporte rodoviário e florestal</span>
-    <div class="hero-grid">
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <span class="hero-bg-note">fundo ilustrativo — sugerimos substituir por foto real de rodovia</span>
+    <div class="wrap hero-grid">
       <div>
-        <h1>Antes de aceitar o frete, veja se ele realmente compensa.</h1>
-        <p class="hero-sub">Envie uma proposta, um áudio ou uma foto do CT-e. O Frota IA usa os dados do seu caminhão pra calcular custo, margem e receita por quilômetro — e te ajuda a decidir, direto no WhatsApp.</p>
-        <p class="hero-tagline">Conhecimento especializado em transporte, a uma mensagem de distância.</p>
-        <div class="hero-ctas">
-          <a class="btn btn-accent" href="https://wa.me/5542998582489?text=Quero+testar+o+Frota+IA+gr%C3%A1tis" target="_blank" rel="noopener">Testar grátis no WhatsApp</a>
-          <a class="btn btn-outline" href="#como-funciona">Ver como funciona</a>
+        <div class="brand" style="margin-bottom:1.4rem;">
+          <img class="brand-logo" src="frota-ia-logo.jpg" alt="" style="width:34px;height:34px;">
+          <span class="brand-name" style="font-size:1.1rem;">Frota IA</span>
         </div>
-        <div class="hero-trust">
-          <span>7 dias grátis</span>
-          <span>Sem cartão</span>
-          <span>Texto e áudio</span>
-          <span>1 veículo por cadastro</span>
+        <h1>Todo o conhecimento<br>da estrada, a <em>um áudio</em><br><em>de distância.</em></h1>
+        <p class="hero-sub">Conecte-se ao <strong>Frota IA</strong>, a inteligência artificial do transporte direto no seu WhatsApp.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-accent" href="#como-funciona">Veja como funciona</a>
         </div>
       </div>
-      <div class="terminal">
-        <div class="terminal-head">
-          <span class="terminal-title">Frota IA · WhatsApp</span>
-          <span class="terminal-live">● ao vivo</span>
+      <div style="position:relative;">
+        <span class="float-badge b1">🧮</span>
+        <span class="float-badge b2">🌱</span>
+        <span class="float-badge b3">🌐</span>
+        <span class="float-badge b4">📷</span>
+        <div class="terminal">
+          <div class="terminal-head">
+            <span class="terminal-title">Frota IA · WhatsApp</span>
+            <span class="terminal-live">● ao vivo</span>
+          </div>
+          <div class="msg user">Analise este frete pra mim.</div>
+          <div class="msg user attach">📎 <span>CT-e.jpg</span></div>
+          <div class="msg bot">Encontrei os dados: origem Curitiba–PR, destino São Paulo–SP, valor R$4.800. Posso usar o caminhão cadastrado?</div>
+          <div class="msg user">Sim.</div>
+          <div class="msg bot">Receita ≈ R$11,80/km · custo ≈ R$8,90/km · margem ≈ R$2,90/km. Esse frete compensa.</div>
+          <div class="terminal-ask">
+            <span>Faça uma pergunta</span>
+            <span class="send">➤</span>
+          </div>
         </div>
-        <div class="msg user">Analise este frete pra mim.</div>
-        <div class="msg user attach">📎 <span>CT-e.jpg</span></div>
-        <div class="msg bot">Encontrei os dados: origem Curitiba–PR, destino São Paulo–SP, valor do frete R$4.800. Posso usar o caminhão que você já cadastrou?</div>
-        <div class="msg user">Sim.</div>
-        <div class="msg bot">Com os dados do seu caminhão: receita ≈ R$11,80/km · custo estimado ≈ R$8,90/km · margem ≈ R$2,90/km. Esse frete apresenta resultado positivo. Quer comparar com outra proposta ou gerar o relatório em PDF?</div>
-        <p class="terminal-foot">Exemplo ilustrativo de conversa com o Frota IA.</p>
       </div>
     </div>
   </section>
-
-  <hr class="divider" />
 
   <section class="wrap" id="como-funciona">
-    <div class="section-head">
-      <p class="eyebrow">Como funciona</p>
-      <h2>Usar o Frota IA é simples</h2>
+    <span class="demo-badge"><span>Agilidade e</span></span>
+    <div class="demo-head">
+      <h2>Precisão na decisão<br>na <em>palma da sua mão.</em></h2>
     </div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">01</div>
-        <h3>Envie</h3>
-        <p>Mande uma mensagem, um áudio, uma proposta ou uma foto do CT-e.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">02</div>
-        <h3>Confirme</h3>
-        <p>O Frota IA identifica os dados, recupera seu veículo cadastrado e pergunta só o que estiver faltando.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">03</div>
-        <h3>Decida</h3>
-        <p>Receba os cálculos, a comparação e a conclusão pelo WhatsApp. Depois, crie um alerta ou gere o relatório.</p>
-      </div>
+    <div class="video-frame">
+      <span class="play">▶</span>
+      <span>Vídeo de demonstração — em breve.<br>Espaço reservado para uma gravação real de conversa com o Frota IA.</span>
     </div>
-    <p class="como-funciona-foot">Você não precisa aprender comandos. Basta conversar normalmente.</p>
+    <div class="demo-cta">
+      <a class="btn btn-accent" href="https://wa.me/5542998582489?text=Quero+testar+o+Frota+IA+gr%C3%A1tis" target="_blank" rel="noopener">Quero testar gratuitamente</a>
+    </div>
   </section>
-
-  <hr class="divider" />
 
   <section class="wrap" id="funcionalidades">
-    <div class="section-head">
-      <p class="eyebrow">O que o Frota IA faz por você</p>
-      <h2>Recursos especializados pra sua operação</h2>
-      <p>Mais de 20 recursos para analisar, calcular e organizar sua rotina, disponíveis por texto ou áudio, 24 horas por dia — sem app novo pra instalar.</p>
+    <div class="funcoes-head">
+      <p class="eyebrow">Frota IA</p>
+      <h2>Surpreenda-se com as <em>funções inteligentes<br>do Frota IA</em></h2>
+      <p>Uma ferramenta prática, acessível e poderosa que entende a linguagem da estrada, responde com precisão técnica e coloca soluções na palma da sua mão — seja para analisar um frete, decidir sobre uma proposta, organizar a manutenção ou planejar com mais confiança.</p>
     </div>
-    <div class="feature-grid">
-      <div class="feature-item">
-        <h3>Análise de frete pela foto do CT-e</h3>
-        <p>Manda a foto do documento e o Frota IA já extrai origem, destino e valor pra calcular o resultado.</p>
+    <div class="funcoes-grid">
+      <div class="funcoes-visual">
+        <div class="funcoes-logo-wrap">
+          <img src="frota-ia-logo.jpg" alt="Logo Frota IA">
+        </div>
       </div>
-      <div class="feature-item">
-        <h3>Comparação de propostas</h3>
-        <p>Compare duas ou mais propostas: valor, distância, custo, margem e prazo de pagamento lado a lado.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Lembrete de cobrança</h3>
-        <p>Informe o prazo de pagamento combinado e receba um aviso no WhatsApp na data certa.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Cálculo de CPK e custo de viagem</h3>
-        <p>Descubra o custo real por quilômetro da sua operação, com todos os componentes considerados.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Valor mínimo de frete e margem</h3>
-        <p>Saiba antes de aceitar se o frete vale a pena, com base nos seus próprios custos.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Piso mínimo legal da ANTT</h3>
-        <p>Verificação do piso mínimo conforme a legislação vigente, consultando a fonte oficial quando necessário.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Combustível e pneus</h3>
-        <p>Estimativa de consumo, referência de preço de combustível e orientação sobre vida útil de pneus.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Rotas e distância</h3>
-        <p>Calcule distância e tempo de viagem entre duas cidades quaisquer, direto pelo WhatsApp.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Agenda integrada</h3>
-        <p>Crie, consulte e altere compromissos no seu Google Agenda sem sair da conversa.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Histórico de análises</h3>
-        <p>Consulte análises anteriores por data, rota ou cliente sempre que precisar.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Documentos já gerados</h3>
-        <p>Peça pra listar ou reenviar relatórios em PDF que você já gerou antes.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Alertas a partir de documentos</h3>
-        <p>Envie o documento de seguro ou licenciamento e o Frota IA identifica a data e oferece criar o alerta.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Conhecimento operacional</h3>
-        <p>Orientação prática sobre negociação, manutenção preventiva, direção econômica e gestão da frota.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Rotas salvas</h3>
-        <p>Favorite os trajetos que você mais faz e reutilize sem digitar tudo de novo.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Tudo por voz, também</h3>
-        <p>Sem tempo de digitar? Manda um áudio. O Frota IA entende e responde do mesmo jeito.</p>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider" />
-
-  <section class="wrap">
-    <div class="quem">
       <div>
-        <p class="eyebrow">Quem constrói o Frota IA</p>
-        <h2 style="margin-top:0.5rem;">Feito por quem viveu a operação por dentro</h2>
-        <p>O Frota IA foi criado por Rocha, profissional com experiência direta na gestão e análise de frotas de transporte, e 17 anos de operação real em transportadoras — não por quem só olha o transporte de longe. Ele entende os problemas que você enfrenta: frete que não fecha a conta, prazo apertado, papelada que ninguém tem tempo de organizar.</p>
-        <p>Por isso o Frota IA responde do jeito que você fala, no canal que você já usa todos os dias — o WhatsApp.</p>
+        <h3 class="funcoes-title">Algumas funções:</h3>
+        <ul class="funcoes-list">
+          <li>Análise de frete pela foto do CT-e</li>
+          <li>Comparação de propostas (valor, distância, custo, margem e prazo)</li>
+          <li>Lembrete de cobrança na data combinada</li>
+          <li>Cálculo de CPK e custo de viagem</li>
+          <li>Valor mínimo de frete e margem</li>
+          <li>Verificação do piso mínimo legal da ANTT</li>
+          <li>Estimativa de combustível e vida útil de pneus</li>
+          <li>Distância e tempo de viagem entre cidades</li>
+          <li>Agenda integrada (Google Agenda)</li>
+          <li>Histórico de análises por data, rota ou cliente</li>
+          <li>Documentos e relatórios já gerados</li>
+          <li>Alertas de vencimento a partir de documentos</li>
+          <li>Conhecimento operacional (negociação, manutenção, direção econômica)</li>
+          <li>Rotas salvas e favoritas</li>
+          <li>Tudo por voz, também</li>
+        </ul>
       </div>
-      <blockquote>O Frota IA ajuda você a não deixar cálculos e decisões importantes para trás.</blockquote>
+    </div>
+    <div class="funcoes-cta">
+      <a class="btn btn-accent" href="https://wa.me/5542998582489?text=Quero+testar+o+Frota+IA+gr%C3%A1tis" target="_blank" rel="noopener">Experimentar grátis por 7 dias</a>
     </div>
   </section>
 
-  <hr class="divider" />
-
-  <section class="wrap-narrow">
-    <div class="garantia">
-      <span class="garantia-icon">🛡️</span>
+  <section class="quem-somos">
+    <div class="wrap quem-grid">
       <div>
-        <h3>7 dias grátis, sem cartão de crédito</h3>
-        <p>Teste os recursos do Frota IA antes de decidir. Sem fidelidade, sem compromisso — cancela quando quiser, direto pelo WhatsApp.</p>
+        <p class="eyebrow">Quem somos</p>
+        <h2>Nós confiamos<br><em>no Frota IA</em></h2>
+        <p>Porque ele foi <strong>desenvolvido por quem vive a estrada, para quem vive da estrada</strong>.</p>
+        <p>Não é uma IA genérica, feita por gente de escritório. É uma ferramenta criada com base na realidade da estrada, com a linguagem, as dúvidas e os desafios de quem roda de madrugada, enfrenta o trânsito, a fiscalização, a correria e precisa de resposta rápida e certa. Foi criada por Rocha, com 17 anos de operação real em transportadoras — é por isso que <strong>a gente usa, confia e recomenda</strong>.</p>
+      </div>
+      <div class="quem-photo">
+        <img src="frota-ia-logo.jpg" alt="Logo Frota IA">
+        <span>Foto da equipe — em breve</span>
       </div>
     </div>
   </section>
 
-  <hr class="divider" />
+  <section class="selo-section" id="faq">
+    <div class="selo-bg"></div>
+    <div class="wrap selo-grid">
+      <div class="selo-svg">
+        <svg viewBox="0 0 200 200" width="190" height="190" role="img" aria-label="Selo: teste por 7 dias grátis, sem fidelidade">
+          <defs>
+            <radialGradient id="sealGold" cx="45%" cy="35%" r="75%">
+              <stop offset="0%" stop-color="#FFF3C9"/>
+              <stop offset="45%" stop-color="#F0C15C"/>
+              <stop offset="100%" stop-color="#9C6B12"/>
+            </radialGradient>
+            <path id="sealTopArc" d="M 34 108 A 66 66 0 0 1 166 108" fill="none"/>
+            <path id="sealBottomArc" d="M 46 150 A 60 60 0 0 0 154 150" fill="none"/>
+          </defs>
+          <circle cx="100" cy="100" r="93" fill="none" stroke="#E0A83A" stroke-width="13" stroke-dasharray="12 7"/>
+          <circle cx="100" cy="100" r="80" fill="url(#sealGold)" stroke="#7A4E0C" stroke-width="2"/>
+          <circle cx="100" cy="100" r="70" fill="none" stroke="#7A4E0C" stroke-width="1" opacity="0.45"/>
+          <text font-family="Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="2" fill="#3C2A05">
+            <textPath href="#sealTopArc" startOffset="50%" text-anchor="middle">TESTE POR</textPath>
+          </text>
+          <text font-family="Arial, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.5" fill="#3C2A05">
+            <textPath href="#sealBottomArc" startOffset="50%" text-anchor="middle">SEM FIDELIDADE</textPath>
+          </text>
+          <text x="100" y="112" font-family="Arial, sans-serif" font-size="46" font-weight="800" fill="#3C2A05" text-anchor="middle">7</text>
+          <text x="100" y="129" font-family="Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="1" fill="#3C2A05" text-anchor="middle">DIAS</text>
+          <text x="100" y="143" font-family="Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="1" fill="#3C2A05" text-anchor="middle">GRÁTIS</text>
+          <text x="34" y="105" font-size="15" fill="#3C2A05">★</text>
+          <text x="158" y="105" font-size="15" fill="#3C2A05">★</text>
+        </svg>
+      </div>
+      <div class="selo-text">
+        <h2>Teste sem compromisso <em>por 7 dias.</em></h2>
+        <p>Se em até 7 dias você realmente usar o Frota IA, seguir nossas orientações, fazer perguntas, mandar fotos, relatórios, análises, cálculos... e mesmo assim sentir que não te ajudou de verdade, é só cancelar: sem cobrança, sem cartão pedido antes, sem burocracia.</p>
+        <a class="btn btn-accent" href="https://wa.me/5542998582489?text=Quero+testar+o+Frota+IA+gr%C3%A1tis" target="_blank" rel="noopener">Iniciar meu teste agora</a>
+      </div>
+    </div>
+  </section>
 
   <section class="wrap" id="planos">
-    <div class="section-head">
+    <div class="planos-head">
       <p class="eyebrow">Planos</p>
-      <h2>Assine e comece a usar hoje</h2>
-      <p>Sem fidelidade. Cancele quando quiser.</p>
+      <h2>Escolha o <em>seu plano:</em></h2>
     </div>
-    <div class="planos-grid">
-      <div class="plano destaque">
-        <span class="plano-tag">Individual</span>
+    <div class="plano-card">
+      <div class="plano-ribbon">Comece a usar agora <em>sem pagar nada</em></div>
+      <div class="plano-body">
+        <p class="plano-eyebrow">Plano</p>
         <div class="plano-nome">Frota IA</div>
-        <div class="plano-preco">R$ <strong>59,90</strong>/mês</div>
-        <p class="plano-desc">Para motoristas autônomos, caminhoneiros proprietários, agregados e pequenos transportadores que querem começar com um veículo.</p>
-        <ul>
+        <ul class="plano-list">
+          <li>Acesso total e imediato aos recursos da V1, gratuitamente nos primeiros 7 dias.</li>
           <li>1 veículo principal por cadastro</li>
-          <li>Acesso completo aos recursos da V1</li>
-          <li>Atualizações inclusas</li>
-          <li>Suporte humano via WhatsApp</li>
-          <li>Uso pelo WhatsApp por texto e áudio</li>
+          <li>Atualizações inclusas sem custo adicional</li>
+          <li>Suporte humano no WhatsApp</li>
+          <li>Acesso a tudo isso sem precisar baixar nada</li>
         </ul>
-        <a href="https://wa.me/5542998582489?text=Quero+assinar+o+Frota+IA" class="btn btn-accent" target="_blank" rel="noopener">Quero assinar</a>
+        <p class="plano-price-cap">Depois, apenas</p>
+        <p class="plano-price"><span class="num">R$59,90</span><span class="per">/mês</span></p>
+        <a class="btn btn-accent" href="https://wa.me/5542998582489?text=Quero+testar+o+Frota+IA+gr%C3%A1tis" target="_blank" rel="noopener" style="width:100%; justify-content:center;">Teste gratuitamente agora</a>
       </div>
-      <div class="plano futuro">
-        <span class="plano-tag">Empresarial · Em breve</span>
-        <div class="plano-nome">Frota IA para empresas</div>
-        <div class="plano-preco futuro">Em desenvolvimento</div>
-        <p class="plano-desc">Painel, múltiplos veículos e gestão compartilhada — para transportadoras que precisam de mais de um cadastro.</p>
-        <ul>
-          <li class="planned">Múltiplos veículos e gestores</li>
-          <li class="planned">Onboarding dedicado</li>
-          <li class="planned">Suporte prioritário</li>
-        </ul>
-        <a href="https://wa.me/5542998582489?text=Quero+entrar+na+lista+de+interesse+do+Frota+IA+para+empresas" class="btn btn-outline" target="_blank" rel="noopener">Entrar na lista de interesse</a>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider" />
-
-  <section class="wrap" id="faq">
-    <div class="section-head">
-      <p class="eyebrow">Dúvidas frequentes</p>
-      <h2>Antes de começar</h2>
-    </div>
-    <div class="faq-list">
-      <div class="faq-item"><h4>Preciso instalar algum aplicativo?</h4><p>Não. O Frota IA funciona 100% pelo WhatsApp, o app que você já usa.</p></div>
-      <div class="faq-item"><h4>Funciona por áudio?</h4><p>Sim. Manda um áudio perguntando o que precisa, e o Frota IA responde normalmente — não precisa digitar.</p></div>
-      <div class="faq-item"><h4>É pra motorista autônomo ou só pra transportadora?</h4><p>Esta versão (V1) foi criada principalmente pra motoristas autônomos, caminhoneiros proprietários, agregados e pequenos transportadores — cada cadastro usa um veículo principal. Nesta versão, toda a experiência foi otimizada pra um veículo por cadastro; versões com múltiplos veículos e equipes chegam depois, no plano Empresarial.</p></div>
-      <div class="faq-item"><h4>Os cálculos são confiáveis?</h4><p>Sim — cada cálculo (CPK, frete, piso da ANTT) é feito por uma ferramenta própria, nunca "de cabeça" pela IA. Quando a análise exige informação atualizada, o Frota IA consulta fontes oficiais e apresenta a referência utilizada.</p></div>
-      <div class="faq-item"><h4>Posso cancelar quando quiser?</h4><p>Sim. Sem fidelidade, sem multa — cancela direto pelo WhatsApp.</p></div>
-      <div class="faq-item"><h4>Tem período de teste grátis?</h4><p>Sim, 7 dias grátis, sem precisar de cartão de crédito.</p></div>
-    </div>
-  </section>
-
-  <section class="wrap">
-    <div class="dispatch">
-      <h2>Sua próxima decisão de frete começa com uma pergunta</h2>
-      <p>7 dias grátis. Sem cartão. Sem compromisso.</p>
-      <a href="https://wa.me/5542998582489?text=Quero+testar+o+Frota+IA+gr%C3%A1tis" class="btn btn-accent" target="_blank" rel="noopener">Quero começar meu teste grátis →</a>
     </div>
   </section>
 </main>
 
 <footer class="plate">
-  <div class="wrap plate-bar">
-    <span class="brand"><img class="brand-logo" src="frota-ia-logo.jpg" alt="Logo Frota IA" style="width:28px;height:28px;">Frota IA — uma solução RodoCore</span>
-    <span>Desenvolvido por quem viveu a operação de frota por dentro</span>
+  <div class="wrap">
+    <div class="footer-logo">Frota <span>IA</span></div>
+    <p class="footer-tag">Uma ferramenta criada com base na realidade da estrada, com a linguagem, as dúvidas e os desafios de quem roda de madrugada, enfrenta o trânsito, a correria e precisa de resposta rápida e certa.</p>
+    <p class="footer-copy">© Todos os direitos reservados — Frota IA 2026 · uma solução RodoCore</p>
+    <p class="footer-legal">Termos de Uso · Políticas de Privacidade — em breve</p>
   </div>
 </footer>
 
