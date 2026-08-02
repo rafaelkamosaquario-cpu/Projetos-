@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FROIA — A Inteligência Artificial do Transporte no WhatsApp · RodoCore</title>
-<meta name="description" content="FROIA calcula CPK, frete, piso mínimo da ANTT, combustível e mais — por texto ou áudio, direto no WhatsApp. 7 dias grátis, sem cartão.">
+<title>Frota IA — Analise fretes e custos pelo WhatsApp · Uma solução RodoCore</title>
+<meta name="description" content="O Frota IA analisa fretes, calcula CPK e margem, compara propostas e organiza sua operação — por texto, áudio ou foto do CT-e, direto no WhatsApp.">
 <link rel="icon" href="frota-ia-logo.jpg">
 <style>
   :root {
@@ -22,14 +22,14 @@
     --text-soft: #97A1B5;
 
     --display: "Bahnschrift", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
-    --body: Charter, "Iowan Old Style", Georgia, "Times New Roman", serif;
+    --body: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
     --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, "Roboto Mono", monospace;
   }
 
   * { box-sizing: border-box; }
   body {
     margin: 0; color: var(--text);
-    font-family: var(--body); font-size: 1.0625rem; line-height: 1.6;
+    font-family: var(--body); font-size: 1.0625rem; line-height: 1.65;
     -webkit-font-smoothing: antialiased;
     background:
       radial-gradient(ellipse 55% 42% at 80% 6%, rgba(47,143,255,0.22), transparent 60%),
@@ -48,18 +48,18 @@
   .wrap { max-width: 74rem; margin: 0 auto; padding-inline: clamp(1.25rem, 4vw, 3rem); }
   .wrap-narrow { max-width: 44rem; margin: 0 auto; padding-inline: clamp(1.25rem, 4vw, 3rem); }
   .divider { border: none; border-top: 1px solid var(--line); margin: 0; }
-  section { padding-block: clamp(3rem, 6vw, 5rem); }
-  .section-head { max-width: 42rem; margin-bottom: 2.5rem; }
+  section { padding-block: clamp(2.75rem, 5.5vw, 4.5rem); }
+  .section-head { max-width: 44rem; margin-bottom: 2.25rem; }
   .section-head h2 { font-size: clamp(1.7rem, 2.8vw, 2.2rem); margin-top: 0.5rem; }
-  .section-head p { color: var(--text-soft); margin-top: 0.6rem; font-size: 1.02rem; }
+  .section-head p { color: var(--text-soft); margin-top: 0.6rem; font-size: 1.05rem; max-width: 40rem; }
 
   .plate { background: rgba(3,5,10,0.75); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
   .plate-bar { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding-block: 0.9rem; }
   .brand { display: flex; align-items: center; gap: 0.7rem; line-height: 1.05; }
-  .brand-logo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1px rgba(47,143,255,0.4), 0 0 18px rgba(47,143,255,0.35); }
+  .brand-logo { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1px rgba(47,143,255,0.4), 0 0 18px rgba(47,143,255,0.35); }
   .brand-text { display: flex; flex-direction: column; }
-  .brand-name { font-family: var(--display); font-stretch: condensed; text-transform: uppercase; font-weight: 700; font-size: 1.3rem; letter-spacing: 0.06em; }
-  .brand-tag { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.14em; color: var(--text-soft); margin-top: 0.2rem; }
+  .brand-name { font-family: var(--display); font-stretch: condensed; text-transform: uppercase; font-weight: 700; font-size: 1.25rem; letter-spacing: 0.04em; }
+  .brand-tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.14em; color: var(--text-soft); margin-top: 0.2rem; text-transform: uppercase; }
   .nav-links { display: flex; gap: 1.75rem; list-style: none; margin: 0; padding: 0; font-family: var(--display); font-stretch: condensed; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.06em; }
   .nav-links a { text-decoration: none; opacity: 0.85; padding: 0.25rem 0; border-bottom: 2px solid transparent; }
   .nav-links a:hover { opacity: 1; border-color: var(--accent); }
@@ -84,7 +84,7 @@
   .btn-outline:hover { border-color: var(--accent-deep); }
 
   /* ---------- Hero ---------- */
-  .hero { padding-block: clamp(3.5rem, 9vw, 6.5rem); }
+  .hero { padding-block: clamp(3rem, 7vw, 5.5rem); }
   .hero-badge {
     display: inline-block; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
     color: var(--accent); border: 1px solid rgba(47,143,255,0.4); padding: 0.35rem 0.85rem; border-radius: 999px;
@@ -92,11 +92,11 @@
   }
   .hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; margin-top: 1.6rem; }
   @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
-  .hero h1 { font-size: clamp(2.3rem, 4.6vw, 3.7rem); line-height: 1.06; }
-  .hero h1 em { font-style: normal; color: var(--accent); text-shadow: 0 0 30px rgba(47,143,255,0.45); }
-  .hero-sub { margin-top: 1.3rem; max-width: 32rem; color: var(--text-soft); font-size: 1.1rem; }
+  .hero h1 { font-size: clamp(2.1rem, 4.2vw, 3.3rem); line-height: 1.1; }
+  .hero-sub { margin-top: 1.3rem; max-width: 34rem; color: var(--text-soft); font-size: 1.12rem; }
+  .hero-tagline { margin-top: 1rem; font-family: var(--mono); font-size: 0.8rem; color: var(--text-soft); font-style: italic; }
   .hero-ctas { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.9rem; }
-  .hero-trust { margin-top: 1.5rem; display: flex; gap: 1.4rem; flex-wrap: wrap; font-family: var(--mono); font-size: 0.75rem; color: var(--text-soft); }
+  .hero-trust { margin-top: 1.5rem; display: flex; gap: 1.2rem; flex-wrap: wrap; font-family: var(--mono); font-size: 0.72rem; color: var(--text-soft); }
   .hero-trust span::before { content: "✓ "; color: var(--moss); }
 
   /* ---------- Terminal mock ---------- */
@@ -107,24 +107,34 @@
   .terminal-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: 0.7rem; margin-bottom: 1rem; }
   .terminal-title { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; }
   .terminal-live { font-family: var(--mono); font-size: 0.62rem; color: var(--accent); letter-spacing: 0.06em; }
-  .msg { font-family: var(--mono); font-size: 0.8rem; padding: 0.65rem 0.9rem; border-radius: 14px; margin-bottom: 0.6rem; max-width: 92%; line-height: 1.5; }
+  .msg { font-family: var(--mono); font-size: 0.78rem; padding: 0.65rem 0.9rem; border-radius: 14px; margin-bottom: 0.6rem; max-width: 94%; line-height: 1.5; }
   .msg.bot { background: var(--card-soft); color: var(--text); border-bottom-left-radius: 4px; }
   .msg.user { background: linear-gradient(135deg, var(--accent), var(--accent-deep)); color: #05070D; margin-left: auto; border-bottom-right-radius: 4px; }
-  .msg.voice { display: flex; align-items: center; gap: 0.5rem; }
-  .terminal-foot { margin-top: 0.8rem; font-family: var(--mono); font-size: 0.65rem; color: var(--text-soft); }
+  .msg.attach { display: flex; align-items: center; gap: 0.5rem; }
+  .terminal-foot { margin-top: 0.8rem; font-family: var(--mono); font-size: 0.63rem; color: var(--text-soft); }
 
-  /* ---------- Funcionalidades ---------- */
-  .feature-cols { columns: 2; column-gap: 2.5rem; }
-  @media (max-width: 760px) { .feature-cols { columns: 1; } }
-  .feature-item { break-inside: avoid; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--line); }
-  .feature-item h3 { font-family: var(--body); font-weight: 700; text-transform: none; letter-spacing: 0; font-size: 1.02rem; }
-  .feature-item p { color: var(--text-soft); font-size: 0.92rem; margin: 0.4rem 0 0; }
+  /* ---------- Como funciona ---------- */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  @media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
+  .step { border-top: 3px solid var(--accent); padding-top: 1rem; }
+  .step-num { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); }
+  .step h3 { font-size: 1.05rem; text-transform: none; letter-spacing: 0; font-family: var(--body); font-weight: 700; margin-top: 0.5rem; }
+  .step p { color: var(--text-soft); font-size: 0.95rem; margin-top: 0.5rem; }
+  .como-funciona-foot { margin-top: 1.75rem; color: var(--text-soft); font-size: 0.95rem; }
+
+  /* ---------- Funcionalidades: cards ---------- */
+  .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+  @media (max-width: 960px) { .feature-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .feature-grid { grid-template-columns: 1fr; } }
+  .feature-item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 1.3rem 1.4rem; }
+  .feature-item h3 { font-family: var(--body); font-weight: 700; text-transform: none; letter-spacing: 0; font-size: 1rem; }
+  .feature-item p { color: var(--text-soft); font-size: 0.92rem; margin: 0.5rem 0 0; }
 
   /* ---------- Quem constrói ---------- */
   .quem { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 3rem; align-items: start; }
   @media (max-width: 860px) { .quem { grid-template-columns: 1fr; } }
   .quem p { color: var(--text-soft); }
-  blockquote { margin: 0; padding-left: 1.4rem; border-left: 2px solid var(--accent); font-family: var(--display); font-size: 1.2rem; text-transform: none; letter-spacing: 0; font-stretch: normal; color: var(--text); }
+  blockquote { margin: 0; padding-left: 1.4rem; border-left: 2px solid var(--accent); font-family: var(--display); font-size: 1.15rem; text-transform: none; letter-spacing: 0; font-stretch: normal; color: var(--text); }
 
   /* ---------- Garantia ---------- */
   .garantia { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--moss); border-radius: 14px; padding: 1.6rem 1.8rem; display: flex; gap: 1rem; align-items: flex-start; }
@@ -137,6 +147,7 @@
   @media (max-width: 760px) { .planos-grid { grid-template-columns: 1fr; } }
   .plano { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 1.9rem; display: flex; flex-direction: column; gap: 1rem; }
   .plano.destaque { border-color: rgba(47,143,255,0.35); box-shadow: 0 0 50px -18px rgba(47,143,255,0.35); }
+  .plano.futuro { border-style: dashed; }
   .plano-tag {
     align-self: flex-start; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase;
     color: var(--accent); border: 1px solid rgba(47,143,255,0.4); padding: 0.25rem 0.65rem; border-radius: 999px;
@@ -145,10 +156,12 @@
   .plano-nome { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.04em; font-size: 1.1rem; }
   .plano-preco { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 2rem; }
   .plano-preco strong { font-size: 2.1rem; color: var(--accent); }
-  .plano-preco small { display: block; font-size: 0.8rem; color: var(--text-soft); font-weight: 400; margin-top: 0.2rem; }
+  .plano-preco.futuro { font-size: 1.1rem; color: var(--text-soft); font-family: var(--body); }
   .plano-desc { color: var(--text-soft); font-size: 0.92rem; margin-top: -0.6rem; }
   .plano ul { list-style: none; margin: 0; padding: 0; font-size: 0.92rem; display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1; }
   .plano ul li::before { content: "✓ "; color: var(--moss); }
+  .plano ul li.planned::before { content: "→ "; color: var(--text-soft); }
+  .plano ul li.planned { color: var(--text-soft); }
 
   /* ---------- FAQ ---------- */
   .faq-list { border-top: 1px solid var(--line); }
@@ -179,76 +192,119 @@
     <div class="brand">
       <img class="brand-logo" src="frota-ia-logo.jpg" alt="Logo Frota IA">
       <div class="brand-text">
-        <span class="brand-name">FROIA</span>
-        <span class="brand-tag">IA DO TRANSPORTE — RODOCORE</span>
+        <span class="brand-name">Frota IA</span>
+        <span class="brand-tag">Uma solução RodoCore</span>
       </div>
     </div>
     <nav>
       <ul class="nav-links">
-        <li><a href="#funcionalidades">O que ela faz</a></li>
+        <li><a href="#como-funciona">Como funciona</a></li>
+        <li><a href="#funcionalidades">Recursos</a></li>
         <li><a href="#planos">Planos</a></li>
         <li><a href="#faq">Dúvidas</a></li>
       </ul>
     </nav>
-    <a class="btn btn-ghost" href="https://wa.me/5542998582489?text=Quero+testar+a+FROIA+gr%C3%A1tis" target="_blank" rel="noopener">Testar grátis</a>
+    <a class="btn btn-ghost" href="https://wa.me/5542998582489?text=Quero+testar+o+Frota+IA+gr%C3%A1tis" target="_blank" rel="noopener">Testar grátis</a>
   </div>
 </header>
 
 <main>
   <section class="hero wrap">
-    <span class="hero-badge">🎙️ IA para transporte rodoviário e florestal</span>
+    <span class="hero-badge">🚛 Para transporte rodoviário e florestal</span>
     <div class="hero-grid">
       <div>
-        <h1>Todo o conhecimento da estrada, a <em>um áudio de distância</em></h1>
-        <p class="hero-sub">A FROIA é a inteligência artificial do transporte direto no seu WhatsApp. Manda um áudio ou uma pergunta, e ela calcula CPK, frete, piso mínimo da ANTT, combustível e muito mais — na hora.</p>
+        <h1>Antes de aceitar o frete, veja se ele realmente compensa.</h1>
+        <p class="hero-sub">Envie uma proposta, um áudio ou uma foto do CT-e. O Frota IA usa os dados do seu caminhão pra calcular custo, margem e receita por quilômetro — e te ajuda a decidir, direto no WhatsApp.</p>
+        <p class="hero-tagline">Conhecimento especializado em transporte, a uma mensagem de distância.</p>
         <div class="hero-ctas">
-          <a class="btn btn-accent" href="https://wa.me/5542998582489?text=Quero+testar+a+FROIA+gr%C3%A1tis" target="_blank" rel="noopener">Quero testar grátis</a>
-          <a class="btn btn-outline" href="#funcionalidades">Veja como funciona</a>
+          <a class="btn btn-accent" href="https://wa.me/5542998582489?text=Quero+testar+o+Frota+IA+gr%C3%A1tis" target="_blank" rel="noopener">Testar grátis no WhatsApp</a>
+          <a class="btn btn-outline" href="#como-funciona">Ver como funciona</a>
         </div>
         <div class="hero-trust">
           <span>7 dias grátis</span>
           <span>Sem cartão</span>
-          <span>Funciona por voz</span>
+          <span>Texto e áudio</span>
+          <span>1 veículo por cadastro</span>
         </div>
       </div>
       <div class="terminal">
         <div class="terminal-head">
-          <span class="terminal-title">FROIA · WhatsApp</span>
+          <span class="terminal-title">Frota IA · WhatsApp</span>
           <span class="terminal-live">● ao vivo</span>
         </div>
-        <div class="msg user voice">🎤 <span>"Calcule uma rota de São Paulo até Curitiba"</span></div>
-        <div class="msg bot">406,7 km · 6h41min de viagem. Quer que eu calcule o CPK dessa rota também?</div>
-        <div class="msg user">Sim, e o piso mínimo da ANTT pra carga geral, 5 eixos.</div>
-        <div class="msg bot">Piso legal: R$ 5.995,00 (CCD R$6,6718/km + CC R$657,56, Res. 6.084/2026). Quer que eu compare com uma proposta que você recebeu?</div>
-        <p class="terminal-foot">Exemplo real de conversa com a FROIA.</p>
+        <div class="msg user">Analise este frete pra mim.</div>
+        <div class="msg user attach">📎 <span>CT-e.jpg</span></div>
+        <div class="msg bot">Encontrei os dados: origem Curitiba–PR, destino São Paulo–SP, valor do frete R$4.800. Posso usar o caminhão que você já cadastrou?</div>
+        <div class="msg user">Sim.</div>
+        <div class="msg bot">Com os dados do seu caminhão: receita ≈ R$11,80/km · custo estimado ≈ R$8,90/km · margem ≈ R$2,90/km. Esse frete apresenta resultado positivo. Quer comparar com outra proposta ou gerar o relatório em PDF?</div>
+        <p class="terminal-foot">Exemplo ilustrativo de conversa com o Frota IA.</p>
       </div>
     </div>
   </section>
 
   <hr class="divider" />
 
+  <section class="wrap" id="como-funciona">
+    <div class="section-head">
+      <p class="eyebrow">Como funciona</p>
+      <h2>Usar o Frota IA é simples</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Envie</h3>
+        <p>Mande uma mensagem, um áudio, uma proposta ou uma foto do CT-e.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Confirme</h3>
+        <p>O Frota IA identifica os dados, recupera seu veículo cadastrado e pergunta só o que estiver faltando.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Decida</h3>
+        <p>Receba os cálculos, a comparação e a conclusão pelo WhatsApp. Depois, crie um alerta ou gere o relatório.</p>
+      </div>
+    </div>
+    <p class="como-funciona-foot">Você não precisa aprender comandos. Basta conversar normalmente.</p>
+  </section>
+
+  <hr class="divider" />
+
   <section class="wrap" id="funcionalidades">
     <div class="section-head">
-      <p class="eyebrow">O que a FROIA faz por você</p>
-      <h2>Todo o conhecimento do transporte, num só assistente</h2>
-      <p>Mais de 20 ferramentas integradas, disponíveis por texto ou áudio, 24 horas por dia — sem app novo pra instalar.</p>
+      <p class="eyebrow">O que o Frota IA faz por você</p>
+      <h2>Recursos especializados pra sua operação</h2>
+      <p>Mais de 20 recursos para analisar, calcular e organizar sua rotina, disponíveis por texto ou áudio, 24 horas por dia — sem app novo pra instalar.</p>
     </div>
-    <div class="feature-cols">
+    <div class="feature-grid">
+      <div class="feature-item">
+        <h3>Análise de frete pela foto do CT-e</h3>
+        <p>Manda a foto do documento e o Frota IA já extrai origem, destino e valor pra calcular o resultado.</p>
+      </div>
+      <div class="feature-item">
+        <h3>Comparação de propostas</h3>
+        <p>Compare duas ou mais propostas: valor, distância, custo, margem e prazo de pagamento lado a lado.</p>
+      </div>
+      <div class="feature-item">
+        <h3>Lembrete de cobrança</h3>
+        <p>Informe o prazo de pagamento combinado e receba um aviso no WhatsApp na data certa.</p>
+      </div>
       <div class="feature-item">
         <h3>Cálculo de CPK e custo de viagem</h3>
         <p>Descubra o custo real por quilômetro da sua operação, com todos os componentes considerados.</p>
       </div>
       <div class="feature-item">
         <h3>Valor mínimo de frete e margem</h3>
-        <p>Saiba antes de aceitar se o frete vale a pena — e compare duas ou mais propostas lado a lado.</p>
+        <p>Saiba antes de aceitar se o frete vale a pena, com base nos seus próprios custos.</p>
       </div>
       <div class="feature-item">
         <h3>Piso mínimo legal da ANTT</h3>
-        <p>Verificação automática conforme a Lei 13.703/2018, com busca em tempo real na resolução vigente.</p>
+        <p>Verificação do piso mínimo conforme a legislação vigente, consultando a fonte oficial quando necessário.</p>
       </div>
       <div class="feature-item">
         <h3>Combustível e pneus</h3>
-        <p>Estimativa de consumo, referência de preço da ANP e orientação sobre vida útil de pneus.</p>
+        <p>Estimativa de consumo, referência de preço de combustível e orientação sobre vida útil de pneus.</p>
       </div>
       <div class="feature-item">
         <h3>Rotas e distância</h3>
@@ -259,12 +315,16 @@
         <p>Crie, consulte e altere compromissos no seu Google Agenda sem sair da conversa.</p>
       </div>
       <div class="feature-item">
-        <h3>Leitura de documentos por foto</h3>
-        <p>Manda uma foto do CT-e ou DACTE e a FROIA já extrai os dados pra fazer os cálculos.</p>
+        <h3>Histórico de análises</h3>
+        <p>Consulte análises anteriores por data, rota ou cliente sempre que precisar.</p>
       </div>
       <div class="feature-item">
-        <h3>Alertas de vencimento</h3>
-        <p>Seguro, licenciamento e outras datas importantes, com aviso automático antes do prazo.</p>
+        <h3>Documentos já gerados</h3>
+        <p>Peça pra listar ou reenviar relatórios em PDF que você já gerou antes.</p>
+      </div>
+      <div class="feature-item">
+        <h3>Alertas a partir de documentos</h3>
+        <p>Envie o documento de seguro ou licenciamento e o Frota IA identifica a data e oferece criar o alerta.</p>
       </div>
       <div class="feature-item">
         <h3>Conhecimento operacional</h3>
@@ -275,12 +335,8 @@
         <p>Favorite os trajetos que você mais faz e reutilize sem digitar tudo de novo.</p>
       </div>
       <div class="feature-item">
-        <h3>Relatórios em PDF</h3>
-        <p>Gere documentos e relatórios prontos pra guardar ou enviar, direto do WhatsApp.</p>
-      </div>
-      <div class="feature-item">
         <h3>Tudo por voz, também</h3>
-        <p>Sem tempo de digitar? Manda um áudio. A FROIA entende e responde do mesmo jeito.</p>
+        <p>Sem tempo de digitar? Manda um áudio. O Frota IA entende e responde do mesmo jeito.</p>
       </div>
     </div>
   </section>
@@ -290,12 +346,12 @@
   <section class="wrap">
     <div class="quem">
       <div>
-        <p class="eyebrow">Quem constrói a FROIA</p>
-        <h2 style="margin-top:0.5rem;">Feita por quem viveu a operação por dentro</h2>
-        <p>A FROIA foi desenvolvida por quem tem 17 anos de operação real em transportadoras — não por quem só olha o transporte de longe. Ela entende os problemas que você enfrenta: frete que não fecha a conta, prazo apertado, papelada que ninguém tem tempo de organizar.</p>
-        <p>Por isso ela responde do jeito que você fala, no canal que você já usa todos os dias — o WhatsApp.</p>
+        <p class="eyebrow">Quem constrói o Frota IA</p>
+        <h2 style="margin-top:0.5rem;">Feito por quem viveu a operação por dentro</h2>
+        <p>O Frota IA foi criado por Rocha, profissional com experiência direta na gestão e análise de frotas de transporte, e 17 anos de operação real em transportadoras — não por quem só olha o transporte de longe. Ele entende os problemas que você enfrenta: frete que não fecha a conta, prazo apertado, papelada que ninguém tem tempo de organizar.</p>
+        <p>Por isso o Frota IA responde do jeito que você fala, no canal que você já usa todos os dias — o WhatsApp.</p>
       </div>
-      <blockquote>A FROIA não substitui sua experiência na estrada. Ela garante que nenhuma conta fique por fazer.</blockquote>
+      <blockquote>O Frota IA ajuda você a não deixar cálculos e decisões importantes para trás.</blockquote>
     </div>
   </section>
 
@@ -306,7 +362,7 @@
       <span class="garantia-icon">🛡️</span>
       <div>
         <h3>7 dias grátis, sem cartão de crédito</h3>
-        <p>Teste todas as ferramentas da FROIA antes de decidir. Sem fidelidade, sem compromisso — cancela quando quiser, direto pelo WhatsApp.</p>
+        <p>Teste os recursos do Frota IA antes de decidir. Sem fidelidade, sem compromisso — cancela quando quiser, direto pelo WhatsApp.</p>
       </div>
     </div>
   </section>
@@ -322,28 +378,29 @@
     <div class="planos-grid">
       <div class="plano destaque">
         <span class="plano-tag">Individual</span>
-        <div class="plano-nome">FROIA</div>
-        <div class="plano-preco">R$ <strong>59,90</strong>/mês<small>ou R$ 718,80 à vista no plano anual</small></div>
-        <p class="plano-desc">Para motoristas autônomos e transportadoras de pequeno e médio porte</p>
+        <div class="plano-nome">Frota IA</div>
+        <div class="plano-preco">R$ <strong>59,90</strong>/mês</div>
+        <p class="plano-desc">Para motoristas autônomos, caminhoneiros proprietários, agregados e pequenos transportadores que querem começar com um veículo.</p>
         <ul>
-          <li>Acesso completo a todas as ferramentas</li>
+          <li>1 veículo principal por cadastro</li>
+          <li>Acesso completo aos recursos da V1</li>
           <li>Atualizações inclusas</li>
           <li>Suporte humano via WhatsApp</li>
-          <li>Uso por voz ou texto, sem limite de perguntas</li>
+          <li>Uso pelo WhatsApp por texto e áudio</li>
         </ul>
-        <a href="https://wa.me/5542998582489?text=Quero+assinar+a+FROIA" class="btn btn-accent" target="_blank" rel="noopener">Quero assinar</a>
+        <a href="https://wa.me/5542998582489?text=Quero+assinar+o+Frota+IA" class="btn btn-accent" target="_blank" rel="noopener">Quero assinar</a>
       </div>
-      <div class="plano">
-        <span class="plano-tag">Empresarial</span>
-        <div class="plano-nome">Frotas maiores</div>
-        <div class="plano-preco">Sob <strong>consulta</strong></div>
-        <p class="plano-desc">Para transportadoras com frotas grandes e necessidades específicas</p>
+      <div class="plano futuro">
+        <span class="plano-tag">Empresarial · Em breve</span>
+        <div class="plano-nome">Frota IA para empresas</div>
+        <div class="plano-preco futuro">Em desenvolvimento</div>
+        <p class="plano-desc">Painel, múltiplos veículos e gestão compartilhada — para transportadoras que precisam de mais de um cadastro.</p>
         <ul>
-          <li>Múltiplos veículos e gestores</li>
-          <li>Onboarding dedicado</li>
-          <li>Suporte prioritário</li>
+          <li class="planned">Múltiplos veículos e gestores</li>
+          <li class="planned">Onboarding dedicado</li>
+          <li class="planned">Suporte prioritário</li>
         </ul>
-        <a href="https://wa.me/5542998582489?text=Quero+falar+sobre+o+plano+Empresarial+da+FROIA" class="btn btn-outline" target="_blank" rel="noopener">Falar com a gente</a>
+        <a href="https://wa.me/5542998582489?text=Quero+entrar+na+lista+de+interesse+do+Frota+IA+para+empresas" class="btn btn-outline" target="_blank" rel="noopener">Entrar na lista de interesse</a>
       </div>
     </div>
   </section>
@@ -356,10 +413,10 @@
       <h2>Antes de começar</h2>
     </div>
     <div class="faq-list">
-      <div class="faq-item"><h4>Preciso instalar algum aplicativo?</h4><p>Não. A FROIA funciona 100% pelo WhatsApp, o app que você já usa.</p></div>
-      <div class="faq-item"><h4>Funciona por áudio?</h4><p>Sim. Manda um áudio perguntando o que precisa, e a FROIA responde normalmente — não precisa digitar.</p></div>
-      <div class="faq-item"><h4>É pra motorista autônomo ou só pra transportadora?</h4><p>Pras duas situações. A FROIA se adapta ao tamanho da sua operação, de um veículo a uma frota inteira.</p></div>
-      <div class="faq-item"><h4>Os cálculos são confiáveis?</h4><p>Sim — cada cálculo (CPK, frete, piso da ANTT) é feito por uma ferramenta própria, nunca "de cabeça" pela IA, e informações legais são sempre buscadas na fonte oficial em tempo real.</p></div>
+      <div class="faq-item"><h4>Preciso instalar algum aplicativo?</h4><p>Não. O Frota IA funciona 100% pelo WhatsApp, o app que você já usa.</p></div>
+      <div class="faq-item"><h4>Funciona por áudio?</h4><p>Sim. Manda um áudio perguntando o que precisa, e o Frota IA responde normalmente — não precisa digitar.</p></div>
+      <div class="faq-item"><h4>É pra motorista autônomo ou só pra transportadora?</h4><p>Esta versão (V1) foi criada principalmente pra motoristas autônomos, caminhoneiros proprietários, agregados e pequenos transportadores — cada cadastro usa um veículo principal. Nesta versão, toda a experiência foi otimizada pra um veículo por cadastro; versões com múltiplos veículos e equipes chegam depois, no plano Empresarial.</p></div>
+      <div class="faq-item"><h4>Os cálculos são confiáveis?</h4><p>Sim — cada cálculo (CPK, frete, piso da ANTT) é feito por uma ferramenta própria, nunca "de cabeça" pela IA. Quando a análise exige informação atualizada, o Frota IA consulta fontes oficiais e apresenta a referência utilizada.</p></div>
       <div class="faq-item"><h4>Posso cancelar quando quiser?</h4><p>Sim. Sem fidelidade, sem multa — cancela direto pelo WhatsApp.</p></div>
       <div class="faq-item"><h4>Tem período de teste grátis?</h4><p>Sim, 7 dias grátis, sem precisar de cartão de crédito.</p></div>
     </div>
@@ -367,17 +424,17 @@
 
   <section class="wrap">
     <div class="dispatch">
-      <h2>Sua próxima decisão na estrada começa com uma pergunta</h2>
+      <h2>Sua próxima decisão de frete começa com uma pergunta</h2>
       <p>7 dias grátis. Sem cartão. Sem compromisso.</p>
-      <a href="https://wa.me/5542998582489?text=Quero+testar+a+FROIA+gr%C3%A1tis" class="btn btn-accent" target="_blank" rel="noopener">Quero começar meu teste grátis →</a>
+      <a href="https://wa.me/5542998582489?text=Quero+testar+o+Frota+IA+gr%C3%A1tis" class="btn btn-accent" target="_blank" rel="noopener">Quero começar meu teste grátis →</a>
     </div>
   </section>
 </main>
 
 <footer class="plate">
   <div class="wrap plate-bar">
-    <span class="brand"><img class="brand-logo" src="frota-ia-logo.jpg" alt="Logo Frota IA" style="width:28px;height:28px;">FROIA — parte do RodoCore</span>
-    <span>Desenvolvida por quem viveu a operação de frota por dentro</span>
+    <span class="brand"><img class="brand-logo" src="frota-ia-logo.jpg" alt="Logo Frota IA" style="width:28px;height:28px;">Frota IA — uma solução RodoCore</span>
+    <span>Desenvolvido por quem viveu a operação de frota por dentro</span>
   </div>
 </footer>
 
