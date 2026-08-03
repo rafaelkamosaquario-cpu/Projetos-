@@ -37,6 +37,7 @@
     background: var(--void);
   }
   @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
   a { color: inherit; }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
@@ -165,7 +166,7 @@
   }
 
   /* ---------- Demo / video section ---------- */
-  #como-funciona { text-align: center; }
+  #como-funciona { text-align: center; scroll-margin-top: 80px; }
   .demo-badge {
     display: inline-block; transform: skewX(-10deg); background: var(--accent); color: #05070D;
     font-family: var(--display); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
@@ -175,6 +176,68 @@
   .demo-head { max-width: 40rem; margin-inline: auto; }
   .demo-head h2 { font-size: clamp(2rem, 4vw, 3rem); margin-top: 0.7rem; line-height: 1.12; }
   .demo-head h2 em { font-style: italic; color: var(--accent); }
+
+  /* ---------- Steps road animation ---------- */
+  .steps-road { max-width: 1050px; margin: 45px auto 50px; text-align: left; }
+  .steps-track { position: relative; height: 84px; }
+  .steps-units { display: flex; justify-content: space-between; position: relative; z-index: 2; height: 100%; }
+  .step-unit { display: flex; flex-direction: column; align-items: flex-start; width: 30%; }
+  .step-circle {
+    position: relative; width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid var(--line); background: var(--void);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 1.15rem; font-weight: 700; color: var(--text-soft);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease, color 0.4s ease;
+  }
+  .step-unit.active .step-circle, .step-unit.done .step-circle {
+    border-color: var(--accent); color: var(--text);
+    box-shadow: 0 0 0 1px rgba(47,143,255,0.35), 0 0 22px rgba(47,143,255,0.55);
+  }
+  .step-check {
+    position: absolute; top: -6px; right: -6px; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--accent); color: #05070D; display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700; opacity: 0; transform: scale(0.4);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .step-unit.done .step-check { opacity: 1; transform: scale(1); }
+
+  .steps-line {
+    position: absolute; left: 36px; right: 36px; top: 50%; height: 2px; transform: translateY(-50%);
+    background: repeating-linear-gradient(90deg, rgba(151,161,181,0.35) 0 10px, transparent 10px 20px);
+    z-index: 1;
+  }
+  .steps-fill {
+    position: absolute; left: 36px; top: 50%; height: 4px; width: 0; transform: translateY(-50%);
+    background: linear-gradient(90deg, var(--accent-deep), var(--accent), #7FD4FF);
+    border-radius: 2px; box-shadow: 0 0 14px rgba(47,143,255,0.7); z-index: 1;
+  }
+  .steps-truck {
+    position: absolute; top: 50%; left: 36px; width: 44px; height: 24px;
+    transform: translate(-50%, -50%); z-index: 3;
+    filter: drop-shadow(0 0 8px rgba(47,143,255,0.6));
+    transition: transform 0.4s ease;
+  }
+  .steps-truck svg { width: 100%; height: 100%; display: block; }
+
+  .step-label { margin-top: 1.5rem; text-align: left; opacity: 0.6; transition: opacity 0.4s ease; }
+  .step-unit.active .step-label, .step-unit.done .step-label { opacity: 1; }
+  .step-label-num { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); letter-spacing: 0.05em; }
+  .step-label h3 { font-family: var(--body); font-weight: 700; text-transform: none; letter-spacing: 0; font-size: 1.08rem; margin-top: 0.3rem; }
+  .step-label p { color: var(--text-soft); font-size: 0.9rem; margin-top: 0.4rem; line-height: 1.5; }
+
+  @media (max-width: 760px) {
+    .steps-road { margin: 30px auto 32px; }
+    .steps-track { height: auto; }
+    .steps-units { flex-direction: column; gap: 1.9rem; }
+    .step-unit { flex-direction: row; align-items: flex-start; width: 100%; gap: 0.9rem; }
+    .step-circle { width: 52px; height: 52px; font-size: 0.95rem; }
+    .step-label { margin-top: 0.35rem; }
+    .steps-line { left: 26px; right: auto; top: 26px; bottom: 26px; width: 2px; height: auto; transform: none;
+      background: repeating-linear-gradient(180deg, rgba(151,161,181,0.35) 0 10px, transparent 10px 20px); }
+    .steps-fill { left: 26px; top: 26px; width: 4px; height: 0; transform: none; }
+    .steps-truck { left: 26px; top: 26px; width: 30px; height: 30px; transform: translate(-50%, -50%) rotate(90deg); }
+  }
+
   .video-frame {
     margin: 2.5rem auto 0; max-width: 30rem; aspect-ratio: 9 / 16; border-radius: 20px;
     border: 1px dashed var(--line); background: var(--card);
@@ -367,6 +430,51 @@
     <div class="demo-head">
       <h2>Precisão na decisão<br>na <em>palma da sua mão.</em></h2>
     </div>
+
+    <div class="steps-road" id="stepsRoad" aria-label="Como usar o Frota IA em três passos">
+      <div class="steps-track" id="stepsTrack">
+        <div class="steps-line" aria-hidden="true"></div>
+        <div class="steps-fill" id="stepsFill" aria-hidden="true"></div>
+        <div class="steps-truck" id="stepsTruck" aria-hidden="true">
+          <svg viewBox="0 0 64 34" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="6" width="33" height="15" rx="1.5" fill="#EAF4FF" stroke="#1C6FDE" stroke-width="1.2"/>
+            <path d="M35 11h8.5l6.5 6.5v3.5H35z" fill="#2F8FFF" stroke="#0B3E82" stroke-width="1.2"/>
+            <rect x="41" y="13" width="6" height="5" rx="0.6" fill="#081018"/>
+            <circle cx="11" cy="23" r="3.6" fill="#081018" stroke="#EAF4FF" stroke-width="1.1"/>
+            <circle cx="25" cy="23" r="3.6" fill="#081018" stroke="#EAF4FF" stroke-width="1.1"/>
+            <circle cx="46" cy="23" r="3.6" fill="#081018" stroke="#EAF4FF" stroke-width="1.1"/>
+            <rect x="49.5" y="16.5" width="1.8" height="3" rx="0.4" fill="#FFD27A"/>
+          </svg>
+        </div>
+        <div class="steps-units">
+          <div class="step-unit" data-step="1">
+            <div class="step-circle"><span aria-hidden="true">01</span><span class="step-check" aria-hidden="true">✓</span></div>
+            <div class="step-label">
+              <span class="step-label-num" aria-hidden="true">01</span>
+              <h3>Envie</h3>
+              <p>Mande uma mensagem, um áudio, uma proposta ou uma foto do CT-e.</p>
+            </div>
+          </div>
+          <div class="step-unit" data-step="2">
+            <div class="step-circle"><span aria-hidden="true">02</span><span class="step-check" aria-hidden="true">✓</span></div>
+            <div class="step-label">
+              <span class="step-label-num" aria-hidden="true">02</span>
+              <h3>Confirme</h3>
+              <p>O Frota IA identifica os dados, recupera seu veículo cadastrado e pergunta só o que estiver faltando.</p>
+            </div>
+          </div>
+          <div class="step-unit" data-step="3">
+            <div class="step-circle"><span aria-hidden="true">03</span><span class="step-check" aria-hidden="true">✓</span></div>
+            <div class="step-label">
+              <span class="step-label-num" aria-hidden="true">03</span>
+              <h3>Decida</h3>
+              <p>Receba os cálculos, a comparação e a conclusão pelo WhatsApp. Depois, crie um alerta ou gere o relatório.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="video-frame">
       <span class="play">▶</span>
       <span>Vídeo de demonstração — em breve.<br>Espaço reservado para uma gravação real de conversa com o Frota IA.</span>
@@ -502,6 +610,111 @@
     } catch (e) { /* chroma-key skipped, original image stays as drawn */ }
   };
   img.src = 'funcoes-showcase-2.png';
+})();
+
+(function () {
+  var root = document.getElementById('stepsRoad');
+  if (!root) return;
+  var track = document.getElementById('stepsTrack');
+  var fill = document.getElementById('stepsFill');
+  var truck = document.getElementById('stepsTruck');
+  var units = [].slice.call(root.querySelectorAll('.step-unit'));
+  var circles = units.map(function (u) { return u.querySelector('.step-circle'); });
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function isVertical() { return window.matchMedia('(max-width: 760px)').matches; }
+
+  function centers() {
+    var trackRect = track.getBoundingClientRect();
+    return circles.map(function (c) {
+      var r = c.getBoundingClientRect();
+      return isVertical()
+        ? (r.top + r.height / 2) - trackRect.top
+        : (r.left + r.width / 2) - trackRect.left;
+    });
+  }
+
+  function paint(pixel, fromPixel) {
+    if (isVertical()) {
+      truck.style.top = pixel + 'px';
+      truck.style.left = '';
+      fill.style.height = Math.max(0, pixel - fromPixel) + 'px';
+      fill.style.width = '';
+    } else {
+      truck.style.left = pixel + 'px';
+      truck.style.top = '';
+      fill.style.width = Math.max(0, pixel - fromPixel) + 'px';
+      fill.style.height = '';
+    }
+  }
+
+  function setActive(i) { units[i].classList.add('active'); }
+  function setDone(i) { units[i].classList.add('done'); units[i].classList.remove('active'); }
+
+  function finishInstant() {
+    var pos = centers();
+    units.forEach(function (u, i) { u.classList.add('done'); });
+    setActive(2);
+    paint(pos[2], pos[0]);
+    root.classList.add('finished');
+  }
+
+  function animateSegment(fromIndex, toIndex, duration, onDone) {
+    var pos = centers();
+    var from = pos[fromIndex], to = pos[toIndex], base = pos[0];
+    var start = null;
+    function frame(ts) {
+      if (start === null) start = ts;
+      var t = Math.min(1, (ts - start) / duration);
+      var eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      paint(from + (to - from) * eased, base);
+      if (t < 1) { requestAnimationFrame(frame); }
+      else { onDone(); }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function play() {
+    if (reduce) { finishInstant(); return; }
+    setActive(0);
+    paint(centers()[0], centers()[0]);
+    animateSegment(0, 1, 1500, function () {
+      setDone(0); setActive(1);
+      setTimeout(function () {
+        animateSegment(1, 2, 1500, function () {
+          setDone(1); setActive(2); setDone(2);
+        });
+      }, 600);
+    });
+  }
+
+  var played = false;
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting && !played) {
+          played = true;
+          play();
+          io.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+    io.observe(root);
+  } else {
+    played = true;
+    play();
+  }
+
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      if (root.classList.contains('finished') || (played && units[2].classList.contains('done'))) {
+        var pos = centers();
+        paint(pos[2], pos[0]);
+      }
+    }, 150);
+  });
 })();
 </script>
 </body>
