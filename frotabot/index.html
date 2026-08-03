@@ -177,65 +177,87 @@
   .demo-head h2 { font-size: clamp(2rem, 4vw, 3rem); margin-top: 0.7rem; line-height: 1.12; }
   .demo-head h2 em { font-style: italic; color: var(--accent); }
 
-  /* ---------- Steps road animation ---------- */
-  .steps-road { max-width: 1050px; margin: 45px auto 50px; text-align: left; }
-  .steps-track { position: relative; height: 84px; }
-  .steps-units { display: flex; justify-content: space-between; position: relative; z-index: 2; height: 100%; }
-  .step-unit { display: flex; flex-direction: column; align-items: flex-start; width: 30%; }
-  .step-circle {
-    position: relative; width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
-    border: 2px solid var(--line); background: var(--void);
+  /* ---------- How it works: road + truck ---------- */
+  #passos { padding-top: 6px; }
+  .hiw-title { font-size: clamp(2.1rem, 4.2vw, 3.2rem); margin-top: 0.6rem; line-height: 1.1; }
+  .hiw-track { position: relative; margin-top: 3rem; --circleH: 112px; }
+  .hiw-units { display: flex; justify-content: space-between; gap: 1.25rem; position: relative; z-index: 3; }
+  .hiw-unit { display: flex; flex-direction: column; align-items: flex-start; flex: 1; min-width: 0; }
+  .hiw-circle {
+    position: relative; width: var(--circleH); height: var(--circleH); border-radius: 50%; flex-shrink: 0;
+    border: 2px solid rgba(151,161,181,0.4); background: var(--void);
     display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono); font-size: 1.15rem; font-weight: 700; color: var(--text-soft);
+    font-family: var(--mono); font-size: clamp(1.4rem, 2.2vw, 2rem); font-weight: 700; color: var(--text-soft);
     transition: border-color 0.4s ease, box-shadow 0.4s ease, color 0.4s ease;
   }
-  .step-unit.active .step-circle, .step-unit.done .step-circle {
+  .hiw-unit.active .hiw-circle, .hiw-unit.done .hiw-circle {
     border-color: var(--accent); color: var(--text);
-    box-shadow: 0 0 0 1px rgba(47,143,255,0.35), 0 0 22px rgba(47,143,255,0.55);
+    box-shadow: 0 0 0 1px rgba(47,143,255,0.35), 0 0 26px rgba(47,143,255,0.55);
   }
-  .step-check {
-    position: absolute; top: -6px; right: -6px; width: 24px; height: 24px; border-radius: 50%;
+  .hiw-check {
+    position: absolute; top: -4px; right: -4px; width: 30px; height: 30px; border-radius: 50%;
     background: var(--accent); color: #05070D; display: flex; align-items: center; justify-content: center;
-    font-size: 0.75rem; font-weight: 700; opacity: 0; transform: scale(0.4);
-    transition: opacity 0.25s ease, transform 0.25s ease;
+    font-size: 0.85rem; font-weight: 700; opacity: 0; transform: scale(0.4);
+    transition: opacity 0.25s ease, transform 0.25s ease; border: 3px solid var(--void);
   }
-  .step-unit.done .step-check { opacity: 1; transform: scale(1); }
+  .hiw-unit.done .hiw-check { opacity: 1; transform: scale(1); }
 
-  .steps-line {
-    position: absolute; left: 36px; right: 36px; top: 50%; height: 2px; transform: translateY(-50%);
-    background: repeating-linear-gradient(90deg, rgba(151,161,181,0.35) 0 10px, transparent 10px 20px);
-    z-index: 1;
+  .hiw-edge, .hiw-dash-line {
+    position: absolute; left: 58px; right: 58px; height: 2px; background: rgba(151,161,181,0.3); z-index: 1;
   }
-  .steps-fill {
-    position: absolute; left: 36px; top: 50%; height: 4px; width: 0; transform: translateY(-50%);
-    background: linear-gradient(90deg, var(--accent-deep), var(--accent), #7FD4FF);
-    border-radius: 2px; box-shadow: 0 0 14px rgba(47,143,255,0.7); z-index: 1;
+  .hiw-edge-top { top: calc(var(--circleH) / 2 - 22px); }
+  .hiw-edge-bottom { top: calc(var(--circleH) / 2 + 20px); }
+  .hiw-dash-line {
+    top: calc(var(--circleH) / 2 - 1px);
+    background: repeating-linear-gradient(90deg, rgba(226,233,245,0.5) 0 16px, transparent 16px 30px);
   }
-  .steps-truck {
-    position: absolute; top: 50%; left: 36px; width: 44px; height: 24px;
-    transform: translate(-50%, -50%); z-index: 3;
-    filter: drop-shadow(0 0 8px rgba(47,143,255,0.6));
-    transition: transform 0.4s ease;
+  .hiw-edge-fill, .hiw-dash-fill {
+    position: absolute; left: 58px; top: 0; height: 2px; width: 0; z-index: 2; overflow: hidden;
   }
-  .steps-truck svg { width: 100%; height: 100%; display: block; }
+  .hiw-edge-fill { background: linear-gradient(90deg, var(--accent-deep), var(--accent)); box-shadow: 0 0 10px rgba(47,143,255,0.65); }
+  .hiw-dash-fill { background: repeating-linear-gradient(90deg, var(--accent) 0 16px, transparent 16px 30px); filter: drop-shadow(0 0 6px rgba(47,143,255,0.65)); }
 
-  .step-label { margin-top: 1.5rem; text-align: left; opacity: 0.6; transition: opacity 0.4s ease; }
-  .step-unit.active .step-label, .step-unit.done .step-label { opacity: 1; }
-  .step-label-num { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); letter-spacing: 0.05em; }
-  .step-label h3 { font-family: var(--body); font-weight: 700; text-transform: none; letter-spacing: 0; font-size: 1.08rem; margin-top: 0.3rem; }
-  .step-label p { color: var(--text-soft); font-size: 0.9rem; margin-top: 0.4rem; line-height: 1.5; }
+  .hiw-truck {
+    position: absolute; top: calc(var(--circleH) / 2); left: 58px; width: 180px; height: 70px;
+    transform: translate(-79%, -50%); z-index: 2;
+    filter: drop-shadow(0 0 10px rgba(47,143,255,0.55)) drop-shadow(0 3px 10px rgba(0,0,0,0.55));
+  }
+  .hiw-truck svg { width: 100%; height: 100%; display: block; }
+  .hiw-speed { opacity: 0; transition: opacity 0.2s ease; }
+  .hiw-truck.moving .hiw-speed { opacity: 0.75; }
+
+  .hiw-unit-label { margin-top: 1.7rem; opacity: 0.55; transition: opacity 0.4s ease; }
+  .hiw-unit.active .hiw-unit-label, .hiw-unit.done .hiw-unit-label { opacity: 1; }
+  .hiw-label-num { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 0.05em; }
+  .hiw-unit-label h3 { font-family: var(--body); font-weight: 700; text-transform: none; letter-spacing: 0; font-size: clamp(1.05rem, 1.4vw, 1.25rem); margin-top: 0.35rem; }
+  .hiw-unit-label p { color: var(--text-soft); font-size: 0.94rem; margin-top: 0.5rem; line-height: 1.55; max-width: 22rem; }
+
+  .hiw-final { margin-top: 2.5rem; color: var(--text-soft); font-size: 1.02rem; }
+
+  @media (max-width: 900px) {
+    .hiw-track { --circleH: 84px; }
+    .hiw-truck { width: 130px; height: 52px; }
+    .hiw-edge, .hiw-dash-line, .hiw-edge-fill, .hiw-dash-fill { left: 44px; }
+    .hiw-edge, .hiw-dash-line { right: 44px; }
+    .hiw-edge-top { top: calc(var(--circleH) / 2 - 16px); }
+    .hiw-edge-bottom { top: calc(var(--circleH) / 2 + 14px); }
+  }
 
   @media (max-width: 760px) {
-    .steps-road { margin: 30px auto 32px; }
-    .steps-track { height: auto; }
-    .steps-units { flex-direction: column; gap: 1.9rem; }
-    .step-unit { flex-direction: row; align-items: flex-start; width: 100%; gap: 0.9rem; }
-    .step-circle { width: 52px; height: 52px; font-size: 0.95rem; }
-    .step-label { margin-top: 0.35rem; }
-    .steps-line { left: 26px; right: auto; top: 26px; bottom: 26px; width: 2px; height: auto; transform: none;
-      background: repeating-linear-gradient(180deg, rgba(151,161,181,0.35) 0 10px, transparent 10px 20px); }
-    .steps-fill { left: 26px; top: 26px; width: 4px; height: 0; transform: none; }
-    .steps-truck { left: 26px; top: 26px; width: 30px; height: 30px; transform: translate(-50%, -50%) rotate(90deg); }
+    #passos { padding-top: 10px; }
+    .hiw-track { --circleH: 66px; margin-top: 2.2rem; }
+    .hiw-units { flex-direction: column; gap: 2.4rem; }
+    .hiw-unit { flex-direction: row; align-items: flex-start; width: 100%; gap: 1rem; }
+    .hiw-unit-label { margin-top: 0.2rem; }
+    .hiw-edge, .hiw-dash-line, .hiw-edge-fill, .hiw-dash-fill {
+      left: calc(var(--circleH) / 2); right: auto; top: 0; bottom: 0; height: auto; width: 2px;
+    }
+    .hiw-edge-top { left: calc(var(--circleH) / 2 - 14px); }
+    .hiw-edge-bottom { left: calc(var(--circleH) / 2 + 12px); }
+    .hiw-dash-line { background: repeating-linear-gradient(180deg, rgba(226,233,245,0.5) 0 16px, transparent 16px 30px); }
+    .hiw-edge-fill, .hiw-dash-fill { height: 0; width: 2px; }
+    .hiw-dash-fill { background: repeating-linear-gradient(180deg, var(--accent) 0 16px, transparent 16px 30px); }
+    .hiw-truck { left: calc(var(--circleH) / 2); top: 0; width: 70px; height: 30px; transform: translate(-50%, -60%) rotate(90deg); }
   }
 
   .video-frame {
@@ -431,50 +453,6 @@
       <h2>Precisão na decisão<br>na <em>palma da sua mão.</em></h2>
     </div>
 
-    <div class="steps-road" id="stepsRoad" aria-label="Como usar o Frota IA em três passos">
-      <div class="steps-track" id="stepsTrack">
-        <div class="steps-line" aria-hidden="true"></div>
-        <div class="steps-fill" id="stepsFill" aria-hidden="true"></div>
-        <div class="steps-truck" id="stepsTruck" aria-hidden="true">
-          <svg viewBox="0 0 64 34" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="6" width="33" height="15" rx="1.5" fill="#EAF4FF" stroke="#1C6FDE" stroke-width="1.2"/>
-            <path d="M35 11h8.5l6.5 6.5v3.5H35z" fill="#2F8FFF" stroke="#0B3E82" stroke-width="1.2"/>
-            <rect x="41" y="13" width="6" height="5" rx="0.6" fill="#081018"/>
-            <circle cx="11" cy="23" r="3.6" fill="#081018" stroke="#EAF4FF" stroke-width="1.1"/>
-            <circle cx="25" cy="23" r="3.6" fill="#081018" stroke="#EAF4FF" stroke-width="1.1"/>
-            <circle cx="46" cy="23" r="3.6" fill="#081018" stroke="#EAF4FF" stroke-width="1.1"/>
-            <rect x="49.5" y="16.5" width="1.8" height="3" rx="0.4" fill="#FFD27A"/>
-          </svg>
-        </div>
-        <div class="steps-units">
-          <div class="step-unit" data-step="1">
-            <div class="step-circle"><span aria-hidden="true">01</span><span class="step-check" aria-hidden="true">✓</span></div>
-            <div class="step-label">
-              <span class="step-label-num" aria-hidden="true">01</span>
-              <h3>Envie</h3>
-              <p>Mande uma mensagem, um áudio, uma proposta ou uma foto do CT-e.</p>
-            </div>
-          </div>
-          <div class="step-unit" data-step="2">
-            <div class="step-circle"><span aria-hidden="true">02</span><span class="step-check" aria-hidden="true">✓</span></div>
-            <div class="step-label">
-              <span class="step-label-num" aria-hidden="true">02</span>
-              <h3>Confirme</h3>
-              <p>O Frota IA identifica os dados, recupera seu veículo cadastrado e pergunta só o que estiver faltando.</p>
-            </div>
-          </div>
-          <div class="step-unit" data-step="3">
-            <div class="step-circle"><span aria-hidden="true">03</span><span class="step-check" aria-hidden="true">✓</span></div>
-            <div class="step-label">
-              <span class="step-label-num" aria-hidden="true">03</span>
-              <h3>Decida</h3>
-              <p>Receba os cálculos, a comparação e a conclusão pelo WhatsApp. Depois, crie um alerta ou gere o relatório.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="video-frame">
       <span class="play">▶</span>
       <span>Vídeo de demonstração — em breve.<br>Espaço reservado para uma gravação real de conversa com o Frota IA.</span>
@@ -482,6 +460,77 @@
     <div class="demo-cta">
       <a class="btn btn-accent" href="https://wa.me/5542998582489?text=Quero+testar+o+Frota+IA+gr%C3%A1tis" target="_blank" rel="noopener">Quero testar gratuitamente</a>
     </div>
+  </section>
+
+  <section class="wrap" id="passos">
+    <p class="eyebrow">Como funciona</p>
+    <h2 class="hiw-title">Usar o Frota IA é simples</h2>
+
+    <div class="hiw-track" id="hiwTrack">
+      <div class="hiw-edge hiw-edge-top" aria-hidden="true"></div>
+      <div class="hiw-edge-fill hiw-edge-fill-top" id="hiwEdgeFillTop" aria-hidden="true"></div>
+      <div class="hiw-dash-line" aria-hidden="true"></div>
+      <div class="hiw-dash-fill" id="hiwDashFill" aria-hidden="true"></div>
+      <div class="hiw-edge hiw-edge-bottom" aria-hidden="true"></div>
+      <div class="hiw-edge-fill hiw-edge-fill-bottom" id="hiwEdgeFillBottom" aria-hidden="true"></div>
+
+      <div class="hiw-truck" id="hiwTruck" aria-hidden="true">
+        <svg viewBox="0 0 190 74" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="hiwTrailerGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3E9BFF"/>
+              <stop offset="100%" stop-color="#1C6FDE"/>
+            </linearGradient>
+          </defs>
+          <g class="hiw-speed">
+            <rect x="4" y="22" width="18" height="3" rx="1.5" fill="#7FD4FF"/>
+            <rect x="2" y="34" width="24" height="3" rx="1.5" fill="#7FD4FF"/>
+            <rect x="6" y="46" width="14" height="3" rx="1.5" fill="#7FD4FF"/>
+          </g>
+          <rect x="32" y="14" width="104" height="42" rx="3" fill="url(#hiwTrailerGrad)" stroke="#BFE3FF" stroke-width="2"/>
+          <rect x="40" y="22" width="88" height="6" rx="1.5" fill="#BFE3FF" opacity="0.85"/>
+          <rect x="40" y="34" width="88" height="6" rx="1.5" fill="#0B3E82" opacity="0.55"/>
+          <path d="M136 24 H160 L184 46 V58 H136 Z" fill="#F4F8FF" stroke="#0B3E82" stroke-width="2"/>
+          <rect x="160" y="30" width="16" height="14" rx="1.4" fill="#0B1420"/>
+          <circle cx="54" cy="61" r="9.5" fill="#0B1018" stroke="#F4F8FF" stroke-width="1.6"/>
+          <circle cx="54" cy="61" r="3" fill="#F4F8FF"/>
+          <circle cx="112" cy="61" r="9.5" fill="#0B1018" stroke="#F4F8FF" stroke-width="1.6"/>
+          <circle cx="112" cy="61" r="3" fill="#F4F8FF"/>
+          <circle cx="167" cy="61" r="9.5" fill="#0B1018" stroke="#F4F8FF" stroke-width="1.6"/>
+          <circle cx="167" cy="61" r="3" fill="#F4F8FF"/>
+          <rect x="181" y="41" width="4.5" height="8" rx="1" fill="#FFD27A"/>
+        </svg>
+      </div>
+
+      <div class="hiw-units" id="hiwUnits">
+        <div class="hiw-unit" data-step="1">
+          <div class="hiw-circle"><span aria-hidden="true">01</span><span class="hiw-check" aria-hidden="true">✓</span></div>
+          <div class="hiw-unit-label">
+            <span class="hiw-label-num" aria-hidden="true">01</span>
+            <h3>Envie</h3>
+            <p>Mande uma mensagem, um áudio, uma proposta ou uma foto do CT-e.</p>
+          </div>
+        </div>
+        <div class="hiw-unit" data-step="2">
+          <div class="hiw-circle"><span aria-hidden="true">02</span><span class="hiw-check" aria-hidden="true">✓</span></div>
+          <div class="hiw-unit-label">
+            <span class="hiw-label-num" aria-hidden="true">02</span>
+            <h3>Confirme</h3>
+            <p>O Frota IA identifica os dados, recupera seu veículo cadastrado e pergunta só o que estiver faltando.</p>
+          </div>
+        </div>
+        <div class="hiw-unit" data-step="3">
+          <div class="hiw-circle"><span aria-hidden="true">03</span><span class="hiw-check" aria-hidden="true">✓</span></div>
+          <div class="hiw-unit-label">
+            <span class="hiw-label-num" aria-hidden="true">03</span>
+            <h3>Decida</h3>
+            <p>Receba os cálculos, a comparação e a conclusão pelo WhatsApp. Depois, crie um alerta ou gere o relatório.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="hiw-final">Você não precisa aprender comandos. Basta conversar normalmente.</p>
   </section>
 
   <section class="wrap" id="funcionalidades">
@@ -613,14 +662,17 @@
 })();
 
 (function () {
-  var root = document.getElementById('stepsRoad');
-  if (!root) return;
-  var track = document.getElementById('stepsTrack');
-  var fill = document.getElementById('stepsFill');
-  var truck = document.getElementById('stepsTruck');
-  var units = [].slice.call(root.querySelectorAll('.step-unit'));
-  var circles = units.map(function (u) { return u.querySelector('.step-circle'); });
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var root = document.getElementById('passos');
+  var track = document.getElementById('hiwTrack');
+  if (!root || !track) return;
+  var edgeFillTop = document.getElementById('hiwEdgeFillTop');
+  var edgeFillBottom = document.getElementById('hiwEdgeFillBottom');
+  var dashFill = document.getElementById('hiwDashFill');
+  var truck = document.getElementById('hiwTruck');
+  var units = [].slice.call(document.querySelectorAll('#hiwUnits .hiw-unit'));
+  var circles = units.map(function (u) { return u.querySelector('.hiw-circle'); });
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var running = false;
 
   function isVertical() { return window.matchMedia('(max-width: 760px)').matches; }
 
@@ -634,84 +686,104 @@
     });
   }
 
-  function paint(pixel, fromPixel) {
+  function setFill(px) {
+    var val = Math.max(0, px) + 'px';
     if (isVertical()) {
-      truck.style.top = pixel + 'px';
-      truck.style.left = '';
-      fill.style.height = Math.max(0, pixel - fromPixel) + 'px';
-      fill.style.width = '';
+      edgeFillTop.style.height = val; edgeFillBottom.style.height = val; dashFill.style.height = val;
+      edgeFillTop.style.width = ''; edgeFillBottom.style.width = ''; dashFill.style.width = '';
     } else {
-      truck.style.left = pixel + 'px';
-      truck.style.top = '';
-      fill.style.width = Math.max(0, pixel - fromPixel) + 'px';
-      fill.style.height = '';
+      edgeFillTop.style.width = val; edgeFillBottom.style.width = val; dashFill.style.width = val;
+      edgeFillTop.style.height = ''; edgeFillBottom.style.height = ''; dashFill.style.height = '';
     }
   }
 
-  function setActive(i) { units[i].classList.add('active'); }
-  function setDone(i) { units[i].classList.add('done'); units[i].classList.remove('active'); }
-
-  function finishInstant() {
-    var pos = centers();
-    units.forEach(function (u, i) { u.classList.add('done'); });
-    setActive(2);
-    paint(pos[2], pos[0]);
-    root.classList.add('finished');
+  function setTruck(px) {
+    if (isVertical()) { truck.style.top = px + 'px'; truck.style.left = ''; }
+    else { truck.style.left = px + 'px'; truck.style.top = ''; }
   }
 
-  function animateSegment(fromIndex, toIndex, duration, onDone) {
+  function reset() {
+    units.forEach(function (u) { u.classList.remove('active', 'done'); });
     var pos = centers();
-    var from = pos[fromIndex], to = pos[toIndex], base = pos[0];
+    setFill(0);
+    setTruck(pos[0]);
+    truck.classList.remove('moving');
+  }
+
+  function ease(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+
+  function animate(fillFrom, fillTo, truckFrom, truckTo, duration, onDone) {
     var start = null;
+    truck.classList.add('moving');
     function frame(ts) {
       if (start === null) start = ts;
       var t = Math.min(1, (ts - start) / duration);
-      var eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-      paint(from + (to - from) * eased, base);
+      var e = ease(t);
+      setFill(fillFrom + (fillTo - fillFrom) * e);
+      setTruck(truckFrom + (truckTo - truckFrom) * e);
       if (t < 1) { requestAnimationFrame(frame); }
-      else { onDone(); }
+      else { truck.classList.remove('moving'); onDone(); }
     }
     requestAnimationFrame(frame);
   }
 
-  function play() {
-    if (reduce) { finishInstant(); return; }
-    setActive(0);
-    paint(centers()[0], centers()[0]);
-    animateSegment(0, 1, 1500, function () {
-      setDone(0); setActive(1);
+  function finishInstant() {
+    var pos = centers();
+    units.forEach(function (u) { u.classList.add('done'); });
+    setFill(pos[2] - pos[0]);
+    setTruck(pos[2] + (isVertical() ? 0 : 34));
+  }
+
+  function sequence() {
+    if (running) return;
+    running = true;
+    reset();
+    units[0].classList.add('active');
+    var pos = centers();
+    var base = pos[0];
+    animate(0, pos[1] - base, pos[0], pos[1], 2000, function () {
+      units[0].classList.remove('active'); units[0].classList.add('done');
+      units[1].classList.add('active');
       setTimeout(function () {
-        animateSegment(1, 2, 1500, function () {
-          setDone(1); setActive(2); setDone(2);
+        var pos2 = centers();
+        var truckEnd = pos2[2] + (isVertical() ? 0 : 34);
+        animate(pos2[1] - pos2[0], pos2[2] - pos2[0], pos2[1], truckEnd, 2000, function () {
+          units[1].classList.remove('active'); units[1].classList.add('done');
+          units[2].classList.add('active'); units[2].classList.add('done');
+          running = false;
+          setTimeout(sequence, 2000);
         });
-      }, 600);
+      }, 800);
     });
   }
 
-  var played = false;
-  if ('IntersectionObserver' in window) {
+  if (reduceMotion) {
+    finishInstant();
+  } else if ('IntersectionObserver' in window) {
+    var started = false;
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.isIntersecting && !played) {
-          played = true;
-          play();
+        if (entry.isIntersecting && !started) {
+          started = true;
+          sequence();
           io.disconnect();
         }
       });
-    }, { threshold: 0.4 });
+    }, { threshold: 0.35 });
     io.observe(root);
   } else {
-    played = true;
-    play();
+    sequence();
   }
 
   var resizeTimer;
   window.addEventListener('resize', function () {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () {
-      if (root.classList.contains('finished') || (played && units[2].classList.contains('done'))) {
+      if (reduceMotion) { finishInstant(); return; }
+      if (!running && units[2] && units[2].classList.contains('done')) {
         var pos = centers();
-        paint(pos[2], pos[0]);
+        setFill(pos[2] - pos[0]);
+        setTruck(pos[2] + (isVertical() ? 0 : 34));
       }
     }, 150);
   });
