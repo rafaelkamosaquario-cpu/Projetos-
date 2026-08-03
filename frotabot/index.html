@@ -82,11 +82,11 @@
   .hero-bg::before {
     content: ""; position: absolute; inset: 0;
     background-image:
-      linear-gradient(100deg, rgba(6,9,17,0.94) 0%, rgba(6,9,17,0.72) 34%, rgba(6,9,17,0.28) 62%, rgba(6,9,17,0.15) 100%),
+      linear-gradient(100deg, rgba(6,9,17,0.94) 0%, rgba(6,9,17,0.68) 32%, rgba(6,9,17,0.22) 58%, rgba(6,9,17,0.1) 100%),
       linear-gradient(0deg, rgba(6,9,17,0.5), transparent 40%),
-      url("bg-highway.png");
+      url("bg-highway-2.png");
     background-size: cover;
-    background-position: center 60%;
+    background-position: right center;
   }
   .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
   @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
@@ -97,14 +97,14 @@
   .hero-ctas { margin-top: 2.2rem; }
 
   /* ---------- Hero phone + floating feature cards ---------- */
-  .hero-phone-stage { position: relative; display: flex; justify-content: center; padding-inline: 70px; }
-  .hero-phone-img { height: clamp(400px, 42vw, 580px); width: auto; max-width: 100%; object-fit: contain; display: block; }
+  .hero-phone-stage { position: relative; display: flex; justify-content: center; padding-inline: 78px; }
+  .hero-phone-img { height: clamp(520px, 44vw, 580px); width: auto; max-width: 100%; object-fit: contain; display: block; }
 
   .float-card {
-    position: absolute; width: 72px; height: 72px; border-radius: 18px;
-    background: linear-gradient(145deg, rgba(10,35,75,0.92), rgba(3,16,40,0.96));
-    border: 1px solid rgba(54,190,255,0.75);
-    box-shadow: 0 0 12px rgba(0,153,255,0.45), inset 0 0 12px rgba(0,120,255,0.12), 0 10px 22px -10px rgba(0,0,0,0.6);
+    position: absolute; width: var(--sz, 72px); height: var(--sz, 72px); border-radius: 18px;
+    background: linear-gradient(145deg, rgba(8,31,68,0.94), rgba(2,14,35,0.96));
+    border: 1px solid rgba(42,177,255,0.78);
+    box-shadow: 0 0 15px rgba(0,145,255,0.42), inset 0 0 12px rgba(0,110,255,0.12), 0 10px 22px -10px rgba(0,0,0,0.6);
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     display: flex; align-items: center; justify-content: center;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -134,29 +134,31 @@
   }
   .float-card:hover::after, .float-card:focus-visible::after { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  .fc-1 { top: 4%;  left: 0; }
-  .fc-2 { top: 27%; left: -6px; }
-  .fc-3 { top: 51%; left: -6px; }
-  .fc-4 { top: 75%; left: 0; }
-  .fc-5 { top: 4%;  right: 0; }
-  .fc-6 { top: 27%; right: -6px; }
-  .fc-7 { top: 51%; right: -6px; }
-  .fc-8 { top: 75%; right: 0; }
+  .fc-1 { --sz: 72px; top: 3%;  left: 16px; }
+  .fc-2 { --sz: 60px; top: 25%; left: -8px; }
+  .fc-3 { --sz: 78px; top: 49%; left: -18px; }
+  .fc-4 { --sz: 64px; top: 79%; left: 8px; }
+  .fc-5 { --sz: 72px; top: 0%;  right: 28px; }
+  .fc-6 { --sz: 56px; top: 24%; right: 14px; }
+  .fc-7 { --sz: 76px; top: 46%; right: 44px; }
+  .fc-8 { --sz: 64px; top: 80%; right: 18px; }
 
   @keyframes floatA { 0%, 100% { transform: translate3d(0,0,0); } 50% { transform: translate3d(0,-14px,0); } }
   @keyframes floatB { 0%, 100% { transform: translate3d(0,-4px,0); } 50% { transform: translate3d(5px,10px,0); } }
   @keyframes floatC { 0%, 100% { transform: translate3d(0,5px,0) rotate(-1deg); } 50% { transform: translate3d(-5px,-10px,0) rotate(1deg); } }
   @media (prefers-reduced-motion: reduce) { .float-card { animation: none; } }
 
-  @media (max-width: 900px) { .hero-phone-stage { padding-inline: 54px; } .float-card { width: 60px; height: 60px; } .fc-icon { width: 24px; height: 24px; } }
-  @media (max-width: 760px) {
-    .hero-phone-stage { padding-inline: 48px; }
-    .float-card { width: 58px; height: 58px; }
+  @media (max-width: 900px) {
+    .hero-phone-img { height: 460px; }
+    .hero-phone-stage { padding-inline: 58px; }
+    .fc-1 { --sz: 61px; } .fc-2 { --sz: 51px; } .fc-3 { --sz: 66px; } .fc-4 { --sz: 54px; }
+    .fc-5 { --sz: 61px; } .fc-6 { --sz: 48px; } .fc-7 { --sz: 65px; } .fc-8 { --sz: 54px; }
     .fc-icon { width: 24px; height: 24px; }
   }
   @media (max-width: 480px) {
+    .hero-phone-img { height: auto; width: min(78vw, 340px); }
     .hero-phone-stage { padding-inline: 38px; }
-    .float-card { width: 52px; height: 52px; border-radius: 16px; }
+    .fc-1, .fc-4, .fc-5, .fc-8 { --sz: 52px; }
     .fc-icon { width: 22px; height: 22px; }
     .float-card::after { display: none; }
     .fc-2, .fc-3, .fc-6, .fc-7 { display: none; }
@@ -304,7 +306,7 @@
         </div>
       </div>
       <div class="hero-phone-stage">
-        <img class="hero-phone-img" src="celular-frota-ia.png" alt="Celular exibindo o app do Frota IA, com a logo e o campo &quot;Faça uma pergunta&quot;" width="1024" height="1536" fetchpriority="high" decoding="async">
+        <img class="hero-phone-img" src="celular-frota-ia-hero.png" alt="Celular exibindo o app do Frota IA, com a logo e o campo &quot;Faça uma pergunta&quot;" width="587" height="1200" fetchpriority="high" decoding="async">
 
         <div class="float-card fc-1 anim-a" style="--delay:0s;" role="img" aria-label="Planejamento de rotas" data-tip="Planejamento de rotas">
           <svg class="fc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -368,7 +370,7 @@
     <div class="funcoes-grid">
       <div class="funcoes-visual">
         <div class="funcoes-phone-wrap">
-          <canvas id="funcoesCanvas" width="1635" height="962" role="img" aria-label="Capturas do Frota IA mostrando cálculo de rota, análise de frete pela leitura do CT-e, alerta de manutenção e comparação de custo de pneus"></canvas>
+          <canvas id="funcoesCanvas" width="1254" height="1254" role="img" aria-label="Capturas do Frota IA mostrando cálculo de rota, análise de frete pela leitura do CT-e, alerta de manutenção e comparação de custo de pneus"></canvas>
         </div>
       </div>
       <div>
@@ -484,7 +486,7 @@
       ctx.putImageData(frame, 0, 0);
     } catch (e) { /* chroma-key skipped, original image stays as drawn */ }
   };
-  img.src = 'funcoes-showcase.png';
+  img.src = 'funcoes-showcase-2.png';
 })();
 </script>
 </body>
