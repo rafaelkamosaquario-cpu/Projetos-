@@ -179,6 +179,7 @@
 
   /* ---------- How it works: road + truck ---------- */
   #passos { padding-top: 6px; }
+  #passos > .eyebrow, .hiw-title, .hiw-final { text-align: center; }
   .hiw-title { font-size: clamp(2.1rem, 4.2vw, 3.2rem); margin-top: 0.6rem; line-height: 1.1; }
   .hiw-track { position: relative; margin-top: 3rem; --circleH: 112px; }
   .hiw-units { display: flex; justify-content: space-between; gap: 1.25rem; position: relative; z-index: 3; }
@@ -202,6 +203,15 @@
   }
   .hiw-unit.done .hiw-check { opacity: 1; transform: scale(1); }
 
+  .hiw-lane-bg {
+    position: absolute; left: 58px; right: 58px; top: calc(var(--circleH) / 2 - 26px); height: 52px;
+    background: rgba(8, 14, 28, 0.55); border-radius: 8px; z-index: 0;
+  }
+  .hiw-glow-fill {
+    position: absolute; left: 58px; top: calc(var(--circleH) / 2 - 26px); height: 52px; width: 0; z-index: 0;
+    background: linear-gradient(90deg, rgba(28,111,222,0.05), rgba(47,143,255,0.32));
+    filter: blur(9px); border-radius: 8px;
+  }
   .hiw-edge, .hiw-dash-line {
     position: absolute; left: 58px; right: 58px; height: 2px; background: rgba(151,161,181,0.3); z-index: 1;
   }
@@ -212,19 +222,17 @@
     background: repeating-linear-gradient(90deg, rgba(226,233,245,0.5) 0 16px, transparent 16px 30px);
   }
   .hiw-edge-fill, .hiw-dash-fill {
-    position: absolute; left: 58px; top: 0; height: 2px; width: 0; z-index: 2; overflow: hidden;
+    position: absolute; left: 58px; top: 0; height: 3px; width: 0; z-index: 1; overflow: hidden;
   }
-  .hiw-edge-fill { background: linear-gradient(90deg, var(--accent-deep), var(--accent)); box-shadow: 0 0 10px rgba(47,143,255,0.65); }
-  .hiw-dash-fill { background: repeating-linear-gradient(90deg, var(--accent) 0 16px, transparent 16px 30px); filter: drop-shadow(0 0 6px rgba(47,143,255,0.65)); }
+  .hiw-edge-fill { background: linear-gradient(90deg, var(--accent-deep), var(--accent)); box-shadow: 0 0 12px rgba(47,143,255,0.75); }
+  .hiw-dash-fill { height: 2px; background: repeating-linear-gradient(90deg, #EAF4FF 0 16px, transparent 16px 30px); filter: drop-shadow(0 0 6px rgba(47,143,255,0.75)); }
 
   .hiw-truck {
-    position: absolute; top: calc(var(--circleH) / 2); left: 58px; width: 180px; height: 70px;
-    transform: translate(-79%, -50%); z-index: 2;
-    filter: drop-shadow(0 0 10px rgba(47,143,255,0.55)) drop-shadow(0 3px 10px rgba(0,0,0,0.55));
+    position: absolute; top: calc(var(--circleH) / 2); left: 58px; width: 190px; height: 87px;
+    transform: translate(-76%, -50%); z-index: 2;
+    filter: drop-shadow(0 0 14px rgba(47,143,255,0.6)) drop-shadow(0 3px 10px rgba(0,0,0,0.6));
   }
-  .hiw-truck svg { width: 100%; height: 100%; display: block; }
-  .hiw-speed { opacity: 0; transition: opacity 0.2s ease; }
-  .hiw-truck.moving .hiw-speed { opacity: 0.75; }
+  .hiw-truck img { width: 100%; height: 100%; display: block; object-fit: contain; }
 
   .hiw-unit-label { margin-top: 1.7rem; opacity: 0.55; transition: opacity 0.4s ease; }
   .hiw-unit.active .hiw-unit-label, .hiw-unit.done .hiw-unit-label { opacity: 1; }
@@ -236,9 +244,10 @@
 
   @media (max-width: 900px) {
     .hiw-track { --circleH: 84px; }
-    .hiw-truck { width: 130px; height: 52px; }
-    .hiw-edge, .hiw-dash-line, .hiw-edge-fill, .hiw-dash-fill { left: 44px; }
-    .hiw-edge, .hiw-dash-line { right: 44px; }
+    .hiw-truck { width: 150px; height: 69px; }
+    .hiw-lane-bg, .hiw-glow-fill, .hiw-edge, .hiw-dash-line, .hiw-edge-fill, .hiw-dash-fill { left: 44px; }
+    .hiw-lane-bg, .hiw-edge, .hiw-dash-line { right: 44px; }
+    .hiw-lane-bg, .hiw-glow-fill { top: calc(var(--circleH) / 2 - 20px); height: 40px; }
     .hiw-edge-top { top: calc(var(--circleH) / 2 - 16px); }
     .hiw-edge-bottom { top: calc(var(--circleH) / 2 + 14px); }
   }
@@ -249,15 +258,17 @@
     .hiw-units { flex-direction: column; gap: 2.4rem; }
     .hiw-unit { flex-direction: row; align-items: flex-start; width: 100%; gap: 1rem; }
     .hiw-unit-label { margin-top: 0.2rem; }
-    .hiw-edge, .hiw-dash-line, .hiw-edge-fill, .hiw-dash-fill {
+    .hiw-lane-bg, .hiw-glow-fill, .hiw-edge, .hiw-dash-line, .hiw-edge-fill, .hiw-dash-fill {
       left: calc(var(--circleH) / 2); right: auto; top: 0; bottom: 0; height: auto; width: 2px;
     }
+    .hiw-lane-bg { width: 40px; transform: translateX(-50%); border-radius: 20px; }
+    .hiw-glow-fill { width: 40px; height: 0; transform: translateX(-50%); }
     .hiw-edge-top { left: calc(var(--circleH) / 2 - 14px); }
     .hiw-edge-bottom { left: calc(var(--circleH) / 2 + 12px); }
     .hiw-dash-line { background: repeating-linear-gradient(180deg, rgba(226,233,245,0.5) 0 16px, transparent 16px 30px); }
     .hiw-edge-fill, .hiw-dash-fill { height: 0; width: 2px; }
-    .hiw-dash-fill { background: repeating-linear-gradient(180deg, var(--accent) 0 16px, transparent 16px 30px); }
-    .hiw-truck { left: calc(var(--circleH) / 2); top: 0; width: 70px; height: 30px; transform: translate(-50%, -60%) rotate(90deg); }
+    .hiw-dash-fill { background: repeating-linear-gradient(180deg, #EAF4FF 0 16px, transparent 16px 30px); }
+    .hiw-truck { left: calc(var(--circleH) / 2); top: 0; width: 92px; height: 42px; transform: translate(-50%, -60%) rotate(90deg); }
   }
 
   .video-frame {
@@ -467,6 +478,8 @@
     <h2 class="hiw-title">Usar o Frota IA é simples</h2>
 
     <div class="hiw-track" id="hiwTrack">
+      <div class="hiw-lane-bg" aria-hidden="true"></div>
+      <div class="hiw-glow-fill" id="hiwGlowFill" aria-hidden="true"></div>
       <div class="hiw-edge hiw-edge-top" aria-hidden="true"></div>
       <div class="hiw-edge-fill hiw-edge-fill-top" id="hiwEdgeFillTop" aria-hidden="true"></div>
       <div class="hiw-dash-line" aria-hidden="true"></div>
@@ -475,31 +488,7 @@
       <div class="hiw-edge-fill hiw-edge-fill-bottom" id="hiwEdgeFillBottom" aria-hidden="true"></div>
 
       <div class="hiw-truck" id="hiwTruck" aria-hidden="true">
-        <svg viewBox="0 0 190 74" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="hiwTrailerGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#3E9BFF"/>
-              <stop offset="100%" stop-color="#1C6FDE"/>
-            </linearGradient>
-          </defs>
-          <g class="hiw-speed">
-            <rect x="4" y="22" width="18" height="3" rx="1.5" fill="#7FD4FF"/>
-            <rect x="2" y="34" width="24" height="3" rx="1.5" fill="#7FD4FF"/>
-            <rect x="6" y="46" width="14" height="3" rx="1.5" fill="#7FD4FF"/>
-          </g>
-          <rect x="32" y="14" width="104" height="42" rx="3" fill="url(#hiwTrailerGrad)" stroke="#BFE3FF" stroke-width="2"/>
-          <rect x="40" y="22" width="88" height="6" rx="1.5" fill="#BFE3FF" opacity="0.85"/>
-          <rect x="40" y="34" width="88" height="6" rx="1.5" fill="#0B3E82" opacity="0.55"/>
-          <path d="M136 24 H160 L184 46 V58 H136 Z" fill="#F4F8FF" stroke="#0B3E82" stroke-width="2"/>
-          <rect x="160" y="30" width="16" height="14" rx="1.4" fill="#0B1420"/>
-          <circle cx="54" cy="61" r="9.5" fill="#0B1018" stroke="#F4F8FF" stroke-width="1.6"/>
-          <circle cx="54" cy="61" r="3" fill="#F4F8FF"/>
-          <circle cx="112" cy="61" r="9.5" fill="#0B1018" stroke="#F4F8FF" stroke-width="1.6"/>
-          <circle cx="112" cy="61" r="3" fill="#F4F8FF"/>
-          <circle cx="167" cy="61" r="9.5" fill="#0B1018" stroke="#F4F8FF" stroke-width="1.6"/>
-          <circle cx="167" cy="61" r="3" fill="#F4F8FF"/>
-          <rect x="181" y="41" width="4.5" height="8" rx="1" fill="#FFD27A"/>
-        </svg>
+        <img src="truck-hiw.png" alt="" width="250" height="115">
       </div>
 
       <div class="hiw-units" id="hiwUnits">
@@ -668,6 +657,7 @@
   var edgeFillTop = document.getElementById('hiwEdgeFillTop');
   var edgeFillBottom = document.getElementById('hiwEdgeFillBottom');
   var dashFill = document.getElementById('hiwDashFill');
+  var glowFill = document.getElementById('hiwGlowFill');
   var truck = document.getElementById('hiwTruck');
   var units = [].slice.call(document.querySelectorAll('#hiwUnits .hiw-unit'));
   var circles = units.map(function (u) { return u.querySelector('.hiw-circle'); });
@@ -689,11 +679,11 @@
   function setFill(px) {
     var val = Math.max(0, px) + 'px';
     if (isVertical()) {
-      edgeFillTop.style.height = val; edgeFillBottom.style.height = val; dashFill.style.height = val;
-      edgeFillTop.style.width = ''; edgeFillBottom.style.width = ''; dashFill.style.width = '';
+      edgeFillTop.style.height = val; edgeFillBottom.style.height = val; dashFill.style.height = val; glowFill.style.height = val;
+      edgeFillTop.style.width = ''; edgeFillBottom.style.width = ''; dashFill.style.width = ''; glowFill.style.width = '';
     } else {
-      edgeFillTop.style.width = val; edgeFillBottom.style.width = val; dashFill.style.width = val;
-      edgeFillTop.style.height = ''; edgeFillBottom.style.height = ''; dashFill.style.height = '';
+      edgeFillTop.style.width = val; edgeFillBottom.style.width = val; dashFill.style.width = val; glowFill.style.width = val;
+      edgeFillTop.style.height = ''; edgeFillBottom.style.height = ''; dashFill.style.height = ''; glowFill.style.height = '';
     }
   }
 
