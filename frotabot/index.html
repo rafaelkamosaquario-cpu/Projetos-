@@ -202,6 +202,8 @@
     transition: opacity 0.25s ease, transform 0.25s ease; border: 3px solid var(--void);
   }
   .hiw-unit.done .hiw-check { opacity: 1; transform: scale(1); }
+  .hiw-track.resetting .hiw-check,
+  .hiw-track.resetting .hiw-circle { transition: none !important; }
 
   .hiw-lane-bg {
     position: absolute; left: 58px; right: 58px; top: calc(var(--circleH) / 2 - 26px); height: 52px;
@@ -297,14 +299,14 @@
   .funcoes-phone-wrap { position: relative; width: 100%; display: flex; align-items: flex-start; justify-content: center; overflow: visible; }
   .funcoes-phone-wrap::before { content: ""; position: absolute; inset: -10%; border-radius: 50%; background: radial-gradient(circle, rgba(47,143,255,0.28), transparent 70%); z-index: -1; }
   .funcoes-phone-wrap canvas {
-    display: block; width: clamp(540px, 44vw, 680px); max-width: none; height: auto; object-fit: contain;
+    display: block; width: clamp(470px, 38vw, 600px); max-width: none; height: auto; object-fit: contain;
     object-position: center top; margin: 0; transform: none; border-radius: 18px;
   }
   @media (max-width: 1100px) and (min-width: 861px) {
-    .funcoes-phone-wrap canvas { width: min(520px, 90vw); }
+    .funcoes-phone-wrap canvas { width: min(460px, 88vw); }
   }
   @media (max-width: 860px) {
-    .funcoes-phone-wrap canvas { width: min(94vw, 520px); max-width: 100%; }
+    .funcoes-phone-wrap canvas { width: min(90vw, 460px); max-width: 100%; }
   }
   .funcoes-title { font-size: 1.05rem; margin-bottom: 1rem; }
   .funcoes-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
@@ -693,11 +695,15 @@
   }
 
   function reset() {
+    track.classList.add('resetting');
     units.forEach(function (u) { u.classList.remove('active', 'done'); });
     var pos = centers();
     setFill(0);
     setTruck(pos[0]);
     truck.classList.remove('moving');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { track.classList.remove('resetting'); });
+    });
   }
 
   function ease(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
@@ -728,18 +734,16 @@
     if (running) return;
     running = true;
     reset();
-    units[0].classList.add('active');
+    units[0].classList.add('done');
     var pos = centers();
     var base = pos[0];
     animate(0, pos[1] - base, pos[0], pos[1], 2000, function () {
-      units[0].classList.remove('active'); units[0].classList.add('done');
-      units[1].classList.add('active');
+      units[1].classList.add('done');
       setTimeout(function () {
         var pos2 = centers();
         var truckEnd = pos2[2] + (isVertical() ? 0 : 34);
         animate(pos2[1] - pos2[0], pos2[2] - pos2[0], pos2[1], truckEnd, 2000, function () {
-          units[1].classList.remove('active'); units[1].classList.add('done');
-          units[2].classList.add('active'); units[2].classList.add('done');
+          units[2].classList.add('done');
           running = false;
           setTimeout(sequence, 2000);
         });
