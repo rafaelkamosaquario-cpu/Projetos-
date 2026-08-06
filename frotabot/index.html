@@ -114,10 +114,14 @@
 
   /* ---------- Hero phone + floating feature cards ---------- */
   .hero-phone-stage { position: relative; display: flex; justify-content: center; padding-inline: 78px; }
-  .hero-phone-img { height: clamp(520px, 44vw, 580px); width: auto; max-width: 100%; object-fit: contain; display: block; }
+  .hero-phone-img {
+    height: clamp(520px, 44vw, 580px); width: auto; max-width: 100%; object-fit: contain; display: block;
+    -webkit-mask-image: radial-gradient(ellipse 62% 58% at 50% 48%, black 58%, transparent 100%);
+    mask-image: radial-gradient(ellipse 62% 58% at 50% 48%, black 58%, transparent 100%);
+  }
 
   .float-card {
-    position: absolute; width: var(--sz, 72px); height: var(--sz, 72px); border-radius: 18px;
+    position: absolute; width: var(--sz, 80px); height: var(--sz, 80px); border-radius: 18px;
     background: linear-gradient(145deg, var(--frota-bg-texture), var(--frota-bg));
     border: 1px solid var(--frota-green);
     box-shadow: 0 0 18px rgba(0,250,10,0.22), inset 0 0 12px rgba(0,250,10,0.12), 0 10px 22px -10px rgba(0,0,0,0.6);
@@ -131,7 +135,7 @@
   .float-card.anim-b { animation-name: floatB; }
   .float-card.anim-c { animation-name: floatC; }
   .float-card:hover, .float-card:focus-visible {
-    transform: scale(1.06); animation-play-state: paused;
+    transform: scale(1.06) translateY(-4px); animation-play-state: paused;
     box-shadow: 0 0 26px rgba(0,250,10,0.4), inset 0 0 12px rgba(0,250,10,0.18), 0 10px 22px -10px rgba(0,0,0,0.6);
   }
   .fc-icon { width: 30px; height: 30px; color: var(--frota-white); }
@@ -150,14 +154,17 @@
   }
   .float-card:hover::after, .float-card:focus-visible::after { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  .fc-1 { --sz: 72px; top: 3%;  left: 16px; }
-  .fc-2 { --sz: 60px; top: 25%; left: -8px; }
-  .fc-3 { --sz: 78px; top: 49%; left: -18px; }
-  .fc-4 { --sz: 64px; top: 79%; left: 8px; }
-  .fc-5 { --sz: 72px; top: 0%;  right: 28px; }
-  .fc-6 { --sz: 56px; top: 24%; right: 14px; }
-  .fc-7 { --sz: 76px; top: 46%; right: 44px; }
-  .fc-8 { --sz: 64px; top: 80%; right: 18px; }
+  /* Coluna esquerda (rota, calculadora, frete, combustível) e direita (foto, alertas, manutenção, pneus) */
+  .fc-col-left { left: 8px; }
+  .fc-col-right { right: 8px; }
+  .fc-1 { top: 3%; }
+  .fc-2 { top: 27%; }
+  .fc-3 { top: 51%; }
+  .fc-4 { top: 75%; }
+  .fc-5 { top: 3%; }
+  .fc-6 { top: 27%; }
+  .fc-7 { top: 51%; }
+  .fc-8 { top: 75%; }
 
   @keyframes floatA { 0%, 100% { transform: translate3d(0,0,0); } 50% { transform: translate3d(0,-14px,0); } }
   @keyframes floatB { 0%, 100% { transform: translate3d(0,-4px,0); } 50% { transform: translate3d(5px,10px,0); } }
@@ -167,17 +174,17 @@
   @media (max-width: 900px) {
     .hero-phone-img { height: 460px; }
     .hero-phone-stage { padding-inline: 58px; }
-    .fc-1 { --sz: 61px; } .fc-2 { --sz: 51px; } .fc-3 { --sz: 66px; } .fc-4 { --sz: 54px; }
-    .fc-5 { --sz: 61px; } .fc-6 { --sz: 48px; } .fc-7 { --sz: 65px; } .fc-8 { --sz: 54px; }
+    .float-card { --sz: 62px; }
     .fc-icon { width: 24px; height: 24px; }
   }
   @media (max-width: 480px) {
     .hero-phone-img { height: auto; width: min(78vw, 340px); }
-    .hero-phone-stage { padding-inline: 38px; }
-    .fc-1, .fc-4, .fc-5, .fc-8 { --sz: 52px; }
-    .fc-icon { width: 22px; height: 22px; }
+    .hero-phone-stage { padding-inline: 36px; }
+    .float-card { --sz: 46px; border-radius: 13px; }
+    .fc-icon { width: 18px; height: 18px; }
+    .fc-badge { width: 17px; height: 17px; }
+    .fc-badge svg { width: 10px; height: 10px; }
     .float-card::after { display: none; }
-    .fc-2, .fc-3, .fc-6, .fc-7 { display: none; }
   }
 
   /* ---------- Demo / video section ---------- */
@@ -338,41 +345,41 @@
         </div>
       </div>
       <div class="hero-phone-stage">
-        <img class="hero-phone-img" src="celular-frota-ia-hero.png" alt="Celular exibindo o app do Frota IA, com a logo e o campo &quot;Faça uma pergunta&quot;" width="587" height="1200" fetchpriority="high" decoding="async">
+        <img class="hero-phone-img" src="celular-frota-ia-hero.png" alt="Celular exibindo o app do Frota IA, com a logo e o campo &quot;Faça uma pergunta&quot;" width="1024" height="1536" fetchpriority="high" decoding="async">
 
-        <div class="float-card fc-1 anim-a" style="--delay:0s;" role="img" aria-label="Planejamento de rotas" data-tip="Planejamento de rotas">
+        <div class="float-card fc-1 fc-col-left anim-a" style="--delay:0s;" role="img" aria-label="Planejamento de rotas" data-tip="Planejamento de rotas">
           <svg class="fc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
         </div>
 
-        <div class="float-card fc-2 anim-b" style="--delay:.5s; --dur:5s;" role="img" aria-label="Cálculos automáticos" data-tip="Cálculos automáticos">
+        <div class="float-card fc-2 fc-col-left anim-b" style="--delay:.5s; --dur:5s;" role="img" aria-label="Cálculos automáticos" data-tip="Cálculos automáticos">
           <svg class="fc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="11" x2="8" y2="11"/><line x1="12" y1="11" x2="12" y2="11"/><line x1="16" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="8" y2="15"/><line x1="12" y1="15" x2="12" y2="15"/><line x1="16" y1="15" x2="16" y2="15"/><line x1="8" y1="19" x2="12" y2="19"/></svg>
         </div>
 
-        <div class="float-card fc-3 anim-c" style="--delay:1.1s; --dur:6s;" role="img" aria-label="Análise de frete" data-tip="Análise de frete">
+        <div class="float-card fc-3 fc-col-left anim-c" style="--delay:1.1s; --dur:6s;" role="img" aria-label="Análise de frete" data-tip="Análise de frete">
           <svg class="fc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17V6a1 1 0 0 1 1-1h9v12"/><path d="M13 9h4l4 4v4h-8"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
           <span class="fc-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M16.5 5H9.8a3 3 0 1 0 0 6h4.4a3 3 0 1 1 0 6H6"/></svg></span>
         </div>
 
-        <div class="float-card fc-4 anim-a" style="--delay:1.6s; --dur:4s;" role="img" aria-label="Controle de combustível" data-tip="Controle de combustível">
+        <div class="float-card fc-4 fc-col-left anim-a" style="--delay:1.6s; --dur:4s;" role="img" aria-label="Controle de combustível" data-tip="Controle de combustível">
           <svg class="fc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v18"/><path d="M3 10h9"/><path d="M14 7h2l3 3v7a1.5 1.5 0 0 1-3 0v-2h-2"/></svg>
         </div>
 
-        <div class="float-card fc-5 anim-b" style="--delay:.3s; --dur:4.8s;" role="img" aria-label="Análise por foto" data-tip="Análise por foto">
+        <div class="float-card fc-5 fc-col-right anim-b" style="--delay:.3s; --dur:4.8s;" role="img" aria-label="Análise por foto" data-tip="Análise por foto">
           <svg class="fc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
           <span class="fc-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span>
         </div>
 
-        <div class="float-card fc-6 anim-c" style="--delay:.9s; --dur:5.5s;" role="img" aria-label="Alertas automáticos" data-tip="Alertas automáticos">
+        <div class="float-card fc-6 fc-col-right anim-c" style="--delay:.9s; --dur:5.5s;" role="img" aria-label="Alertas automáticos" data-tip="Alertas automáticos">
           <svg class="fc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           <span class="fc-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 13 6 9Z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></span>
         </div>
 
-        <div class="float-card fc-7 anim-a" style="--delay:1.3s; --dur:4.3s;" role="img" aria-label="Controle de manutenção" data-tip="Controle de manutenção">
+        <div class="float-card fc-7 fc-col-right anim-a" style="--delay:1.3s; --dur:4.3s;" role="img" aria-label="Controle de manutenção" data-tip="Controle de manutenção">
           <svg class="fc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 1 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.8 2.8-2-2z"/></svg>
           <span class="fc-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.6"/><path d="M12 3v2.4M12 18.6V21M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M3 12h2.4M18.6 12H21M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></svg></span>
         </div>
 
-        <div class="float-card fc-8 anim-b" style="--delay:.2s; --dur:5.2s;" role="img" aria-label="Gestão de pneus" data-tip="Gestão de pneus">
+        <div class="float-card fc-8 fc-col-right anim-b" style="--delay:.2s; --dur:5.2s;" role="img" aria-label="Gestão de pneus" data-tip="Gestão de pneus">
           <svg class="fc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><path d="M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21M5.6 5.6l1.7 1.7M16.7 16.7l1.7 1.7M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7"/></svg>
         </div>
       </div>
