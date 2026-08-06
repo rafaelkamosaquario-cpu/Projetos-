@@ -64,6 +64,8 @@
   .plate-bar { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding-block: 0.9rem; }
   .brand { display: flex; align-items: center; gap: 0.7rem; line-height: 1.05; }
   .brand-logo { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1px rgba(0,250,10,0.4), 0 0 18px rgba(0,250,10,0.35); }
+  .header-brand-logo { width: clamp(60px, 5.5vw, 80px); height: auto; object-fit: contain; display: block; }
+  .hero-brand-logo { width: clamp(66px, 6vw, 88px); height: auto; object-fit: contain; display: block; margin-bottom: 1rem; }
   .brand-text { display: flex; flex-direction: column; }
   .brand-name { font-family: var(--display); font-stretch: condensed; text-transform: uppercase; font-weight: 700; font-size: 1.25rem; letter-spacing: 0.04em; }
   .brand-tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.14em; color: var(--text-soft); margin-top: 0.2rem; text-transform: uppercase; }
@@ -311,9 +313,8 @@
 <header class="plate">
   <div class="wrap plate-bar">
     <div class="brand">
-      <img class="brand-logo" src="frota-ia-logo-icon.png" alt="Logo Frota IA">
+      <img class="header-brand-logo" src="frota-ia-logo-completa.png" alt="Frota IA — Uma solução RodoCore">
       <div class="brand-text">
-        <span class="brand-name">Frota IA</span>
         <span class="brand-tag">Uma solução RodoCore</span>
       </div>
     </div>
@@ -334,10 +335,7 @@
     <div class="hero-bg"></div>
     <div class="wrap hero-grid">
       <div>
-        <div class="brand" style="margin-bottom:1.4rem;">
-          <img class="brand-logo" src="frota-ia-logo-icon.png" alt="" style="width:34px;height:34px;">
-          <span class="brand-name" style="font-size:1.1rem;">Frota IA</span>
-        </div>
+        <img class="hero-brand-logo" src="frota-ia-logo-completa.png" alt="Logo Frota IA">
         <h1>Todo o conhecimento<br>da estrada, a <em>um áudio</em><br><em>de distância.</em></h1>
         <p class="hero-sub">Conecte-se ao <strong>Frota IA</strong>, a inteligência artificial do transporte direto no seu WhatsApp.</p>
         <div class="hero-ctas">
