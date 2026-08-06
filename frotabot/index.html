@@ -5,16 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Frota IA — A Inteligência Artificial do Transporte no WhatsApp · Uma solução RodoCore</title>
 <meta name="description" content="Conecte-se ao Frota IA, a inteligência artificial do transporte direto no seu WhatsApp. Analise fretes, calcule custos e tome decisões melhores — por texto, áudio ou foto.">
-<link rel="icon" href="frota-ia-logo.jpg">
+<link rel="icon" href="frota-ia-logo-icon.png">
 <style>
   :root {
     --void: #060911;
     --void-deep: #03050A;
     --card: #0D1420;
     --card-soft: #131C2B;
-    --accent: #2F8FFF;
-    --accent-deep: #1C6FDE;
-    --accent-glow: rgba(47, 143, 255, 0.5);
+    --accent: #33E67A;
+    --accent-deep: #16A34A;
+    --accent-glow: rgba(51, 230, 122, 0.5);
     --moss: #2ECC71;
     --line: rgba(226, 233, 245, 0.12);
     --text: #F1F4FA;
@@ -53,7 +53,7 @@
   .plate { background: rgba(3,5,10,0.75); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
   .plate-bar { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding-block: 0.9rem; }
   .brand { display: flex; align-items: center; gap: 0.7rem; line-height: 1.05; }
-  .brand-logo { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1px rgba(47,143,255,0.4), 0 0 18px rgba(47,143,255,0.35); }
+  .brand-logo { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1px rgba(51,230,122,0.4), 0 0 18px rgba(51,230,122,0.35); }
   .brand-text { display: flex; flex-direction: column; }
   .brand-name { font-family: var(--display); font-stretch: condensed; text-transform: uppercase; font-weight: 700; font-size: 1.25rem; letter-spacing: 0.04em; }
   .brand-tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.14em; color: var(--text-soft); margin-top: 0.2rem; text-transform: uppercase; }
@@ -71,9 +71,9 @@
   .btn-accent {
     background: linear-gradient(135deg, var(--accent), var(--accent-deep));
     color: #05070D; font-weight: 700;
-    box-shadow: 0 0 0 1px rgba(47,143,255,0.3), 0 0 28px 2px var(--accent-glow), 0 10px 24px -10px rgba(0,0,0,0.7);
+    box-shadow: 0 0 0 1px rgba(51,230,122,0.3), 0 0 28px 2px var(--accent-glow), 0 10px 24px -10px rgba(0,0,0,0.7);
   }
-  .btn-accent:hover { transform: translateY(-1px); box-shadow: 0 0 0 1px rgba(47,143,255,0.4), 0 0 40px 6px var(--accent-glow), 0 12px 26px -10px rgba(0,0,0,0.8); }
+  .btn-accent:hover { transform: translateY(-1px); box-shadow: 0 0 0 1px rgba(51,230,122,0.4), 0 0 40px 6px var(--accent-glow), 0 12px 26px -10px rgba(0,0,0,0.8); }
   .btn-ghost { border-color: rgba(242,237,230,0.35); color: var(--text); background: transparent; }
   .btn-ghost:hover { background: rgba(242,237,230,0.08); }
 
@@ -92,7 +92,7 @@
   .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
   @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
   .hero h1 { font-size: clamp(2.2rem, 4.4vw, 3.5rem); line-height: 1.08; }
-  .hero h1 em { font-style: normal; color: var(--accent); text-shadow: 0 0 30px rgba(47,143,255,0.45); }
+  .hero h1 em { font-style: normal; color: var(--accent); text-shadow: 0 0 30px rgba(51,230,122,0.45); }
   .hero-sub { margin-top: 1.4rem; max-width: 33rem; color: var(--text-soft); font-size: 1.1rem; }
   .hero-sub strong { color: var(--text); }
   .hero-ctas { margin-top: 2.2rem; }
@@ -201,7 +201,7 @@
   @media (max-width: 1100px) and (min-width: 861px) { .funcoes-visual { padding-top: 35px; } }
   @media (max-width: 860px) { .funcoes-visual { min-height: auto; padding-top: 20px; } }
   .funcoes-phone-wrap { position: relative; width: 100%; display: flex; align-items: flex-start; justify-content: center; overflow: visible; }
-  .funcoes-phone-wrap::before { content: ""; position: absolute; inset: -10%; border-radius: 50%; background: radial-gradient(circle, rgba(47,143,255,0.28), transparent 70%); z-index: -1; }
+  .funcoes-phone-wrap::before { content: ""; position: absolute; inset: -10%; border-radius: 50%; background: radial-gradient(circle, rgba(51,230,122,0.28), transparent 70%); z-index: -1; }
   .funcoes-phone-wrap canvas {
     display: block; width: clamp(470px, 38vw, 600px); max-width: none; height: auto; object-fit: contain;
     object-position: center top; margin: 0; transform: none; border-radius: 18px;
@@ -241,7 +241,7 @@
     content: ""; position: absolute; inset: 0;
     background-image:
       linear-gradient(180deg, rgba(6,9,17,0.88), rgba(6,9,17,0.82) 60%, rgba(6,9,17,0.92)),
-      radial-gradient(ellipse 60% 60% at 15% 30%, rgba(47,143,255,0.18), transparent 65%),
+      radial-gradient(ellipse 60% 60% at 15% 30%, rgba(51,230,122,0.18), transparent 65%),
       url("bg-highway.png");
     background-size: cover;
     background-position: center 45%;
@@ -258,7 +258,7 @@
   .planos-head { text-align: center; }
   .planos-head h2 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); }
   .planos-head h2 em { font-style: italic; color: var(--accent); }
-  .plano-card { max-width: 28rem; margin: 2.5rem auto 0; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 0 60px -18px rgba(47,143,255,0.3); }
+  .plano-card { max-width: 28rem; margin: 2.5rem auto 0; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 0 60px -18px rgba(51,230,122,0.3); }
   .plano-ribbon {
     background: var(--void-deep); color: var(--text); font-family: var(--display); font-weight: 700; text-transform: uppercase;
     font-size: 0.85rem; letter-spacing: 0.03em; padding: 0.8rem 1.5rem; text-align: center;
@@ -267,7 +267,7 @@
   .plano-body { background: linear-gradient(160deg, var(--card-soft), var(--card)); padding: 2rem 1.8rem; text-align: center; }
   .plano-eyebrow { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-soft); }
   .plano-nome { font-size: 1.7rem; font-style: italic; margin-top: 0.2rem; color: var(--accent); }
-  .plano-list { list-style: none; margin: 1.6rem 0; padding: 1.4rem; background: rgba(47,143,255,0.06); border-radius: 12px; text-align: left; display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.94rem; }
+  .plano-list { list-style: none; margin: 1.6rem 0; padding: 1.4rem; background: rgba(51,230,122,0.06); border-radius: 12px; text-align: left; display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.94rem; }
   .plano-list li { display: flex; gap: 0.5rem; }
   .plano-list li::before { content: "✓"; color: var(--accent); flex-shrink: 0; }
   .plano-price-cap { color: var(--text-soft); font-size: 0.95rem; }
@@ -289,7 +289,7 @@
 <header class="plate">
   <div class="wrap plate-bar">
     <div class="brand">
-      <img class="brand-logo" src="frota-ia-logo.jpg" alt="Logo Frota IA">
+      <img class="brand-logo" src="frota-ia-logo-icon.png" alt="Logo Frota IA">
       <div class="brand-text">
         <span class="brand-name">Frota IA</span>
         <span class="brand-tag">Uma solução RodoCore</span>
@@ -313,7 +313,7 @@
     <div class="wrap hero-grid">
       <div>
         <div class="brand" style="margin-bottom:1.4rem;">
-          <img class="brand-logo" src="frota-ia-logo.jpg" alt="" style="width:34px;height:34px;">
+          <img class="brand-logo" src="frota-ia-logo-icon.png" alt="" style="width:34px;height:34px;">
           <span class="brand-name" style="font-size:1.1rem;">Frota IA</span>
         </div>
         <h1>Todo o conhecimento<br>da estrada, a <em>um áudio</em><br><em>de distância.</em></h1>
@@ -426,7 +426,7 @@
         <p>Não é uma IA genérica, feita por gente de escritório. É uma ferramenta criada com base na realidade da estrada, com a linguagem, as dúvidas e os desafios de quem roda de madrugada, enfrenta o trânsito, a fiscalização, a correria e precisa de resposta rápida e certa. Foi criada por Rocha, com 17 anos de operação real em transportadoras — é por isso que <strong>a gente usa, confia e recomenda</strong>.</p>
       </div>
       <div class="quem-photo">
-        <img src="frota-ia-logo.jpg" alt="Logo Frota IA">
+        <img src="frota-ia-logo-novo.png" alt="Logo Frota IA">
         <span>Foto da equipe — em breve</span>
       </div>
     </div>
