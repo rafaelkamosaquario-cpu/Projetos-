@@ -2,222 +2,516 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diagnóstico de Custos de Frota — Frota na Prática</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Check-up gratuito RodoCore para avaliar a maturidade do controle de combustível, manutenção e pneus.">
+  <title>Check-up de Gestão de Frota — RodoCore</title>
+  <link rel="icon" href="../rodocore-logo.jpg">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Ir para o conteúdo</a>
 
-<div id="landing" class="screen active">
-  <div class="hero">
-    <div class="hero-badge">Diagnóstico Gratuito</div>
-    <h1 class="hero-title">Quanto sua frota está perdendo por mês?</h1>
-    <p class="hero-sub">Descubra em 3 minutos onde estão os vazamentos de custo no seu CPK — com base em benchmarks reais do setor.</p>
-    <button class="btn-cta" onclick="startForm()">Iniciar Diagnóstico Gratuito →</button>
-    <p class="hero-note">Leva apenas 3 minutos · 6 etapas</p>
-  </div>
-
-  <div class="content-wrap">
-    <div class="card">
-      <p class="card-label">O que você vai descobrir</p>
-      <ul class="discover-list">
-        <li><span class="disc-icon green">✓</span> Estimativa de economia mensal real</li>
-        <li><span class="disc-icon green">✓</span> Seu CPK comparado com a média do setor</li>
-        <li><span class="disc-icon green">✓</span> Os principais pontos de desperdício da sua frota</li>
-        <li><span class="disc-icon green">✓</span> Diagnóstico de combustível, manutenção e pneus</li>
-      </ul>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../" aria-label="RodoCore — voltar ao site">
+        <img src="../rodocore-logo.jpg" alt="" width="42" height="42">
+        <span>Rodo<span>Core</span></span>
+      </a>
+      <nav class="product-switch" aria-label="Áreas de diagnóstico">
+        <a class="product-link current" href="./" aria-current="page">Público</a>
+        <a class="product-link private" href="../app/consultoria/">Executivo <span aria-hidden="true">🔒</span></a>
+      </nav>
     </div>
-    <div class="card">
-      <p class="card-label">Baseado em dados de</p>
-      <div class="pillar-list">
-        <div class="pillar-item"><span class="pillar-dot blue"></span><div><p class="pillar-name">Combustível</p><p class="pillar-src">Volvo Trucks BR · Scania Brasil · ICCT</p></div></div>
-        <div class="pillar-item"><span class="pillar-dot orange"></span><div><p class="pillar-name">Manutenção</p><p class="pillar-src">Geotab Brasil · CNT · ANFAVEA · NTC&amp;Logística</p></div></div>
-        <div class="pillar-item"><span class="pillar-dot green"></span><div><p class="pillar-name">Pneus</p><p class="pillar-src">Bandag · Bridgestone · ANIP · Mercedes-Benz Trucks</p></div></div>
-        <div class="pillar-item"><span class="pillar-dot purple"></span><div><p class="pillar-name">CPK de referência</p><p class="pillar-src">ANTT SUROC 1/2024 · NTC&amp;Logística · ProLog App</p></div></div>
+  </header>
+
+  <main id="main-content">
+    <section id="landing" class="screen active" aria-labelledby="landing-title">
+      <div class="landing-shell">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="status-dot"></span> Check-up gratuito · 3 pilares</p>
+          <h1 id="landing-title">Sua frota enxerga os custos por veículo?</h1>
+          <p class="hero-lead">Você ou seu cliente podem avaliar, em poucos minutos, a visibilidade dos dados e a maturidade dos controles de combustível, manutenção e pneus.</p>
+          <div class="hero-actions">
+            <button id="start-button" class="button button-primary" type="button">Iniciar check-up</button>
+            <p>Resultado preliminar, sem estimativas automáticas de economia.</p>
+          </div>
+          <div id="draft-banner" class="draft-banner" hidden>
+            <div>
+              <strong>Há um preenchimento salvo neste dispositivo.</strong>
+              <span>Continue de onde parou sem perder respostas.</span>
+            </div>
+            <div class="draft-actions">
+              <button id="resume-button" class="button button-secondary button-small" type="button">Continuar</button>
+              <button id="discard-button" class="text-button" type="button">Descartar rascunho</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="checkup-overview" aria-label="O que o check-up entrega">
+          <p class="panel-kicker">Ao final, você verá</p>
+          <ul class="feature-list">
+            <li><span>01</span><div><strong>Maturidade por pilar</strong><small>Escala de 0 a 3, baseada no nível de registro e uso dos dados.</small></div></li>
+            <li><span>02</span><div><strong>Visibilidade dos controles</strong><small>O que já é acompanhado e o que ainda depende de estimativas.</small></div></li>
+            <li><span>03</span><div><strong>Prioridade de investigação</strong><small>De três a cinco pontos para orientar o próximo passo.</small></div></li>
+          </ul>
+          <div class="pillar-tags" aria-label="Pilares avaliados">
+            <span>Combustível</span>
+            <span>Manutenção</span>
+            <span>Pneus</span>
+          </div>
+        </aside>
       </div>
-    </div>
-    <p style="text-align:center;margin-top:8px"><a href="../" style="font-size:12px;color:#64748B;text-decoration:none">← Voltar para Frota na Prática</a></p>
-  </div>
-</div>
+    </section>
 
-<div id="step-1" class="screen">
-  <div class="form-topbar"><button class="back-btn" onclick="goBack()">← Voltar</button><span class="step-counter" id="step-counter-1">Etapa 1 de 6</span><span></span></div>
-  <div class="progress-track"><div class="progress-fill" id="progress-bar-1" style="width:16.67%"></div></div>
-  <div class="content-wrap"><div class="step-card">
-    <div class="step-header"><span class="step-num">1</span><div><h2 class="step-title">Dados da Frota</h2><p class="step-desc">Informações básicas sobre os seus veículos</p></div></div>
-    <div class="field"><label class="field-label">Tipo de frota</label><div class="radio-group">
-      <label class="radio-item"><input type="radio" name="frota" value="Leve"><span class="radio-box"></span><div><span class="radio-title">Leve</span><span class="radio-sub">VUC, Furgão, Utilitário</span></div></label>
-      <label class="radio-item"><input type="radio" name="frota" value="Média"><span class="radio-box"></span><div><span class="radio-title">Média</span><span class="radio-sub">Toco, Truck, Semileve</span></div></label>
-      <label class="radio-item"><input type="radio" name="frota" value="Pesada"><span class="radio-box"></span><div><span class="radio-title">Pesada</span><span class="radio-sub">Carreta, Bitrem, Rodotrem</span></div></label>
-    </div></div>
-    <div class="field"><label class="field-label" for="veiculos">Quantidade de veículos</label><input class="field-input" type="number" id="veiculos" min="1" placeholder="Ex: 10"></div>
-    <div class="field"><label class="field-label" for="km_mes">Média de km/mês por veículo</label><input class="field-input" type="number" id="km_mes" min="1" placeholder="Ex: 8000"></div>
-    <div class="nav-btns"><button class="btn-primary" onclick="goNext()">Próxima etapa →</button></div>
-  </div></div>
-</div>
+    <section id="checkup" class="screen" aria-labelledby="form-title">
+      <div class="form-shell">
+        <div class="form-status">
+          <div>
+            <p class="eyebrow">Check-up RodoCore</p>
+            <h1 id="form-title">Diagnóstico preliminar</h1>
+          </div>
+          <div class="progress-copy">
+            <span id="step-label">Etapa 1 de 4</span>
+            <span id="save-status" role="status" aria-live="polite">Rascunho salvo neste dispositivo</span>
+          </div>
+        </div>
+        <div id="progress-track" class="progress-track" role="progressbar" aria-label="Progresso do check-up" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1">
+          <span id="progress-fill"></span>
+        </div>
 
-<div id="step-2" class="screen">
-  <div class="form-topbar"><button class="back-btn" onclick="goBack()">← Voltar</button><span class="step-counter" id="step-counter-2">Etapa 2 de 6</span><span></span></div>
-  <div class="progress-track"><div class="progress-fill" id="progress-bar-2" style="width:33.33%"></div></div>
-  <div class="content-wrap"><div class="step-card">
-    <div class="step-header"><span class="step-num">2</span><div><h2 class="step-title">Combustível</h2><p class="step-desc">Consumo e gestão de combustível da frota</p></div></div>
-    <div class="field"><label class="field-label" for="comb_litros">Consumo médio (km/l)</label><input class="field-input" type="number" id="comb_litros" min="0.1" step="0.1" placeholder="Ex: 3,5" oninput="updateCombPreview()"></div>
-    <div class="field"><label class="field-label" for="comb_preco">Preço do combustível (R$/l)</label><input class="field-input" type="number" id="comb_preco" min="0.1" step="0.01" placeholder="Ex: 6,50" oninput="updateCombPreview()"></div>
-    <div id="comb-preview-box" class="comb-preview-box" style="display:none"><span id="comb-preview-txt"></span></div>
-    <div class="field"><label class="field-label">Há controle de consumo por veículo?</label><div class="radio-group">
-      <label class="radio-item"><input type="radio" name="comb_controle" value="sim"><span class="radio-box"></span><span class="radio-title">Sim, acompanho por veículo</span></label>
-      <label class="radio-item"><input type="radio" name="comb_controle" value="nao"><span class="radio-box"></span><span class="radio-title">Não faço controle individual</span></label>
-    </div></div>
-    <div class="field"><label class="field-label">Existe política de condução econômica?</label><div class="radio-group">
-      <label class="radio-item"><input type="radio" name="comb_eco" value="sim"><span class="radio-box"></span><span class="radio-title">Sim, treinamos os motoristas</span></label>
-      <label class="radio-item"><input type="radio" name="comb_eco" value="nao"><span class="radio-box"></span><span class="radio-title">Não temos essa política</span></label>
-    </div></div>
-    <div class="nav-btns"><button class="btn-primary" onclick="goNext()">Próxima etapa →</button></div>
-  </div></div>
-</div>
+        <form id="diagnostic-form" novalidate>
+          <section class="form-step active" data-step="1" aria-labelledby="step-1-title">
+            <div class="step-heading">
+              <span class="step-number">01</span>
+              <div><p class="step-kicker">Perfil inicial</p><h2 id="step-1-title">Como a frota opera hoje?</h2></div>
+            </div>
 
-<div id="step-3" class="screen">
-  <div class="form-topbar"><button class="back-btn" onclick="goBack()">← Voltar</button><span class="step-counter" id="step-counter-3">Etapa 3 de 6</span><span></span></div>
-  <div class="progress-track"><div class="progress-fill" id="progress-bar-3" style="width:50%"></div></div>
-  <div class="content-wrap"><div class="step-card">
-    <div class="step-header"><span class="step-num">3</span><div><h2 class="step-title">Manutenção</h2><p class="step-desc">Custos e gestão de manutenção da frota</p></div></div>
-    <div class="field"><label class="field-label" for="mant_custo">Custo total de manutenção por mês (R$)</label><input class="field-input" type="number" id="mant_custo" min="1" placeholder="Ex: 8000"></div>
-    <div class="field"><label class="field-label">Plano de manutenção</label><div class="radio-group">
-      <label class="radio-item"><input type="radio" name="mant_plano" value="sim"><span class="radio-box"></span><div><span class="radio-title">Plano completo</span><span class="radio-sub">Manutenção preventiva programada</span></div></label>
-      <label class="radio-item"><input type="radio" name="mant_plano" value="parcial"><span class="radio-box"></span><div><span class="radio-title">Plano parcial</span><span class="radio-sub">Parte preventiva, parte corretiva</span></div></label>
-      <label class="radio-item"><input type="radio" name="mant_plano" value="nao"><span class="radio-box"></span><div><span class="radio-title">Sem plano</span><span class="radio-sub">Conserto quando quebra</span></div></label>
-    </div></div>
-    <div class="field"><label class="field-label">Perfil de manutenção atual</label><div class="radio-group">
-      <label class="radio-item"><input type="radio" name="mant_tipo" value="prev"><span class="radio-box"></span><div><span class="radio-title">Principalmente preventiva</span><span class="radio-sub">Mais de 80% preventiva</span></div></label>
-      <label class="radio-item"><input type="radio" name="mant_tipo" value="mista"><span class="radio-box"></span><div><span class="radio-title">Mista</span><span class="radio-sub">Cerca de 60% preventiva / 40% corretiva</span></div></label>
-      <label class="radio-item"><input type="radio" name="mant_tipo" value="corr"><span class="radio-box"></span><div><span class="radio-title">Principalmente corretiva</span><span class="radio-sub">Mais de 60% corretiva</span></div></label>
-    </div></div>
-    <div class="nav-btns"><button class="btn-primary" onclick="goNext()">Próxima etapa →</button></div>
-  </div></div>
-</div>
+            <div class="field-grid two-columns">
+              <div class="field">
+                <label for="fleet_type">Tipo de frota</label>
+                <select id="fleet_type" name="fleet_type" required>
+                  <option value="">Selecione</option>
+                  <option value="Leve">Leve — VUC, furgão, utilitário</option>
+                  <option value="Média">Média — toco, truck, semileve</option>
+                  <option value="Pesada">Pesada — carreta, bitrem, rodotrem</option>
+                  <option value="Mista">Mista</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="vehicle_count">Quantidade de veículos</label>
+                <input id="vehicle_count" name="vehicle_count" type="number" min="1" max="100000" step="1" inputmode="numeric" placeholder="Ex.: 18" required>
+              </div>
+              <div class="field">
+                <label for="monthly_km">Quilometragem média mensal por veículo</label>
+                <div class="input-suffix">
+                  <input id="monthly_km" name="monthly_km" type="number" min="1" max="1000000" step="1" inputmode="numeric" placeholder="Ex.: 8.000" required>
+                  <span>km</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="route_profile">Perfil de rota</label>
+                <select id="route_profile" name="route_profile" required>
+                  <option value="">Selecione</option>
+                  <option value="Fixa">Predominantemente fixa</option>
+                  <option value="Variável">Predominantemente variável</option>
+                  <option value="Mista">Mista</option>
+                </select>
+              </div>
+              <div class="field field-wide">
+                <label for="cargo_type">Tipo principal de carga ou operação</label>
+                <input id="cargo_type" name="cargo_type" type="text" minlength="2" maxlength="80" placeholder="Ex.: carga seca fracionada" required>
+              </div>
+            </div>
 
-<div id="step-4" class="screen">
-  <div class="form-topbar"><button class="back-btn" onclick="goBack()">← Voltar</button><span class="step-counter" id="step-counter-4">Etapa 4 de 6</span><span></span></div>
-  <div class="progress-track"><div class="progress-fill" id="progress-bar-4" style="width:66.67%"></div></div>
-  <div class="content-wrap"><div class="step-card">
-    <div class="step-header"><span class="step-num">4</span><div><h2 class="step-title">Pneus</h2><p class="step-desc">Custos com pneus e política de recapagem</p></div></div>
-    <div class="field"><label class="field-label" for="pneu_custo">Custo total com pneus por mês (R$)</label><input class="field-input" type="number" id="pneu_custo" min="1" placeholder="Ex: 3500"></div>
-    <div class="field"><label class="field-label">Política de recapagem</label><div class="radio-group">
-      <label class="radio-item"><input type="radio" name="pneu_recap" value="duas"><span class="radio-box"></span><div><span class="radio-title">2 ou mais recapagens por pneu</span><span class="radio-sub">Máximo aproveitamento da carcaça</span></div></label>
-      <label class="radio-item"><input type="radio" name="pneu_recap" value="uma"><span class="radio-box"></span><div><span class="radio-title">1 recapagem por pneu</span><span class="radio-sub">Aproveitamento parcial</span></div></label>
-      <label class="radio-item"><input type="radio" name="pneu_recap" value="nao"><span class="radio-box"></span><div><span class="radio-title">Não utiliza recapagem</span><span class="radio-sub">Compra apenas pneus novos</span></div></label>
-    </div></div>
-    <div class="nav-btns"><button class="btn-primary" onclick="goNext()">Próxima etapa →</button></div>
-  </div></div>
-</div>
+            <fieldset class="question" data-question="data_granularity">
+              <legend>Até onde a empresa enxerga os dados de custo?</legend>
+              <p class="question-help">Escolha o cenário que mais se aproxima da rotina atual.</p>
+              <div class="option-grid">
+                <label class="option-card"><input type="radio" name="data_granularity" value="compare_action" required><span><strong>Por placa, com comparação e ação</strong><small>Existe responsável e os desvios geram investigação.</small></span></label>
+                <label class="option-card"><input type="radio" name="data_granularity" value="by_vehicle"><span><strong>Por placa, sem análise regular</strong><small>Os dados existem, mas nem sempre orientam decisões.</small></span></label>
+                <label class="option-card"><input type="radio" name="data_granularity" value="general_total"><span><strong>Apenas totais gerais</strong><small>Conhece o conjunto, sem detalhamento por veículo.</small></span></label>
+                <label class="option-card"><input type="radio" name="data_granularity" value="estimate"><span><strong>Principalmente estimativas</strong><small>Os valores são aproximados ou informados verbalmente.</small></span></label>
+                <label class="option-card"><input type="radio" name="data_granularity" value="unknown"><span><strong>Não sabe ou não registra</strong><small>Não há uma base disponível para consulta.</small></span></label>
+              </div>
+            </fieldset>
+          </section>
 
-<div id="step-5" class="screen">
-  <div class="form-topbar"><button class="back-btn" onclick="goBack()">← Voltar</button><span class="step-counter" id="step-counter-5">Etapa 5 de 6</span><span></span></div>
-  <div class="progress-track"><div class="progress-fill" id="progress-bar-5" style="width:83.33%"></div></div>
-  <div class="content-wrap"><div class="step-card">
-    <div class="step-header"><span class="step-num">5</span><div><h2 class="step-title">Gestão dos Pneus</h2><p class="step-desc">Práticas de manutenção e controle dos pneus</p></div></div>
-    <div class="field"><label class="field-label">Realiza controle de pressão periódico?</label><div class="radio-group">
-      <label class="radio-item"><input type="radio" name="pneu_pressao" value="sim"><span class="radio-box"></span><span class="radio-title">Sim, regularmente</span></label>
-      <label class="radio-item"><input type="radio" name="pneu_pressao" value="nao"><span class="radio-box"></span><span class="radio-title">Não faço controle regular</span></label>
-    </div></div>
-    <div class="field"><label class="field-label">Realiza rodízio periódico dos pneus?</label><div class="radio-group">
-      <label class="radio-item"><input type="radio" name="pneu_rodizio" value="sim"><span class="radio-box"></span><span class="radio-title">Sim, conforme recomendação</span></label>
-      <label class="radio-item"><input type="radio" name="pneu_rodizio" value="nao"><span class="radio-box"></span><span class="radio-title">Não realizo rodízio</span></label>
-    </div></div>
-    <div class="field"><label class="field-label">Realiza alinhamento e balanceamento periódico?</label><div class="radio-group">
-      <label class="radio-item"><input type="radio" name="pneu_alinham" value="sim"><span class="radio-box"></span><span class="radio-title">Sim, faço periodicamente</span></label>
-      <label class="radio-item"><input type="radio" name="pneu_alinham" value="nao"><span class="radio-box"></span><span class="radio-title">Não faço com regularidade</span></label>
-    </div></div>
-    <div class="nav-btns"><button class="btn-primary" onclick="goNext()">Próxima etapa →</button></div>
-  </div></div>
-</div>
+          <section class="form-step" data-step="2" aria-labelledby="step-2-title" hidden>
+            <div class="step-heading">
+              <span class="step-number fuel">02</span>
+              <div><p class="step-kicker">Pilar 1</p><h2 id="step-2-title">Combustível</h2><p>Visibilidade de consumo, abastecimento e diferenças entre veículos.</p></div>
+            </div>
 
-<div id="step-6" class="screen">
-  <div class="form-topbar"><button class="back-btn" onclick="goBack()">← Voltar</button><span class="step-counter" id="step-counter-6">Etapa 6 de 6</span><span></span></div>
-  <div class="progress-track"><div class="progress-fill" id="progress-bar-6" style="width:100%"></div></div>
-  <div class="content-wrap"><div class="step-card">
-    <div class="step-header"><span class="step-num">6</span><div><h2 class="step-title">Pronto para o diagnóstico!</h2><p class="step-desc">Vamos calcular o potencial de economia da sua frota</p></div></div>
-    <div class="alert-box blue"><p class="alert-title">Como funciona o cálculo?</p><p class="alert-body">Combinamos os dados informados com benchmarks reais do setor (ANTT, NTC&amp;Logística, Geotab, Bandag, Volvo, Scania e outros) para estimar o potencial de redução de custos nos três maiores pilares: combustível, manutenção e pneus.</p></div>
-    <div class="info-items">
-      <div class="info-item"><span class="info-dot blue"></span><span>Combustível: 5–15% de redução possível com controle e ecodriving</span></div>
-      <div class="info-item"><span class="info-dot orange"></span><span>Manutenção: 8–30% de redução com plano preventivo</span></div>
-      <div class="info-item"><span class="info-dot green"></span><span>Pneus: até 38% de redução com recapagem e gestão de pressão</span></div>
-    </div>
-    <div class="nav-btns"><button class="btn-primary btn-generate" onclick="goNext()">Gerar Diagnóstico →</button></div>
-  </div></div>
-</div>
+            <div class="field-grid two-columns">
+              <div class="field">
+                <label for="fuel_reference_kind">Referência mensal disponível</label>
+                <select id="fuel_reference_kind" name="fuel_reference_kind" required>
+                  <option value="">Selecione</option>
+                  <option value="cost">Gasto aproximado em reais</option>
+                  <option value="volume">Volume aproximado em litros</option>
+                  <option value="unknown">Não sabe informar</option>
+                  <option value="na">Não se aplica</option>
+                </select>
+              </div>
+              <div class="field" id="fuel-value-field">
+                <label for="fuel_monthly_value">Valor mensal aproximado</label>
+                <div class="input-suffix">
+                  <input id="fuel_monthly_value" name="fuel_monthly_value" type="number" min="0.01" max="1000000000" step="0.01" inputmode="decimal" placeholder="Ex.: 45.000">
+                  <span id="fuel-value-unit">R$</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="fuel_reference_quality">Origem desse valor</label>
+                <select id="fuel_reference_quality" name="fuel_reference_quality" required>
+                  <option value="">Selecione</option>
+                  <option value="documented">Relatório ou documento</option>
+                  <option value="estimated">Estimativa ou valor informado</option>
+                  <option value="unknown">Não disponível</option>
+                  <option value="na">Não se aplica</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="fleet_efficiency">Média geral da frota</label>
+                <div class="input-suffix">
+                  <input id="fleet_efficiency" name="fleet_efficiency" type="number" min="0.1" max="50" step="0.01" inputmode="decimal" placeholder="Ex.: 3,2">
+                  <span>km/l</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="fleet_efficiency_quality">Origem da média geral</label>
+                <select id="fleet_efficiency_quality" name="fleet_efficiency_quality" required>
+                  <option value="">Selecione</option>
+                  <option value="documented">Calculada com registros</option>
+                  <option value="estimated">Estimativa ou média informada</option>
+                  <option value="unknown">Não conhece</option>
+                  <option value="na">Não se aplica</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="fueling_model">Modelo de abastecimento</label>
+                <select id="fueling_model" name="fueling_model" required>
+                  <option value="">Selecione</option>
+                  <option value="Posto próprio">Posto próprio</option>
+                  <option value="Rede credenciada/cartão">Rede credenciada ou cartão</option>
+                  <option value="Postos variados">Postos variados</option>
+                  <option value="Misto">Misto</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </div>
+            </div>
 
-<div id="lead-capture" class="screen">
-  <div class="form-topbar"><button class="back-btn" onclick="goBack()">← Voltar</button><span class="step-counter" style="color:var(--green-dark)">Quase lá!</span><span></span></div>
-  <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
-  <div class="content-wrap"><div class="step-card">
-    <div class="step-header"><span class="step-num" style="background:var(--green-light);color:var(--green-dark)">✓</span><div><h2 class="step-title">Seu diagnóstico está pronto!</h2><p class="step-desc">Deixe seu contato para receber uma consultoria gratuita</p></div></div>
-    <div class="alert-box blue"><p class="alert-title">O que acontece depois?</p><p class="alert-body">Rocha entra em contato via WhatsApp para detalhar as oportunidades identificadas e apresentar um plano de ação personalizado para sua frota — sem compromisso.</p></div>
-    <div class="field"><label class="field-label" for="lead-nome">Seu nome</label><input class="field-input" type="text" id="lead-nome" placeholder="Ex: João Silva"></div>
-    <div class="field"><label class="field-label" for="lead-whatsapp">WhatsApp</label><input class="field-input" type="tel" id="lead-whatsapp" placeholder="(42) 99999-9999"></div>
-    <div class="nav-btns"><button class="btn-primary" onclick="submitLead()">Ver meu diagnóstico →</button></div>
-    <button class="btn-ghost" onclick="skipLead()">Prefiro ver sem deixar contato</button>
-  </div></div>
-</div>
+            <fieldset class="question" data-question="fuel_vehicle_average">
+              <legend>A empresa conhece e usa a média por veículo?</legend>
+              <div class="option-grid compact">
+                <label class="option-card"><input type="radio" name="fuel_vehicle_average" value="compare_action" required><span><strong>Compara e toma ação</strong><small>Há responsável e investigação de desvios.</small></span></label>
+                <label class="option-card"><input type="radio" name="fuel_vehicle_average" value="recorded"><span><strong>Registra, mas analisa pouco</strong><small>A média por veículo está disponível.</small></span></label>
+                <label class="option-card"><input type="radio" name="fuel_vehicle_average" value="general_estimate"><span><strong>Só conhece a média geral</strong><small>O valor é total ou estimado.</small></span></label>
+                <label class="option-card"><input type="radio" name="fuel_vehicle_average" value="unknown"><span><strong>Não conhece</strong><small>Não há média confiável disponível.</small></span></label>
+                <label class="option-card"><input type="radio" name="fuel_vehicle_average" value="na"><span><strong>Não se aplica</strong></span></label>
+              </div>
+            </fieldset>
 
-<div id="result" class="screen">
-  <div class="result-hero">
-    <div class="result-hero-inner">
-      <div class="result-badge">✓ Diagnóstico Concluído</div>
-      <h1 class="result-title">Sua frota pode economizar</h1>
-      <p class="result-value" id="res-economia-mes">R$ 0</p>
-      <p class="result-sub">por mês · <strong id="res-economia-ano">R$ 0</strong> por ano</p>
-    </div>
-  </div>
-  <div class="content-wrap result-content">
-    <div class="fleet-strip">
-      <div class="fleet-strip-item"><span class="fleet-strip-label">Tipo de frota</span><span class="fleet-strip-val" id="res-frota-tipo">—</span></div>
-      <div class="fleet-strip-sep"></div>
-      <div class="fleet-strip-item"><span class="fleet-strip-label">Veículos</span><span class="fleet-strip-val" id="res-frota-veiculos">—</span></div>
-      <div class="fleet-strip-sep"></div>
-      <div class="fleet-strip-item"><span class="fleet-strip-label">km/mês (média)</span><span class="fleet-strip-val" id="res-frota-km">—</span></div>
-    </div>
-    <div class="cpk-card">
-      <div class="cpk-row">
-        <div class="cpk-col"><p class="cpk-label">CPK Atual</p><p class="cpk-value" id="res-cpk-atual">—</p><p class="cpk-unit">por km rodado</p></div>
-        <div class="cpk-arrow">→</div>
-        <div class="cpk-col"><p class="cpk-label">CPK Otimizado</p><p class="cpk-value green" id="res-cpk-otim">—</p><p class="cpk-unit">por km rodado</p></div>
+            <fieldset class="question" data-question="fuel_plate_control">
+              <legend>Como funciona o controle de abastecimento por placa?</legend>
+              <div class="option-grid compact">
+                <label class="option-card"><input type="radio" name="fuel_plate_control" value="compare_action" required><span><strong>Registra, compara e bloqueia desvios</strong></span></label>
+                <label class="option-card"><input type="radio" name="fuel_plate_control" value="recorded"><span><strong>Registra por placa, sem análise regular</strong></span></label>
+                <label class="option-card"><input type="radio" name="fuel_plate_control" value="general_estimate"><span><strong>Apenas total ou controle manual parcial</strong></span></label>
+                <label class="option-card"><input type="radio" name="fuel_plate_control" value="unknown"><span><strong>Não controla por placa</strong></span></label>
+                <label class="option-card"><input type="radio" name="fuel_plate_control" value="na"><span><strong>Não se aplica</strong></span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="question" data-question="fuel_investigation">
+              <legend>Diferenças de consumo são investigadas considerando veículo, rota, carga e motorista?</legend>
+              <p class="question-help">O motorista aparece aqui somente como um fator operacional complementar.</p>
+              <div class="option-grid compact">
+                <label class="option-card"><input type="radio" name="fuel_investigation" value="systematic" required><span><strong>Sempre, com registro e ação</strong></span></label>
+                <label class="option-card"><input type="radio" name="fuel_investigation" value="occasional"><span><strong>Às vezes, sem rotina definida</strong></span></label>
+                <label class="option-card"><input type="radio" name="fuel_investigation" value="informal"><span><strong>Somente de forma informal</strong></span></label>
+                <label class="option-card"><input type="radio" name="fuel_investigation" value="none"><span><strong>Não investiga diferenças</strong></span></label>
+                <label class="option-card"><input type="radio" name="fuel_investigation" value="na"><span><strong>Não se aplica</strong></span></label>
+              </div>
+            </fieldset>
+          </section>
+
+          <section class="form-step" data-step="3" aria-labelledby="step-3-title" hidden>
+            <div class="step-heading">
+              <span class="step-number maintenance">03</span>
+              <div><p class="step-kicker">Pilar 2</p><h2 id="step-3-title">Manutenção</h2><p>Separação dos gastos, prevenção, disponibilidade e fornecedores.</p></div>
+            </div>
+
+            <div class="field-grid two-columns">
+              <div class="field">
+                <label for="maintenance_monthly_cost">Gasto mensal aproximado</label>
+                <div class="input-suffix">
+                  <input id="maintenance_monthly_cost" name="maintenance_monthly_cost" type="number" min="0.01" max="1000000000" step="0.01" inputmode="decimal" placeholder="Ex.: 18.000">
+                  <span>R$</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="maintenance_cost_quality">Origem do gasto mensal</label>
+                <select id="maintenance_cost_quality" name="maintenance_cost_quality" required>
+                  <option value="">Selecione</option>
+                  <option value="documented">Relatório ou documento</option>
+                  <option value="estimated">Estimativa ou valor informado</option>
+                  <option value="unknown">Não disponível</option>
+                  <option value="na">Não se aplica</option>
+                </select>
+              </div>
+            </div>
+
+            <fieldset class="question" data-question="maintenance_by_plate">
+              <legend>O gasto é separado por placa?</legend>
+              <div class="option-grid compact">
+                <label class="option-card"><input type="radio" name="maintenance_by_plate" value="compare_action" required><span><strong>Sim, compara e toma ação</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_by_plate" value="recorded"><span><strong>Sim, mas sem análise regular</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_by_plate" value="general_estimate"><span><strong>Apenas total geral ou estimativa</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_by_plate" value="unknown"><span><strong>Não separa</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_by_plate" value="na"><span><strong>Não se aplica</strong></span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="question" data-question="maintenance_categories">
+              <legend>Como os gastos são classificados?</legend>
+              <p class="question-help">Considere preventiva, corretiva, emergência, sinistro, falha operacional, retrabalho e garantia.</p>
+              <div class="option-grid compact">
+                <label class="option-card"><input type="radio" name="maintenance_categories" value="complete" required><span><strong>Todas as categorias, com análise</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_categories" value="basic"><span><strong>Preventiva e corretiva</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_categories" value="single_total"><span><strong>Um total sem classificação</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_categories" value="unknown"><span><strong>Não registra de forma confiável</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_categories" value="na"><span><strong>Não se aplica</strong></span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="question" data-question="maintenance_plan">
+              <legend>Existe plano de manutenção preventiva?</legend>
+              <div class="option-grid compact">
+                <label class="option-card"><input type="radio" name="maintenance_plan" value="managed" required><span><strong>Sim, com agenda, responsável e revisão</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_plan" value="scheduled"><span><strong>Sim, mas sem análise regular</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_plan" value="partial"><span><strong>Parcial ou baseado em lembrança</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_plan" value="none"><span><strong>Não existe</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_plan" value="na"><span><strong>Não se aplica</strong></span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="question" data-question="maintenance_downtime">
+              <legend>O tempo de veículo parado é controlado?</legend>
+              <div class="option-grid compact">
+                <label class="option-card"><input type="radio" name="maintenance_downtime" value="managed" required><span><strong>Mede, compara e atua nas causas</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_downtime" value="recorded"><span><strong>Registra, mas analisa pouco</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_downtime" value="informal"><span><strong>Acompanha informalmente</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_downtime" value="none"><span><strong>Não controla</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_downtime" value="na"><span><strong>Não se aplica</strong></span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="question" data-question="maintenance_supplier_control">
+              <legend>Fornecedor, orçamento e garantia são acompanhados?</legend>
+              <div class="option-grid compact">
+                <label class="option-card"><input type="radio" name="maintenance_supplier_control" value="managed" required><span><strong>Compara fornecedor, orçamento e garantia</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_supplier_control" value="recorded"><span><strong>Registra os três, sem análise regular</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_supplier_control" value="partial"><span><strong>Controla apenas parte</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_supplier_control" value="none"><span><strong>Não controla</strong></span></label>
+                <label class="option-card"><input type="radio" name="maintenance_supplier_control" value="na"><span><strong>Não se aplica</strong></span></label>
+              </div>
+            </fieldset>
+          </section>
+
+          <section class="form-step" data-step="4" aria-labelledby="step-4-title" hidden>
+            <div class="step-heading">
+              <span class="step-number tires">04</span>
+              <div><p class="step-kicker">Pilar 3</p><h2 id="step-4-title">Pneus</h2><p>Identificação, vida útil, rotinas, descarte e decisão de compra.</p></div>
+            </div>
+
+            <div class="field-grid two-columns">
+              <div class="field">
+                <label for="tires_monthly_cost">Gasto com pneus, recapagens e serviços</label>
+                <div class="input-suffix">
+                  <input id="tires_monthly_cost" name="tires_monthly_cost" type="number" min="0.01" max="1000000000" step="0.01" inputmode="decimal" placeholder="Ex.: 9.500">
+                  <span>R$</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="tires_cost_quality">Origem do gasto informado</label>
+                <select id="tires_cost_quality" name="tires_cost_quality" required>
+                  <option value="">Selecione</option>
+                  <option value="documented">Relatório ou documento</option>
+                  <option value="estimated">Estimativa ou valor informado</option>
+                  <option value="unknown">Não disponível</option>
+                  <option value="na">Não se aplica</option>
+                </select>
+              </div>
+            </div>
+
+            <fieldset class="question" data-question="tires_individual_id">
+              <legend>Os pneus são identificados individualmente?</legend>
+              <div class="option-grid compact">
+                <label class="option-card"><input type="radio" name="tires_individual_id" value="managed" required><span><strong>Sim, com histórico e análise</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_individual_id" value="recorded"><span><strong>Sim, mas sem análise regular</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_individual_id" value="partial"><span><strong>Parcialmente ou por anotação</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_individual_id" value="none"><span><strong>Não identifica</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_individual_id" value="na"><span><strong>Não se aplica</strong></span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="question" data-question="tires_metrics">
+              <legend>A empresa conhece quilometragem, vida e CPK de cada pneu?</legend>
+              <div class="option-grid compact">
+                <label class="option-card"><input type="radio" name="tires_metrics" value="managed" required><span><strong>Conhece, compara e toma ação</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_metrics" value="recorded"><span><strong>Registra os dados, mas analisa pouco</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_metrics" value="partial"><span><strong>Conhece apenas parte ou por estimativa</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_metrics" value="none"><span><strong>Não conhece</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_metrics" value="na"><span><strong>Não se aplica</strong></span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="question" data-question="tires_routines">
+              <legend>Calibragem, rodízio, alinhamento e inspeção têm rotina?</legend>
+              <div class="option-grid compact">
+                <label class="option-card"><input type="radio" name="tires_routines" value="managed" required><span><strong>Todos, com agenda e verificação</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_routines" value="recorded"><span><strong>Todos, sem análise regular</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_routines" value="partial"><span><strong>Somente parte das rotinas</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_routines" value="none"><span><strong>Não há rotina definida</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_routines" value="na"><span><strong>Não se aplica</strong></span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="question" data-question="tires_discards">
+              <legend>Descartes e suas causas são registrados?</legend>
+              <div class="option-grid compact">
+                <label class="option-card"><input type="radio" name="tires_discards" value="managed" required><span><strong>Registra, compara causas e age</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_discards" value="recorded"><span><strong>Registra, sem análise regular</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_discards" value="informal"><span><strong>Apenas anotação ou memória</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_discards" value="none"><span><strong>Não registra</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_discards" value="na"><span><strong>Não se aplica</strong></span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="question" data-question="tires_purchasing">
+              <legend>Como são escolhidos pneus e recapagens?</legend>
+              <div class="option-grid compact">
+                <label class="option-card"><input type="radio" name="tires_purchasing" value="evidence" required><span><strong>Por resultado comprovado e CPK</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_purchasing" value="comparison"><span><strong>Compara desempenho, sem CPK consolidado</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_purchasing" value="price_mixed"><span><strong>Preço pesa mais que o resultado</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_purchasing" value="price_only"><span><strong>Somente por preço</strong></span></label>
+                <label class="option-card"><input type="radio" name="tires_purchasing" value="na"><span><strong>Não se aplica</strong></span></label>
+              </div>
+            </fieldset>
+          </section>
+
+          <div id="form-error" class="form-error" role="alert" aria-live="assertive" hidden></div>
+          <div class="form-navigation">
+            <button id="previous-button" class="button button-secondary" type="button">← Voltar</button>
+            <button id="next-button" class="button button-primary" type="button">Continuar →</button>
+          </div>
+        </form>
       </div>
-      <div class="cpk-gauge">
-        <div class="cpk-gauge-track"><div class="cpk-gauge-range" id="res-gauge-range"></div><div class="cpk-gauge-dot atual" id="res-gauge-dot-atual"></div><div class="cpk-gauge-dot otim" id="res-gauge-dot-otim"></div></div>
-        <div class="cpk-gauge-labels"><span class="cpk-gauge-lbl-min" id="res-gauge-min">—</span><span class="cpk-gauge-lbl-mid">Benchmark do setor</span><span class="cpk-gauge-lbl-max" id="res-gauge-max">—</span></div>
-        <div class="cpk-gauge-legend"><span class="l-atual">Seu CPK atual</span><span class="l-otim">CPK otimizado</span><span class="l-bench">Zona de referência</span></div>
-      </div>
-      <div class="cpk-footer"><span id="res-cpk-badge" class="badge-pill yellow">Na média do setor</span><span id="res-bench-range" class="bench-range">—</span></div>
-    </div>
-    <div class="pillar-cards">
-      <div class="pillar-card fuel"><div class="pillar-card-header"><span class="pillar-card-dot blue"></span><span class="pillar-card-name">Combustível</span><span class="pillar-card-pct" id="res-comb-pct">0%</span></div><p class="pillar-card-custo" id="res-comb-custo">—</p><p class="pillar-card-sublabel">custo atual / mês</p><div class="pillar-card-bar-wrap"><div class="pillar-card-bar blue" id="res-comb-bar" style="width:0%"></div></div><p class="pillar-card-eco" id="res-comb-eco">—</p><p class="pillar-card-sublabel">potencial de economia</p></div>
-      <div class="pillar-card maint"><div class="pillar-card-header"><span class="pillar-card-dot orange"></span><span class="pillar-card-name">Manutenção</span><span class="pillar-card-pct" id="res-mant-pct">0%</span></div><p class="pillar-card-custo" id="res-mant-custo">—</p><p class="pillar-card-sublabel">custo atual / mês</p><div class="pillar-card-bar-wrap"><div class="pillar-card-bar orange" id="res-mant-bar" style="width:0%"></div></div><p class="pillar-card-eco" id="res-mant-eco">—</p><p class="pillar-card-sublabel">potencial de economia</p></div>
-      <div class="pillar-card tire"><div class="pillar-card-header"><span class="pillar-card-dot green"></span><span class="pillar-card-name">Pneus</span><span class="pillar-card-pct" id="res-pneu-pct">0%</span></div><p class="pillar-card-custo" id="res-pneu-custo">—</p><p class="pillar-card-sublabel">custo atual / mês</p><div class="pillar-card-bar-wrap"><div class="pillar-card-bar green" id="res-pneu-bar" style="width:0%"></div></div><p class="pillar-card-eco" id="res-pneu-eco">—</p><p class="pillar-card-sublabel">potencial de economia</p></div>
-    </div>
-    <div class="eco-total">
-      <p class="eco-label">Potencial total de redução</p>
-      <p class="eco-value" id="res-eco-mes-big">—</p>
-      <p class="eco-sub">por mês · <strong id="res-eco-ano-big">—</strong> por ano</p>
-      <div class="eco-pct-row"><div class="eco-pct-bar-wrap"><div class="eco-pct-bar" id="res-eco-bar" style="width:0%"></div></div><span class="eco-pct" id="res-pct-eco">0%</span></div>
-      <p class="eco-pct-label">do custo total analisado</p>
-    </div>
-    <div id="attn-section" class="card attn-section"><p class="card-label">⚠ Pontos de atenção identificados</p><div id="res-atencao" class="attn-group"></div></div>
-    <div class="cta-card">
-      <p class="cta-title" id="cta-greeting">Quer implementar essas melhorias?</p>
-      <p class="cta-body" id="cta-segment-msg">Nosso time pode ajudar sua frota a atingir esse potencial de economia com um plano de ação personalizado.</p>
-      <p class="urgency-note">📅 Agenda limitada — atendemos até 5 novos clientes por mês</p>
-      <button class="btn-pdf-report" onclick="gerarPDF()">⬇ Baixar Relatório em PDF</button>
-      <button class="btn-cta-full" onclick="abrirWhatsApp()">💬 Falar com especialista no WhatsApp</button>
-      <button class="btn-ghost" onclick="restart()">Refazer diagnóstico</button>
-    </div>
-  </div>
-</div>
+    </section>
 
-<div id="toast" class="toast"></div>
-<script src="app.js"></script>
+    <section id="result" class="screen" aria-labelledby="result-title">
+      <div class="result-shell">
+        <div class="result-heading">
+          <div>
+            <p class="eyebrow"><span class="status-dot"></span> Check-up concluído</p>
+            <h1 id="result-title">Mapa preliminar de maturidade</h1>
+            <p id="result-profile">—</p>
+          </div>
+          <div class="result-actions">
+            <button id="print-button" class="button button-secondary button-small" type="button">Imprimir resumo</button>
+            <button id="edit-button" class="text-button" type="button">Revisar respostas</button>
+          </div>
+        </div>
+
+        <div class="preliminary-notice">
+          <strong>Leitura preliminar</strong>
+          <p>Este check-up organiza as respostas informadas. Ele não comprova desperdício, perda financeira ou potencial de economia. A validação exige documentos, amostras e contexto operacional.</p>
+        </div>
+
+        <section class="visibility-card" aria-labelledby="visibility-title">
+          <div><p class="panel-kicker">Visibilidade geral dos custos</p><h2 id="visibility-title">Nível <span id="visibility-level">—</span></h2></div>
+          <p id="visibility-description">—</p>
+        </section>
+
+        <section aria-labelledby="maturity-title">
+          <div class="section-heading"><p class="panel-kicker">Escala de 0 a 3</p><h2 id="maturity-title">Maturidade por pilar</h2></div>
+          <div id="maturity-grid" class="maturity-grid"></div>
+        </section>
+
+        <div class="result-columns">
+          <section class="result-panel" aria-labelledby="controlled-title">
+            <div class="panel-icon controlled">✓</div>
+            <p class="panel-kicker">Base existente</p>
+            <h2 id="controlled-title">O que já está sob controle</h2>
+            <ul id="controlled-list" class="result-list"></ul>
+          </section>
+          <section class="result-panel" aria-labelledby="estimated-title">
+            <div class="panel-icon estimated">~</div>
+            <p class="panel-kicker">Qualidade do dado</p>
+            <h2 id="estimated-title">O que ainda é estimativa</h2>
+            <ul id="estimated-list" class="result-list"></ul>
+          </section>
+        </div>
+
+        <section class="attention-panel" aria-labelledby="attention-title">
+          <div class="section-heading"><p class="panel-kicker">Foco da investigação</p><h2 id="attention-title">Pontos de atenção</h2></div>
+          <ol id="attention-list" class="attention-list"></ol>
+        </section>
+
+        <section class="priority-panel" aria-labelledby="priority-title">
+          <div>
+            <p class="panel-kicker">Primeiro passo recomendado</p>
+            <h2 id="priority-title">Investigar <span id="priority-pillar">—</span> primeiro</h2>
+            <p id="priority-reason">—</p>
+          </div>
+          <div class="priority-index"><span>Nível atual</span><strong id="priority-level">—</strong><small>de 3</small></div>
+        </section>
+
+        <section class="contact-panel" aria-labelledby="contact-title">
+          <div class="contact-copy">
+            <p class="panel-kicker gold">Diagnóstico Executivo RodoCore</p>
+            <h2 id="contact-title">Quer validar este cenário com evidências?</h2>
+            <p>Solicite uma conversa para transformar o check-up em uma investigação documentada. O resultado acima continua disponível sem cadastro.</p>
+            <a id="whatsapp-link" class="whatsapp-link" href="https://wa.me/5542998582489" target="_blank" rel="noopener">Preferir atendimento direto pelo WhatsApp →</a>
+          </div>
+          <form id="contact-form" class="contact-form" novalidate>
+            <div class="field">
+              <label for="contact_name">Nome</label>
+              <input id="contact_name" name="contact_name" type="text" minlength="2" maxlength="80" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="contact_company">Empresa</label>
+              <input id="contact_company" name="contact_company" type="text" minlength="2" maxlength="120" autocomplete="organization" required>
+            </div>
+            <div class="field">
+              <label for="contact_whatsapp">WhatsApp</label>
+              <input id="contact_whatsapp" name="contact_whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(42) 99999-9999" required>
+            </div>
+            <label class="consent">
+              <input id="contact_consent" name="contact_consent" type="checkbox" required>
+              <span>Autorizo a RodoCore a usar nome, empresa, WhatsApp e o resumo deste check-up exclusivamente para responder ao meu pedido de atendimento.</span>
+            </label>
+            <p id="integration-note" class="integration-note" hidden></p>
+            <div id="contact-status" class="contact-status" role="status" aria-live="polite"></div>
+            <button id="contact-submit" class="button button-gold" type="submit">Solicitar contato</button>
+          </form>
+        </section>
+
+        <div class="result-footer-actions">
+          <button id="restart-button" class="text-button" type="button">Fazer um novo check-up</button>
+          <a href="../">Voltar ao site RodoCore →</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div><span>RodoCore</span><span>Check-up gratuito de gestão de frota</span></div>
+    <p>Seus rascunhos ficam somente neste dispositivo até que você solicite atendimento e aceite o consentimento.</p>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
