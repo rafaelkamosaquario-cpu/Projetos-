@@ -10,11 +10,18 @@ test('builds safe report data without requiring the browser', () => {
     contact: { full_name: 'Responsável Operacional' },
     consultantName: 'Consultor Teste',
     diagnostic: { title: 'Diagnóstico Executivo', completed_at: '2026-09-03T12:00:00Z' },
-    summary: { pillars: [], priority: { name: 'Pneus', level: 1 }, gaps: [], strengths: [] }
+    summary: {
+      pillars: [],
+      fuelSpend: { has_data: true, monthly_spend: 200000, monthly_liters: 30000, monthly_average_price: 6.6667 },
+      priority: { name: 'Pneus', level: 1 },
+      gaps: [],
+      strengths: []
+    }
   });
   assert.equal(data.companyName, 'Transportes Águia Ltda.');
   assert.equal(data.fleetSize, '18');
   assert.equal(data.priority.name, 'Pneus');
+  assert.equal(data.fuelSpend.monthly_spend, 200000);
   assert.match(data.disclaimer, /preliminar/i);
 });
 
