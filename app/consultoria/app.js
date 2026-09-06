@@ -428,7 +428,14 @@
       state.companyId = diagnostic.company_id;
       state.answers = {};
       (result.data || []).forEach(function (row) {
-        state.answers[row.question_key] = { classification: row.classification, notes: row.notes || '' };
+        state.answers[row.question_key] = {
+          classification: row.classification,
+          notes: row.notes || '',
+          details: model.normalizeQuestionDetails(
+            row.question_key,
+            row.answer_payload && row.answer_payload.details
+          )
+        };
       });
       state.pillarIndex = Math.min(3, Math.max(0, diagnostic.current_step || 0));
       if (diagnostic.status === 'completed') {
@@ -456,6 +463,144 @@
     }).join('');
   }
 
+  function formatDetailNumber(value, maximumFractionDigits) {
+    var number = Number(value);
+    if (!Number.isFinite(number)) return 'Não informado';
+    return new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: maximumFractionDigits === undefined ? 2 : maximumFractionDigits
+    }).format(number);
+  }
+
+  function formatDetailMoney(value) {
+    var number = Number(value);
+    if (!Number.isFinite(number)) return 'Não informado';
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2
+    }).format(number);
+  }
+
+  function formatReferenceMonth(value) {
+    if (!/^\d{4}-\d{2}$/.test(value || '')) return 'Não informado';
+    var parts = value.split('-');
+    return parts[1] + '/' + parts[0];
+  }
+
+  function detailValue(details, key) {
+    return details[key] === null || details[key] === undefined ? '' : details[key];
+  }
+
+  function renderDetailNumberField(label, key, details, placeholder, step) {
+    return '<div class="field"><label for="fuel-detail-' + escapeHtml(key) + '">' + escapeHtml(label) + '</label><input id="fuel-detail-' +
+      escapeHtml(key) + '" type="number" min="0" max="1000000000000" step="' + escapeHtml(step || '0.01') + '" inputmode="decimal" ' +
+      'data-question-detail="fuel_spend" data-detail-field="' + escapeHtml(key) + '" value="' + escapeHtml(detailValue(details, key)) +
+      '" placeholder="' + escapeHtml(placeholder || '') + '"></div>';
+  }
+
+  function renderDetailChoices(group, label, options, details) {
+    var selected = Array.isArray(details[group]) ? details[group] : [];
+    return '<div class="detail-choice-group"><span class="detail-label">' + escapeHtml(label) + '</span><div class="detail-choice-grid">' +
+      options.map(function (option) {
+        return '<label class="detail-choice"><input type="checkbox" data-question-detail="fuel_spend" data-detail-group="' +
+          escapeHtml(group) + '" value="' + escapeHtml(option.value) + '"' + (selected.indexOf(option.value) !== -1 ? ' checked' : '') +
+          '><span>' + escapeHtml(option.label) + '</span></label>';
+      }).join('') + '</div></div>';
+  }
+
+  function renderDetailScale(field, label, details) {
+    var labels = { D: 'Documentado', E: 'Estimado', N: 'Não controla', NA: 'Não se aplica' };
+    return '<div class="detail-status-group"><span class="detail-label">' + escapeHtml(label) + '</span><div class="detail-scale">' +
+      Object.keys(labels).map(function (key) {
+        return '<label><input type="radio" name="fuel-spend-' + escapeHtml(field) + '" data-question-detail="fuel_spend" data-detail-field="' +
+          escapeHtml(field) + '" value="' + key + '"' + (details[field] === key ? ' checked' : '') + '><span><strong>' + key +
+          '</strong>' + escapeHtml(labels[key]) + '</span></label>';
+      }).join('') + '</div></div>';
+  }
+
+  function renderDetailSelect(label, field, details, options) {
+    return '<div class="field"><label for="fuel-detail-' + escapeHtml(field) + '">' + escapeHtml(label) + '</label><select id="fuel-detail-' +
+      escapeHtml(field) + '" data-question-detail="fuel_spend" data-detail-field="' + escapeHtml(field) + '"><option value="">Selecione</option>' +
+      options.map(function (option) {
+        return '<option value="' + escapeHtml(option.value) + '"' + (details[field] === option.value ? ' selected' : '') + '>' +
+          escapeHtml(option.label) + '</option>';
+      }).join('') + '</select></div>';
+  }
+
+  function renderPriceMetric(period, label, value) {
+    return '<div class="calculated-metric"><span>' + escapeHtml(label) + '</span><strong data-calculated-price="' + escapeHtml(period) + '">' +
+      (typeof value === 'number' ? formatDetailMoney(value) + '/l' : 'Preencha reais e litros') + '</strong></div>';
+  }
+
+  function renderFuelSpendDetails(current) {
+    if (!model.CLASSIFICATIONS[current.classification]) {
+      return '<div class="question-detail-prompt"><strong>Roteiro da visita</strong><span>Selecione D, E, N ou NA para abrir o detalhamento desta pergunta.</span></div>';
+    }
+    var details = current.details || {};
+    var snapshot = model.fuelSpendSnapshot(details);
+    var standardOptions = [
+      { value: 'yes', label: 'Sim' },
+      { value: 'partial', label: 'Parcialmente' },
+      { value: 'no', label: 'Não' },
+      { value: 'unknown', label: 'Não soube informar' }
+    ];
+    return '<section class="question-detail-panel" aria-label="Detalhamento do gasto e volume de combustível">' +
+      '<header><span>ROTEIRO DA VISITA · PERGUNTA 01</span><h4>Gasto, volume e histórico de combustível</h4><p>Preencha somente o que o cliente conseguir informar. Os cálculos são automáticos e não alteram a classificação escolhida.</p></header>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>01</span><div><h5>Referência mensal</h5><p>Registre o gasto e o volume de um mês representativo.</p></div></div>' +
+      '<div class="field-grid detail-grid">' +
+      renderDetailNumberField('Gasto mensal (R$)', 'monthly_spend', details, 'Ex.: 200000', '0.01') +
+      renderDetailNumberField('Volume mensal (litros)', 'monthly_liters', details, 'Ex.: 30000', '0.001') +
+      '<div class="field"><label for="fuel-detail-reference-month">Mês e ano de referência</label><input id="fuel-detail-reference-month" type="month" data-question-detail="fuel_spend" data-detail-field="reference_month" value="' + escapeHtml(detailValue(details, 'reference_month')) + '"></div>' +
+      renderPriceMetric('monthly', 'Preço médio calculado', snapshot.monthly_average_price) + '</div>' +
+      renderDetailChoices('fuel_types', 'Combustíveis e produtos considerados', [
+        { value: 'diesel_s10', label: 'Diesel S10' }, { value: 'diesel_s500', label: 'Diesel S500' },
+        { value: 'arla32', label: 'Arla 32' }, { value: 'gasoline', label: 'Gasolina' },
+        { value: 'ethanol', label: 'Etanol' }, { value: 'other', label: 'Outro' }
+      ], details) + '<div class="field"><label for="fuel-detail-fuel-other">Outro combustível ou produto</label><input id="fuel-detail-fuel-other" type="text" maxlength="120" data-question-detail="fuel_spend" data-detail-field="fuel_type_other" value="' + escapeHtml(detailValue(details, 'fuel_type_other')) + '" placeholder="Informe quando necessário"></div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>02</span><div><h5>Histórico disponível</h5><p>Compare a informação mensal com os acumulados de seis e doze meses.</p></div></div>' +
+      renderDetailScale('six_month_history', 'A empresa possui histórico dos últimos 6 meses?', details) +
+      '<div class="field-grid detail-grid">' + renderDetailNumberField('Gasto em 6 meses (R$)', 'six_month_spend', details, 'Total do período', '0.01') +
+      renderDetailNumberField('Volume em 6 meses (litros)', 'six_month_liters', details, 'Total do período', '0.001') +
+      renderPriceMetric('six_month', 'Preço médio em 6 meses', snapshot.six_month_average_price) + '</div>' +
+      renderDetailScale('annual_history', 'A empresa possui histórico dos últimos 12 meses?', details) +
+      '<div class="field-grid detail-grid">' + renderDetailNumberField('Gasto em 12 meses (R$)', 'annual_spend', details, 'Total do período', '0.01') +
+      renderDetailNumberField('Volume em 12 meses (litros)', 'annual_liters', details, 'Total do período', '0.001') +
+      renderPriceMetric('annual', 'Preço médio em 12 meses', snapshot.annual_average_price) + '</div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>03</span><div><h5>Fonte e pagamento</h5><p>Identifique de onde vieram os números e como os fornecedores são pagos.</p></div></div>' +
+      renderDetailChoices('data_sources', 'Fontes da informação', [
+        { value: 'fuel_card', label: 'Cartão de combustível' }, { value: 'erp', label: 'ERP ou sistema' },
+        { value: 'spreadsheet', label: 'Planilha' }, { value: 'invoices', label: 'Notas fiscais' },
+        { value: 'own_tank', label: 'Controle do tanque próprio' }, { value: 'other', label: 'Outra fonte' }
+      ], details) + '<div class="field"><label for="fuel-detail-source-other">Outra fonte</label><input id="fuel-detail-source-other" type="text" maxlength="240" data-question-detail="fuel_spend" data-detail-field="data_source_other" value="' + escapeHtml(detailValue(details, 'data_source_other')) + '"></div>' +
+      renderDetailChoices('payment_methods', 'Formas de pagamento', [
+        { value: 'fuel_card', label: 'Cartão' }, { value: 'bank_slip', label: 'Boleto ou faturado' },
+        { value: 'cash', label: 'À vista' }, { value: 'pix', label: 'Pix' },
+        { value: 'bank_transfer', label: 'Transferência' }, { value: 'other', label: 'Outra forma' }
+      ], details) + '<div class="field-grid two-columns">' +
+      '<div class="field"><label for="fuel-detail-payment-other">Outra forma de pagamento</label><input id="fuel-detail-payment-other" type="text" maxlength="240" data-question-detail="fuel_spend" data-detail-field="payment_other" value="' + escapeHtml(detailValue(details, 'payment_other')) + '"></div>' +
+      renderDetailSelect('Gasto, volume e documentos estão consolidados?', 'values_consolidated', details, standardOptions) + '</div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>04</span><div><h5>Abastecimento interno e externo</h5><p>Separe o volume do tanque próprio e dos postos externos.</p></div></div>' +
+      '<div class="field-grid detail-grid">' + renderDetailSelect('Possui posto ou tanque interno?', 'internal_station', details, [
+        { value: 'yes', label: 'Sim' }, { value: 'no', label: 'Não' }, { value: 'unknown', label: 'Não soube informar' }
+      ]) + renderDetailNumberField('Volume interno por mês (litros)', 'internal_monthly_liters', details, 'Ex.: 20000', '0.001') +
+      renderDetailNumberField('Volume externo por mês (litros)', 'external_monthly_liters', details, 'Ex.: 10000', '0.001') + '</div>' +
+      '<div class="field"><label for="fuel-detail-external-stations">Postos externos utilizados</label><textarea id="fuel-detail-external-stations" rows="3" maxlength="1000" data-question-detail="fuel_spend" data-detail-field="external_stations" placeholder="Nome do posto, cidade, fornecedor ou informação de preço.">' + escapeHtml(detailValue(details, 'external_stations')) + '</textarea></div>' +
+      '<div class="field-grid two-columns">' + renderDetailSelect('Os postos e fornecedores são cadastrados?', 'suppliers_registered', details, standardOptions) +
+      renderDetailSelect('A empresa identifica onde o combustível está mais barato?', 'cheapest_station_tracked', details, standardOptions) + '</div></div></section>';
+  }
+
+  function updateFuelSpendCalculations() {
+    var answer = state.answers.fuel_spend || {};
+    var snapshot = model.fuelSpendSnapshot(answer.details || {});
+    [
+      ['monthly', snapshot.monthly_average_price],
+      ['six_month', snapshot.six_month_average_price],
+      ['annual', snapshot.annual_average_price]
+    ].forEach(function (entry) {
+      var element = elements.questionList.querySelector('[data-calculated-price="' + entry[0] + '"]');
+      if (element) element.textContent = typeof entry[1] === 'number' ? formatDetailMoney(entry[1]) + '/l' : 'Preencha reais e litros';
+    });
+  }
+
   function renderQuestions() {
     var pillar = model.PILLARS[state.pillarIndex];
     var questions = model.visibleQuestions(state.answers, pillar.key);
@@ -467,9 +612,10 @@
           '" value="' + key + '" data-question-key="' + escapeHtml(question.key) + '"' + (current.classification === key ? ' checked' : '') +
           '><span><strong>' + key + '</strong>' + escapeHtml(definition.label) + '</span></label>';
       }).join('');
+      var detailPanel = question.key === 'fuel_spend' ? renderFuelSpendDetails(current) : '';
       return '<fieldset class="question-card" data-question-card="' + escapeHtml(question.key) + '"><legend>' +
         String(questionIndex + 1).padStart(2, '0') + '. ' + escapeHtml(question.title) + '</legend><p class="question-help">' +
-        escapeHtml(question.help) + '</p><div class="answer-options">' + options + '</div><details class="question-notes"' +
+        escapeHtml(question.help) + '</p><div class="answer-options">' + options + '</div>' + detailPanel + '<details class="question-notes"' +
         (current.notes ? ' open' : '') + '><summary>Adicionar observação</summary><textarea rows="2" maxlength="4000" data-question-notes="' +
         escapeHtml(question.key) + '" placeholder="Evidência, fonte ou ponto a validar.">' + escapeHtml(current.notes || '') + '</textarea></details></fieldset>';
     }).join('');
@@ -599,6 +745,52 @@
     showToast('Diagnóstico concluído e salvo.');
   }
 
+  function detailLabels(values, labels, other) {
+    var list = Array.isArray(values) ? values.map(function (value) { return labels[value]; }).filter(Boolean) : [];
+    if (other) list.push(other);
+    return list.length ? list.join(', ') : 'Não informado';
+  }
+
+  function renderFuelSpendResult(snapshot) {
+    var panel = document.getElementById('fuel-spend-summary');
+    if (!snapshot || !snapshot.has_data) {
+      panel.hidden = true;
+      panel.innerHTML = '';
+      return;
+    }
+    var fuelLabels = {
+      diesel_s10: 'Diesel S10', diesel_s500: 'Diesel S500', arla32: 'Arla 32',
+      gasoline: 'Gasolina', ethanol: 'Etanol', other: 'Outro'
+    };
+    var sourceLabels = {
+      fuel_card: 'Cartão de combustível', erp: 'ERP ou sistema', spreadsheet: 'Planilha',
+      invoices: 'Notas fiscais', own_tank: 'Controle do tanque próprio', other: 'Outra fonte'
+    };
+    var paymentLabels = {
+      fuel_card: 'Cartão', bank_slip: 'Boleto ou faturado', cash: 'À vista',
+      pix: 'Pix', bank_transfer: 'Transferência', other: 'Outra forma'
+    };
+    var statusLabels = { yes: 'Sim', partial: 'Parcialmente', no: 'Não', unknown: 'Não informado', D: 'Documentado', E: 'Estimado', N: 'Não controla', NA: 'Não se aplica' };
+    panel.hidden = false;
+    panel.innerHTML = '<div class="fuel-result-header"><div><p class="panel-kicker">Pergunta 01 · Combustível</p><h2>Leitura de gasto e volume</h2></div><span class="badge">' +
+      escapeHtml(formatReferenceMonth(snapshot.reference_month)) + '</span></div><div class="fuel-result-metrics">' +
+      '<div><span>Gasto mensal</span><strong>' + escapeHtml(formatDetailMoney(snapshot.monthly_spend)) + '</strong></div>' +
+      '<div><span>Volume mensal</span><strong>' + escapeHtml(formatDetailNumber(snapshot.monthly_liters, 3)) + ' l</strong></div>' +
+      '<div><span>Preço médio mensal</span><strong>' + (typeof snapshot.monthly_average_price === 'number' ? escapeHtml(formatDetailMoney(snapshot.monthly_average_price)) + '/l' : 'Não calculado') + '</strong></div>' +
+      '<div><span>Histórico de 6 meses</span><strong>' + escapeHtml(statusLabels[snapshot.six_month_history] || 'Não informado') + '</strong><small>' +
+        escapeHtml(formatDetailMoney(snapshot.six_month_spend)) + ' · ' + escapeHtml(formatDetailNumber(snapshot.six_month_liters, 3)) + ' l</small></div>' +
+      '<div><span>Histórico de 12 meses</span><strong>' + escapeHtml(statusLabels[snapshot.annual_history] || 'Não informado') + '</strong><small>' +
+        escapeHtml(formatDetailMoney(snapshot.annual_spend)) + ' · ' + escapeHtml(formatDetailNumber(snapshot.annual_liters, 3)) + ' l</small></div>' +
+      '<div><span>Consolidação</span><strong>' + escapeHtml(statusLabels[snapshot.values_consolidated] || 'Não informado') + '</strong></div></div>' +
+      '<div class="fuel-result-context"><p><strong>Produtos:</strong> ' + escapeHtml(detailLabels(snapshot.fuel_types, fuelLabels, snapshot.fuel_type_other)) + '</p>' +
+      '<p><strong>Fontes:</strong> ' + escapeHtml(detailLabels(snapshot.data_sources, sourceLabels, snapshot.data_source_other)) + '</p>' +
+      '<p><strong>Pagamentos:</strong> ' + escapeHtml(detailLabels(snapshot.payment_methods, paymentLabels, snapshot.payment_other)) + '</p>' +
+      '<p><strong>Posto interno:</strong> ' + escapeHtml(statusLabels[snapshot.internal_station] || 'Não informado') +
+      ' · <strong>Volume interno:</strong> ' + escapeHtml(formatDetailNumber(snapshot.internal_monthly_liters, 3)) + ' l' +
+      ' · <strong>Volume externo:</strong> ' + escapeHtml(formatDetailNumber(snapshot.external_monthly_liters, 3)) + ' l</p>' +
+      (snapshot.external_stations ? '<p><strong>Postos externos:</strong> ' + escapeHtml(snapshot.external_stations) + '</p>' : '') + '</div>';
+  }
+
   function renderResult(diagnostic) {
     var summary = diagnostic.preliminary_summary && diagnostic.preliminary_summary.pillars ? diagnostic.preliminary_summary : model.evaluate(state.answers);
     var company = companyById(diagnostic.company_id);
@@ -608,6 +800,7 @@
         pillar.level + '/3</strong></div><div class="maturity-bar"><span style="width:' + ((pillar.level / 3) * 100) + '%"></span></div><p><strong>' +
         escapeHtml(pillar.label) + '</strong><br>' + escapeHtml(pillar.description) + '</p></article>';
     }).join('');
+    renderFuelSpendResult(summary.fuelSpend);
     document.getElementById('priority-title').textContent = summary.priority.name + ' — nível ' + summary.priority.level + '/3';
     document.getElementById('priority-copy').textContent = 'Este é o pilar inicial para aprofundar evidências e organizar a primeira frente de trabalho.';
     document.getElementById('gap-list').innerHTML = summary.gaps.length ? summary.gaps.map(function (gap) {
@@ -714,7 +907,7 @@
       queueAutosave();
     });
     elements.diagnosticForm.addEventListener('input', function (event) {
-      var key = event.target.dataset.questionKey || event.target.dataset.questionNotes;
+      var key = event.target.dataset.questionKey || event.target.dataset.questionNotes || event.target.dataset.questionDetail;
       if (!key) {
         if (event.target === elements.generalNotes) {
           state.diagnostic.general_notes = elements.generalNotes.value;
@@ -722,20 +915,37 @@
         }
         return;
       }
-      state.answers[key] = state.answers[key] || { classification: '', notes: '' };
+      state.answers[key] = state.answers[key] || { classification: '', notes: '', details: {} };
       if (event.target.dataset.questionKey) {
         state.answers[key].classification = event.target.value;
         var controlsConditional = model.QUESTIONS.some(function (question) {
           return question.condition && question.condition.key === key;
         });
-        if (controlsConditional) {
+        if (controlsConditional || key === 'fuel_spend') {
           renderPillarTabs();
           renderQuestions();
         } else {
           renderPillarTabs();
         }
-      } else {
+      } else if (event.target.dataset.questionNotes) {
         state.answers[key].notes = event.target.value;
+      } else {
+        state.answers[key].details = state.answers[key].details || {};
+        var details = state.answers[key].details;
+        var group = event.target.dataset.detailGroup;
+        var field = event.target.dataset.detailField;
+        if (group) {
+          var selected = Array.isArray(details[group]) ? details[group].slice() : [];
+          var optionIndex = selected.indexOf(event.target.value);
+          if (event.target.checked && optionIndex === -1) selected.push(event.target.value);
+          if (!event.target.checked && optionIndex !== -1) selected.splice(optionIndex, 1);
+          details[group] = selected;
+        } else if (field) {
+          details[field] = event.target.type === 'number'
+            ? (event.target.value === '' ? '' : Number(event.target.value))
+            : event.target.value;
+        }
+        updateFuelSpendCalculations();
       }
       queueAutosave();
     });
