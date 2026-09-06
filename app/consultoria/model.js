@@ -25,6 +25,95 @@
     3: { label: 'Gestão ativa', description: 'Os dados são documentados e já orientam decisões operacionais.' }
   };
 
+  var FUEL_SPEND_DETAIL_OPTIONS = {
+    fuel_types: ['diesel_s10', 'diesel_s500', 'arla32', 'gasoline', 'ethanol', 'other'],
+    data_sources: ['fuel_card', 'erp', 'spreadsheet', 'invoices', 'own_tank', 'other'],
+    payment_methods: ['fuel_card', 'bank_slip', 'cash', 'pix', 'bank_transfer', 'other']
+  };
+
+  var FUEL_SPEND_DETAIL_ENUMS = {
+    six_month_history: ['D', 'E', 'N', 'NA'],
+    annual_history: ['D', 'E', 'N', 'NA'],
+    values_consolidated: ['yes', 'partial', 'no', 'unknown'],
+    internal_station: ['yes', 'no', 'unknown'],
+    suppliers_registered: ['yes', 'partial', 'no', 'unknown'],
+    cheapest_station_tracked: ['yes', 'partial', 'no', 'unknown']
+  };
+
+  var FUEL_SPEND_DETAIL_NUMBERS = [
+    'monthly_spend', 'monthly_liters',
+    'six_month_spend', 'six_month_liters',
+    'annual_spend', 'annual_liters',
+    'internal_monthly_liters', 'external_monthly_liters'
+  ];
+
+  function safeDetailNumber(value) {
+    if (value === '' || value === null || value === undefined) return null;
+    var number = Number(value);
+    if (!Number.isFinite(number) || number < 0 || number > 1000000000000) return null;
+    return Number(number.toFixed(3));
+  }
+
+  function safeDetailText(value, limit) {
+    return typeof value === 'string' ? value.trim().slice(0, limit) : '';
+  }
+
+  function normalizeQuestionDetails(questionKey, value) {
+    if (questionKey !== 'fuel_spend') return {};
+    var source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+    var details = {};
+
+    FUEL_SPEND_DETAIL_NUMBERS.forEach(function (key) {
+      var number = safeDetailNumber(source[key]);
+      if (number !== null) details[key] = number;
+    });
+
+    Object.keys(FUEL_SPEND_DETAIL_OPTIONS).forEach(function (key) {
+      var selected = Array.isArray(source[key]) ? source[key].filter(function (entry) {
+        return FUEL_SPEND_DETAIL_OPTIONS[key].indexOf(entry) !== -1;
+      }) : [];
+      if (selected.length) details[key] = selected.filter(function (entry, index, all) {
+        return all.indexOf(entry) === index;
+      });
+    });
+
+    Object.keys(FUEL_SPEND_DETAIL_ENUMS).forEach(function (key) {
+      if (FUEL_SPEND_DETAIL_ENUMS[key].indexOf(source[key]) !== -1) details[key] = source[key];
+    });
+
+    if (/^\d{4}-(0[1-9]|1[0-2])$/.test(source.reference_month || '')) {
+      details.reference_month = source.reference_month;
+    }
+
+    [
+      ['fuel_type_other', 120],
+      ['data_source_other', 240],
+      ['payment_other', 240],
+      ['external_stations', 1000]
+    ].forEach(function (definition) {
+      var text = safeDetailText(source[definition[0]], definition[1]);
+      if (text) details[definition[0]] = text;
+    });
+
+    return details;
+  }
+
+  function averagePrice(spend, liters) {
+    return typeof spend === 'number' && typeof liters === 'number' && liters > 0
+      ? Number((spend / liters).toFixed(4))
+      : null;
+  }
+
+  function fuelSpendSnapshot(value) {
+    var details = normalizeQuestionDetails('fuel_spend', value);
+    return Object.assign({}, details, {
+      monthly_average_price: averagePrice(details.monthly_spend, details.monthly_liters),
+      six_month_average_price: averagePrice(details.six_month_spend, details.six_month_liters),
+      annual_average_price: averagePrice(details.annual_spend, details.annual_liters),
+      has_data: Object.keys(details).length > 0
+    });
+  }
+
   function question(key, pillar, title, help, recommendation, condition) {
     return {
       key: key,
@@ -123,6 +212,7 @@
       normalized[entry.key] = {
         classification: CLASSIFICATIONS[classification] ? classification : '',
         notes: typeof current.notes === 'string' ? current.notes.trim().slice(0, 4000) : '',
+        details: normalizeQuestionDetails(entry.key, current.details),
         conditional: Boolean(entry.condition),
         hidden: !isVisible(entry, safe)
       };
@@ -149,6 +239,7 @@
         classification: answer.classification,
         score: definition ? definition.score : null,
         notes: answer.notes,
+        details: answer.details,
         hidden: answer.hidden
       };
     });
@@ -231,6 +322,7 @@
       },
       strengths: strengths,
       gaps: gaps,
+      fuelSpend: fuelSpendSnapshot(normalized.fuel_spend && normalized.fuel_spend.details),
       disclaimer: 'Conclusão preliminar baseada nas respostas informadas. Evidências e impacto financeiro devem ser validados no projeto de consultoria.'
     };
   }
@@ -266,7 +358,8 @@
         answer_payload: {
           question: entry.title,
           conditional: answer.conditional,
-          hidden: answer.hidden
+          hidden: answer.hidden,
+          details: answer.details
         },
         notes: answer.notes || null
       };
@@ -281,6 +374,8 @@
     isVisible: isVisible,
     visibleQuestions: visibleQuestions,
     normalizeAnswers: normalizeAnswers,
+    normalizeQuestionDetails: normalizeQuestionDetails,
+    fuelSpendSnapshot: fuelSpendSnapshot,
     levelFromAverage: levelFromAverage,
     evaluate: evaluate,
     completeness: completeness,
