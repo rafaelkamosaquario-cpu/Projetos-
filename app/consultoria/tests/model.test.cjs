@@ -100,3 +100,37 @@ test('serializes every answer with ownership and no extra personal data', () => 
     ['answer_payload', 'classification', 'diagnostic_id', 'maturity_score', 'notes', 'owner_id', 'pillar', 'question_key'].sort()
   );
 });
+
+test('stores and summarizes the structured details from fuel question one', () => {
+  const answers = all('D');
+  answers.fuel_spend.details = {
+    monthly_spend: 200000,
+    monthly_liters: 30000,
+    reference_month: '2026-08',
+    six_month_history: 'E',
+    six_month_spend: 1180000,
+    six_month_liters: 180000,
+    annual_history: 'N',
+    fuel_types: ['diesel_s10', 'arla32', 'invalid'],
+    data_sources: ['fuel_card', 'invoices'],
+    payment_methods: ['bank_slip'],
+    values_consolidated: 'partial',
+    internal_station: 'yes',
+    internal_monthly_liters: 20000,
+    external_monthly_liters: 10000,
+    external_stations: 'Posto Rodovia — unidade matriz',
+    ignored_field: 'não deve persistir'
+  };
+
+  const result = model.evaluate(answers);
+  assert.equal(result.fuelSpend.monthly_average_price, 6.6667);
+  assert.equal(result.fuelSpend.reference_month, '2026-08');
+  assert.deepEqual(result.fuelSpend.fuel_types, ['diesel_s10', 'arla32']);
+  assert.equal(result.fuelSpend.ignored_field, undefined);
+
+  const row = model.toRows('diagnostic-id', 'owner-id', answers)
+    .find((entry) => entry.question_key === 'fuel_spend');
+  assert.equal(row.answer_payload.details.monthly_spend, 200000);
+  assert.equal(row.answer_payload.details.external_stations, 'Posto Rodovia — unidade matriz');
+  assert.equal(row.answer_payload.details.ignored_field, undefined);
+});
