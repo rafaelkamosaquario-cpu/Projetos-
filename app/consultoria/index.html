@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Área privada RodoCore para diagnósticos executivos e projetos de consultoria em gestão de frotas.">
+  <title>Diagnóstico Executivo — RodoCore</title>
+  <link rel="icon" href="../../rodocore-logo.jpg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Ir para o conteúdo</a>
+
+  <div id="boot-screen" class="boot-screen" role="status" aria-live="polite">
+    <img src="../../rodocore-logo.jpg" alt="" width="54" height="54">
+    <p>Preparando área de consultoria…</p>
+  </div>
+
+  <main id="main-content">
+    <section id="auth-screen" class="auth-screen" hidden aria-labelledby="auth-title">
+      <div class="auth-brand">
+        <a class="brand" href="../../" aria-label="RodoCore — voltar ao site">
+          <img src="../../rodocore-logo.jpg" alt="" width="46" height="46">
+          <span>Rodo<span>Core</span></span>
+        </a>
+        <div class="auth-copy">
+          <p class="eyebrow"><span class="status-dot"></span> Ambiente privado · uso do consultor</p>
+          <h1>Diagnóstico executivo para transformar dados em direção.</h1>
+          <p>Acesse empresas, retome rascunhos e converta o diagnóstico em um projeto de consultoria.</p>
+        </div>
+        <ul class="auth-points" aria-label="Recursos protegidos">
+          <li><span>01</span> Isolamento por usuário</li>
+          <li><span>02</span> Autosave no Supabase</li>
+          <li><span>03</span> Relatório executivo em PDF</li>
+        </ul>
+      </div>
+
+      <div class="auth-panel">
+        <div class="auth-card">
+          <p class="panel-kicker">RodoCore · Diagnóstico Executivo</p>
+          <h2 id="auth-title">Entrar na área privada</h2>
+          <p id="auth-subtitle" class="muted">Use o acesso do consultor responsável.</p>
+
+          <div class="segmented" role="group" aria-label="Modo de acesso">
+            <button class="segment active" id="login-mode" type="button" aria-pressed="true">Entrar</button>
+            <button class="segment" id="signup-mode" type="button" aria-pressed="false">Criar acesso</button>
+          </div>
+
+          <form id="auth-form" novalidate>
+            <div id="display-name-field" class="field" hidden>
+              <label for="display-name">Nome do consultor</label>
+              <input id="display-name" name="display_name" type="text" minlength="2" maxlength="120" autocomplete="name" placeholder="Seu nome">
+            </div>
+            <div class="field">
+              <label for="auth-email">E-mail</label>
+              <input id="auth-email" name="email" type="email" maxlength="254" autocomplete="email" placeholder="voce@empresa.com.br" required>
+            </div>
+            <div class="field">
+              <label for="auth-password">Senha</label>
+              <input id="auth-password" name="password" type="password" minlength="8" autocomplete="current-password" placeholder="Mínimo de 8 caracteres" required>
+            </div>
+            <p id="auth-message" class="form-message" role="alert" aria-live="assertive"></p>
+            <button id="auth-submit" class="button button-primary button-block" type="submit">Entrar com segurança</button>
+          </form>
+          <p class="security-note">Este navegador usa somente a chave pública do projeto. Nenhuma credencial administrativa é carregada no frontend.</p>
+          <nav class="auth-links" aria-label="Outras áreas RodoCore">
+            <a href="../../diagnostico/">Abrir diagnóstico público</a>
+            <a href="../../">Central RodoCore</a>
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    <section id="workspace" class="workspace" hidden>
+      <aside class="sidebar" aria-label="Navegação principal">
+        <a class="brand sidebar-brand" href="../../" aria-label="RodoCore — voltar ao site">
+          <img src="../../rodocore-logo.jpg" alt="" width="42" height="42">
+          <span>Rodo<span>Core</span></span>
+        </a>
+        <p class="product-label">Diagnóstico executivo</p>
+        <nav id="main-nav">
+          <button class="nav-item active" type="button" data-view="dashboard" aria-current="page"><span>01</span> Visão geral</button>
+          <button class="nav-item" type="button" data-view="company"><span>02</span> Empresa</button>
+          <button class="nav-item" type="button" data-view="diagnostic"><span>03</span> Diagnóstico</button>
+          <button class="nav-item" type="button" data-view="projects"><span>04</span> Projetos</button>
+        </nav>
+        <a class="public-diagnostic-link" href="../../diagnostico/">
+          <span>↗</span>
+          <span><strong>Diagnóstico público</strong><small>Compartilhável com o cliente</small></span>
+        </a>
+        <div class="sidebar-footer">
+          <div class="user-badge">
+            <span id="user-initials">RC</span>
+            <div><strong id="user-name">Consultor</strong><small id="user-email"></small></div>
+          </div>
+          <button id="signout-button" class="text-button" type="button">Sair da conta</button>
+        </div>
+      </aside>
+
+      <div class="workspace-main">
+        <header class="mobile-header">
+          <a class="brand" href="../../"><img src="../../rodocore-logo.jpg" alt="" width="38" height="38"><span>Rodo<span>Core</span></span></a>
+          <button id="menu-button" class="icon-button" type="button" aria-controls="main-nav" aria-expanded="false" aria-label="Abrir menu">☰</button>
+        </header>
+
+        <div id="sync-banner" class="sync-banner" role="status" aria-live="polite" hidden></div>
+
+        <section id="dashboard-view" class="app-view active" aria-labelledby="dashboard-title">
+          <header class="view-header">
+            <div><p class="eyebrow">Painel executivo</p><h1 id="dashboard-title">Visão geral</h1><p>Acompanhe empresas, rascunhos e projetos em uma única área privada.</p></div>
+            <button id="new-diagnostic-button" class="button button-primary" type="button">Novo diagnóstico</button>
+          </header>
+
+          <div class="company-context">
+            <div class="field compact-field">
+              <label for="company-selector">Empresa em contexto</label>
+              <select id="company-selector"><option value="">Cadastre uma empresa</option></select>
+            </div>
+            <button class="button button-secondary" type="button" data-open-company>Nova empresa</button>
+          </div>
+
+          <div class="metric-grid" aria-label="Resumo da conta">
+            <article class="metric-card"><span>Empresas</span><strong id="metric-companies">0</strong><small>Cadastradas por você</small></article>
+            <article class="metric-card"><span>Rascunhos</span><strong id="metric-drafts">0</strong><small>Com autosave</small></article>
+            <article class="metric-card"><span>Concluídos</span><strong id="metric-completed">0</strong><small>Diagnósticos executivos</small></article>
+            <article class="metric-card gold"><span>Projetos</span><strong id="metric-projects">0</strong><small>Consultorias abertas</small></article>
+          </div>
+
+          <div class="content-grid">
+            <article class="panel">
+              <div class="panel-header"><div><p class="panel-kicker">Continuidade</p><h2>Diagnósticos recentes</h2></div></div>
+              <div id="diagnostic-list" class="record-list"></div>
+            </article>
+            <article class="panel compact-panel">
+              <p class="panel-kicker gold-text">Método RodoCore</p>
+              <h2>Quatro pilares, uma direção.</h2>
+              <ol class="pillar-list">
+                <li><span>01</span> Combustível</li><li><span>02</span> Manutenção</li><li><span>03</span> Pneus</li><li><span>04</span> Operação dos motoristas</li>
+              </ol>
+              <p class="muted small">A conclusão é preliminar até que as evidências sejam validadas no projeto.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="company-view" class="app-view" hidden aria-labelledby="company-title">
+          <header class="view-header"><div><p class="eyebrow">Cadastro privado</p><h1 id="company-title">Empresa e responsável</h1><p>Os dados ficam associados somente à sua conta.</p></div></header>
+          <form id="company-form" class="panel form-panel" novalidate>
+            <input id="company-id" name="company_id" type="hidden">
+            <div class="form-section-title"><span>01</span><div><h2>Identificação da empresa</h2><p>Cadastre apenas o necessário para conduzir o diagnóstico.</p></div></div>
+            <div class="field-grid two-columns">
+              <div class="field"><label for="legal-name">Razão social *</label><input id="legal-name" name="legal_name" type="text" minlength="2" maxlength="160" required></div>
+              <div class="field"><label for="trade-name">Nome fantasia</label><input id="trade-name" name="trade_name" type="text" maxlength="160"></div>
+              <div class="field"><label for="registration-number">CNPJ ou registro</label><input id="registration-number" name="registration_number" type="text" maxlength="32" autocomplete="off"></div>
+              <div class="field"><label for="fleet-size">Tamanho da frota</label><input id="fleet-size" name="fleet_size" type="number" min="1" max="100000" inputmode="numeric"></div>
+              <div class="field field-wide"><label for="company-notes">Contexto inicial</label><textarea id="company-notes" name="notes" maxlength="4000" rows="3" placeholder="Operação, perfil de rota ou informação útil para a abertura."></textarea></div>
+            </div>
+            <div class="form-section-title"><span>02</span><div><h2>Responsável na empresa</h2><p>Contato principal para este trabalho.</p></div></div>
+            <div class="field-grid two-columns">
+              <div class="field"><label for="contact-name">Nome *</label><input id="contact-name" name="contact_name" type="text" minlength="2" maxlength="120" autocomplete="name" required></div>
+              <div class="field"><label for="contact-title">Cargo</label><input id="contact-title" name="contact_title" type="text" maxlength="120"></div>
+              <div class="field"><label for="contact-email">E-mail</label><input id="contact-email" name="contact_email" type="email" maxlength="254" autocomplete="email"></div>
+              <div class="field"><label for="contact-phone">Telefone</label><input id="contact-phone" name="contact_phone" type="tel" maxlength="24" autocomplete="tel"></div>
+            </div>
+            <p id="company-message" class="form-message" role="alert" aria-live="assertive"></p>
+            <div class="form-actions"><button class="button button-secondary" type="button" data-view-button="dashboard">Cancelar</button><button id="save-company-button" class="button button-primary" type="submit">Salvar empresa</button></div>
+          </form>
+        </section>
+
+        <section id="diagnostic-view" class="app-view" hidden aria-labelledby="diagnostic-title">
+          <header class="diagnostic-header">
+            <div><p class="eyebrow">Diagnóstico executivo</p><h1 id="diagnostic-title">Avaliação de maturidade</h1><p id="diagnostic-company-name">Selecione uma empresa</p></div>
+            <div class="save-indicator"><span id="save-dot"></span><span id="save-status">Pronto</span></div>
+          </header>
+          <div class="progress-shell">
+            <div class="progress-copy"><strong id="step-title">Combustível</strong><span id="step-counter">Pilar 1 de 4</span></div>
+            <div class="progress-track" role="progressbar" aria-label="Progresso do diagnóstico" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1"><span id="progress-fill"></span></div>
+            <div id="pillar-tabs" class="pillar-tabs" aria-label="Pilares do diagnóstico"></div>
+          </div>
+          <form id="diagnostic-form" class="diagnostic-form" novalidate>
+            <div id="question-list"></div>
+            <div class="field general-notes"><label for="general-notes">Observações gerais do diagnóstico</label><textarea id="general-notes" rows="4" maxlength="12000" placeholder="Contexto, evidências solicitadas ou pontos para validar na visita."></textarea></div>
+            <p id="diagnostic-message" class="form-message" role="alert" aria-live="assertive"></p>
+            <div class="form-actions diagnostic-actions"><button id="previous-pillar" class="button button-secondary" type="button">Anterior</button><button id="next-pillar" class="button button-primary" type="button">Salvar e avançar</button></div>
+          </form>
+        </section>
+
+        <section id="result-view" class="app-view" hidden aria-labelledby="result-title">
+          <header class="view-header result-header"><div><p class="eyebrow"><span class="status-dot"></span> Diagnóstico concluído</p><h1 id="result-title">Conclusão preliminar</h1><p id="result-company-name"></p></div><div class="header-actions"><button id="download-pdf-button" class="button button-secondary" type="button">Baixar PDF</button><button id="convert-project-button" class="button button-gold" type="button">Criar projeto</button></div></header>
+          <div id="maturity-grid" class="maturity-grid"></div>
+          <div class="content-grid result-grid">
+            <article class="panel"><p class="panel-kicker">Prioridade</p><h2 id="priority-title"></h2><p id="priority-copy" class="lead-copy"></p><div id="gap-list" class="recommendation-list"></div></article>
+            <article class="panel"><p class="panel-kicker">Controles identificados</p><h2>Base para aprofundar</h2><ul id="strength-list" class="plain-list"></ul></article>
+          </div>
+          <div class="disclaimer"><strong>Leitura preliminar.</strong><span id="result-disclaimer"></span></div>
+          <div class="form-actions"><button class="button button-secondary" type="button" data-view-button="dashboard">Voltar ao painel</button></div>
+        </section>
+
+        <section id="projects-view" class="app-view" hidden aria-labelledby="projects-title">
+          <header class="view-header"><div><p class="eyebrow gold-text">Consultoria</p><h1 id="projects-title">Projetos</h1><p>Diagnósticos convertidos em frentes de acompanhamento.</p></div></header>
+          <div id="project-list" class="project-grid"></div>
+          <div class="phase-note"><span>Fase 2</span><p>Visitas, achados, evidências, ações e indicadores já possuem estrutura privada no banco. A operação detalhada desses módulos pertence à Fase 3.</p></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="../../diagnostico/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js"></script>
+  <script src="model.js"></script>
+  <script src="pdf.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
