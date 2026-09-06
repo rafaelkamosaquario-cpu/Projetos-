@@ -17,6 +17,9 @@ No GitHub Pages, ela faz parte da mesma central do diagnóstico público:
   dos motoristas;
 - classificações D, E, N e NA, com maturidade de 0 a 3;
 - perguntas condicionais e observações por resposta;
+- detalhamento interativo da Pergunta 01 de combustível, com gasto e volume
+  mensal, históricos de 6 e 12 meses, produtos, fontes, pagamentos,
+  abastecimento interno e externo e cálculo do preço médio por litro;
 - autosave, rascunho e retomada entre dispositivos;
 - conclusão preliminar, resumo em PDF e conversão em projeto;
 - estrutura privada para perfis, empresas, contatos, diagnósticos, respostas,
