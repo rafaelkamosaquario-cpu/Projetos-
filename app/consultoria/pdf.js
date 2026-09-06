@@ -46,6 +46,35 @@
       .slice(0, 60) || 'empresa';
   }
 
+  function formatNumber(value, digits) {
+    var number = Number(value);
+    if (!Number.isFinite(number)) return 'não informado';
+    return new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: digits === undefined ? 2 : digits
+    }).format(number);
+  }
+
+  function formatMoney(value) {
+    var number = Number(value);
+    if (!Number.isFinite(number)) return 'não informado';
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2
+    }).format(number);
+  }
+
+  function formatMonth(value) {
+    if (!/^\d{4}-\d{2}$/.test(value || '')) return 'não informado';
+    var parts = value.split('-');
+    return parts[1] + '/' + parts[0];
+  }
+
+  function selectedLabels(values, labels, other) {
+    var selected = Array.isArray(values) ? values.map(function (value) { return labels[value]; }).filter(Boolean) : [];
+    if (safeText(other)) selected.push(safeText(other));
+    return selected.length ? selected.join(', ') : 'não informado';
+  }
+
   function buildReportData(input) {
     var source = input || {};
     var summary = source.summary || {};
@@ -60,6 +89,7 @@
       diagnosticTitle: safeText(source.diagnostic && source.diagnostic.title, 'Diagnóstico Executivo'),
       generalNotes: safeText(source.diagnostic && source.diagnostic.general_notes),
       pillars: Array.isArray(summary.pillars) ? summary.pillars : [],
+      fuelSpend: summary.fuelSpend && typeof summary.fuelSpend === 'object' ? summary.fuelSpend : {},
       priority: summary.priority || {},
       gaps: Array.isArray(summary.gaps) ? summary.gaps : [],
       strengths: Array.isArray(summary.strengths) ? summary.strengths : [],
@@ -189,6 +219,35 @@
       doc.text(doc.splitTextToSize(safeText(pillar.label), (contentWidth - 5) / 2 - 10), x + 5, y + 17);
     });
     if (data.pillars.length) y += 37;
+
+    if (data.fuelSpend.has_data) {
+      var fuelLabels = { diesel_s10: 'Diesel S10', diesel_s500: 'Diesel S500', arla32: 'Arla 32', gasoline: 'Gasolina', ethanol: 'Etanol', other: 'Outro' };
+      var sourceLabels = { fuel_card: 'cartão de combustível', erp: 'ERP ou sistema', spreadsheet: 'planilha', invoices: 'notas fiscais', own_tank: 'tanque próprio', other: 'outra fonte' };
+      var paymentLabels = { fuel_card: 'cartão', bank_slip: 'boleto ou faturado', cash: 'à vista', pix: 'Pix', bank_transfer: 'transferência', other: 'outra forma' };
+      var statusLabels = { yes: 'sim', partial: 'parcialmente', no: 'não', unknown: 'não informado', D: 'documentado', E: 'estimado', N: 'não controla', NA: 'não se aplica' };
+      sectionLabel('Combustível — gasto e volume', COLORS.blue);
+      paragraph(
+        'Referência ' + formatMonth(data.fuelSpend.reference_month) +
+        ' • Gasto mensal ' + formatMoney(data.fuelSpend.monthly_spend) +
+        ' • Volume mensal ' + formatNumber(data.fuelSpend.monthly_liters, 3) + ' litros' +
+        ' • Preço médio ' + (typeof data.fuelSpend.monthly_average_price === 'number' ? formatMoney(data.fuelSpend.monthly_average_price) + '/l' : 'não calculado'),
+        { size: 8.5, bold: true, after: 3 }
+      );
+      paragraph(
+        'Histórico de 6 meses: ' + (statusLabels[data.fuelSpend.six_month_history] || 'não informado') +
+        ' (' + formatMoney(data.fuelSpend.six_month_spend) + ' e ' + formatNumber(data.fuelSpend.six_month_liters, 3) + ' litros). ' +
+        'Histórico de 12 meses: ' + (statusLabels[data.fuelSpend.annual_history] || 'não informado') +
+        ' (' + formatMoney(data.fuelSpend.annual_spend) + ' e ' + formatNumber(data.fuelSpend.annual_liters, 3) + ' litros).',
+        { size: 8, color: COLORS.soft, after: 3 }
+      );
+      paragraph(
+        'Produtos: ' + selectedLabels(data.fuelSpend.fuel_types, fuelLabels, data.fuelSpend.fuel_type_other) +
+        '. Fontes: ' + selectedLabels(data.fuelSpend.data_sources, sourceLabels, data.fuelSpend.data_source_other) +
+        '. Pagamentos: ' + selectedLabels(data.fuelSpend.payment_methods, paymentLabels, data.fuelSpend.payment_other) +
+        '. Consolidação: ' + (statusLabels[data.fuelSpend.values_consolidated] || 'não informado') + '.',
+        { size: 8, color: COLORS.soft, after: 5 }
+      );
+    }
 
     sectionLabel('Prioridade inicial', COLORS.gold);
     paragraph(
