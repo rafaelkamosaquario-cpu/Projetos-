@@ -134,3 +134,71 @@ test('stores and summarizes the structured details from fuel question one', () =
   assert.equal(row.answer_payload.details.external_stations, 'Posto Rodovia — unidade matriz');
   assert.equal(row.answer_payload.details.ignored_field, undefined);
 });
+
+test('stores vehicle details and reconciles question two with question one', () => {
+  const answers = all('D');
+  answers.fuel_spend.details = {
+    reference_month: '2026-08',
+    monthly_spend: 200000,
+    monthly_liters: 30000
+  };
+  answers.fuel_vehicle.details = {
+    fleet_vehicle_count: 40,
+    tracked_vehicle_count: 36,
+    total_refuels: 520,
+    linked_refuels: 490,
+    identifier_methods: ['plate', 'internal_code', 'invalid'],
+    generic_entries: 'partial',
+    six_month_history: 'D',
+    annual_history: 'E',
+    data_sources: ['fuel_card', 'erp'],
+    vehicles: [
+      {
+        identifier_type: 'plate',
+        identifier: 'ABC-1D23',
+        initial_odometer: 250000,
+        final_odometer: 261500,
+        refuel_count: 14,
+        liters: 3100,
+        spend: 18600,
+        ignored_field: 'não deve persistir'
+      },
+      {
+        identifier_type: 'fleet_number',
+        identifier: 'FROTA-018',
+        initial_odometer: 100000,
+        final_odometer: 108000,
+        mileage_adjustment: -100,
+        refuel_count: 10,
+        liters: 2200,
+        spend: 13420
+      }
+    ],
+    unassigned_explanation: 'Geradores e lançamentos pendentes.',
+    ignored_field: 'não deve persistir'
+  };
+
+  const snapshot = model.evaluate(answers).fuelVehicle;
+  assert.equal(snapshot.reference_month, '2026-08');
+  assert.equal(snapshot.vehicle_coverage_percentage, 90);
+  assert.equal(snapshot.refuel_traceability_percentage, 94.23);
+  assert.equal(snapshot.vehicles[0].mileage, 11500);
+  assert.equal(snapshot.vehicles[0].average_price, 6);
+  assert.equal(snapshot.vehicles[0].consumption_km_l, 3.71);
+  assert.equal(snapshot.vehicles[0].cost_per_km, 1.62);
+  assert.equal(snapshot.vehicles[1].mileage, 7900);
+  assert.equal(snapshot.registered_vehicle_liters, 5300);
+  assert.equal(snapshot.registered_vehicle_spend, 32020);
+  assert.equal(snapshot.liters_difference, 24700);
+  assert.equal(snapshot.spend_difference, 167980);
+  assert.equal(snapshot.liters_traceability_percentage, 17.67);
+  assert.equal(snapshot.spend_traceability_percentage, 16.01);
+  assert.deepEqual(snapshot.identifier_methods, ['plate', 'internal_code']);
+  assert.equal(snapshot.ignored_field, undefined);
+
+  const row = model.toRows('diagnostic-id', 'owner-id', answers)
+    .find((entry) => entry.question_key === 'fuel_vehicle');
+  assert.equal(row.answer_payload.details.vehicles[0].identifier, 'ABC-1D23');
+  assert.equal(row.answer_payload.details.vehicles[0].ignored_field, undefined);
+  assert.equal(row.answer_payload.details.unassigned_explanation, 'Geradores e lançamentos pendentes.');
+});
