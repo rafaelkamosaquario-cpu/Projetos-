@@ -464,6 +464,7 @@
   }
 
   function formatDetailNumber(value, maximumFractionDigits) {
+    if (value === '' || value === null || value === undefined) return 'Não informado';
     var number = Number(value);
     if (!Number.isFinite(number)) return 'Não informado';
     return new Intl.NumberFormat('pt-BR', {
@@ -473,6 +474,7 @@
   }
 
   function formatDetailMoney(value) {
+    if (value === '' || value === null || value === undefined) return 'Não informado';
     var number = Number(value);
     if (!Number.isFinite(number)) return 'Não informado';
     return new Intl.NumberFormat('pt-BR', {
@@ -601,6 +603,190 @@
     });
   }
 
+  function formatDetailPercent(value) {
+    return typeof value === 'number' ? formatDetailNumber(value, 2) + '%' : 'Não calculado';
+  }
+
+  function renderFuelVehicleNumberField(label, key, details, placeholder, step) {
+    return '<div class="field"><label for="fuel-vehicle-detail-' + escapeHtml(key) + '">' + escapeHtml(label) + '</label><input id="fuel-vehicle-detail-' +
+      escapeHtml(key) + '" type="number" min="0" max="1000000000000" step="' + escapeHtml(step || '1') + '" inputmode="decimal" ' +
+      'data-question-detail="fuel_vehicle" data-detail-field="' + escapeHtml(key) + '" value="' + escapeHtml(detailValue(details, key)) +
+      '" placeholder="' + escapeHtml(placeholder || '') + '"></div>';
+  }
+
+  function renderFuelVehicleChoices(group, label, options, details) {
+    var selected = Array.isArray(details[group]) ? details[group] : [];
+    return '<div class="detail-choice-group"><span class="detail-label">' + escapeHtml(label) + '</span><div class="detail-choice-grid">' +
+      options.map(function (option) {
+        return '<label class="detail-choice"><input type="checkbox" data-question-detail="fuel_vehicle" data-detail-group="' +
+          escapeHtml(group) + '" value="' + escapeHtml(option.value) + '"' + (selected.indexOf(option.value) !== -1 ? ' checked' : '') +
+          '><span>' + escapeHtml(option.label) + '</span></label>';
+      }).join('') + '</div></div>';
+  }
+
+  function renderFuelVehicleScale(field, label, details) {
+    var labels = { D: 'Documentado', E: 'Estimado', N: 'Não controla', NA: 'Não se aplica' };
+    return '<div class="detail-status-group"><span class="detail-label">' + escapeHtml(label) + '</span><div class="detail-scale">' +
+      Object.keys(labels).map(function (key) {
+        return '<label><input type="radio" name="fuel-vehicle-' + escapeHtml(field) + '" data-question-detail="fuel_vehicle" data-detail-field="' +
+          escapeHtml(field) + '" value="' + key + '"' + (details[field] === key ? ' checked' : '') + '><span><strong>' + key +
+          '</strong>' + escapeHtml(labels[key]) + '</span></label>';
+      }).join('') + '</div></div>';
+  }
+
+  function renderFuelVehicleSelect(label, field, details, options) {
+    return '<div class="field"><label for="fuel-vehicle-detail-' + escapeHtml(field) + '">' + escapeHtml(label) + '</label><select id="fuel-vehicle-detail-' +
+      escapeHtml(field) + '" data-question-detail="fuel_vehicle" data-detail-field="' + escapeHtml(field) + '"><option value="">Selecione</option>' +
+      options.map(function (option) {
+        return '<option value="' + escapeHtml(option.value) + '"' + (details[field] === option.value ? ' selected' : '') + '>' +
+          escapeHtml(option.label) + '</option>';
+      }).join('') + '</select></div>';
+  }
+
+  function renderFuelVehicleMetric(key, label, value) {
+    return '<div class="calculated-metric"><span>' + escapeHtml(label) + '</span><strong data-fuel-vehicle-summary="' + escapeHtml(key) + '">' +
+      escapeHtml(value) + '</strong></div>';
+  }
+
+  function renderVehicleInput(index, label, field, vehicle, options) {
+    var config = options || {};
+    var min = config.signed ? '' : ' min="0"';
+    return '<div class="field"><label for="fuel-vehicle-' + index + '-' + escapeHtml(field) + '">' + escapeHtml(label) + '</label><input id="fuel-vehicle-' +
+      index + '-' + escapeHtml(field) + '" type="' + escapeHtml(config.type || 'number') + '"' + min + ' max="1000000000000" step="' +
+      escapeHtml(config.step || '0.001') + '" ' + (config.type === 'text' ? 'maxlength="64"' : 'inputmode="decimal"') +
+      ' data-question-detail="fuel_vehicle" data-vehicle-index="' + index + '" data-vehicle-field="' + escapeHtml(field) + '" value="' +
+      escapeHtml(detailValue(vehicle, field)) + '" placeholder="' + escapeHtml(config.placeholder || '') + '"></div>';
+  }
+
+  function renderVehicleSelect(index, label, field, vehicle, options) {
+    return '<div class="field"><label for="fuel-vehicle-' + index + '-' + escapeHtml(field) + '">' + escapeHtml(label) + '</label><select id="fuel-vehicle-' +
+      index + '-' + escapeHtml(field) + '" data-question-detail="fuel_vehicle" data-vehicle-index="' + index + '" data-vehicle-field="' +
+      escapeHtml(field) + '"><option value="">Selecione</option>' + options.map(function (option) {
+        return '<option value="' + escapeHtml(option.value) + '"' + (vehicle[field] === option.value ? ' selected' : '') + '>' +
+          escapeHtml(option.label) + '</option>';
+      }).join('') + '</select></div>';
+  }
+
+  function renderVehicleCard(vehicle, index) {
+    var vehicleResult = model.fuelVehicleSnapshot({ vehicles: [vehicle] }, {}).vehicles[0] || {};
+    var mileageFallback = typeof vehicle.initial_odometer === 'number' && typeof vehicle.final_odometer === 'number'
+      ? 'Verifique os hodômetros' : 'Preencha KM inicial e final';
+    return '<article class="vehicle-entry" data-fuel-vehicle-card="' + index + '"><header><div><span>VEÍCULO ' +
+      String(index + 1).padStart(2, '0') + '</span><strong>' + escapeHtml(vehicle.identifier || 'Identificação pendente') +
+      '</strong></div><button class="button button-quiet vehicle-remove" type="button" data-remove-fuel-vehicle="' + index + '">Remover</button></header>' +
+      '<div class="field-grid vehicle-entry-grid">' +
+      renderVehicleSelect(index, 'Tipo de identificação', 'identifier_type', vehicle, [
+        { value: 'plate', label: 'Placa' }, { value: 'internal_code', label: 'Código interno' }, { value: 'fleet_number', label: 'Número de frota' }
+      ]) +
+      renderVehicleInput(index, 'Placa, código ou número', 'identifier', vehicle, { type: 'text', placeholder: 'Ex.: ABC-1D23 ou FROTA-018' }) +
+      renderVehicleInput(index, 'Hodômetro inicial do mês', 'initial_odometer', vehicle, { step: '0.001', placeholder: 'Ex.: 250000' }) +
+      renderVehicleInput(index, 'Hodômetro final do mês', 'final_odometer', vehicle, { step: '0.001', placeholder: 'Ex.: 261500' }) +
+      renderVehicleInput(index, 'Ajuste de quilometragem', 'mileage_adjustment', vehicle, { step: '0.001', signed: true, placeholder: 'Ex.: 0 ou -120' }) +
+      renderVehicleInput(index, 'Quantidade de abastecimentos', 'refuel_count', vehicle, { step: '1', placeholder: 'Ex.: 14' }) +
+      renderVehicleInput(index, 'Litros no mês', 'liters', vehicle, { step: '0.001', placeholder: 'Ex.: 3100' }) +
+      renderVehicleInput(index, 'Gasto no mês (R$)', 'spend', vehicle, { step: '0.01', placeholder: 'Ex.: 18600' }) + '</div>' +
+      '<div class="vehicle-calculation-grid">' +
+      '<div><span>KM rodado</span><strong data-fuel-vehicle-card-metric="mileage" data-vehicle-index="' + index + '">' +
+        (typeof vehicleResult.mileage === 'number' ? escapeHtml(formatDetailNumber(vehicleResult.mileage, 3)) + ' km' : mileageFallback) + '</strong></div>' +
+      '<div><span>Preço médio</span><strong data-fuel-vehicle-card-metric="average_price" data-vehicle-index="' + index + '">' +
+        (typeof vehicleResult.average_price === 'number' ? escapeHtml(formatDetailMoney(vehicleResult.average_price)) + '/l' : 'Preencha gasto e litros') + '</strong></div>' +
+      '<div><span>Consumo preliminar</span><strong data-fuel-vehicle-card-metric="consumption_km_l" data-vehicle-index="' + index + '">' +
+        (typeof vehicleResult.consumption_km_l === 'number' ? escapeHtml(formatDetailNumber(vehicleResult.consumption_km_l, 2)) + ' km/l' : 'Não calculado') + '</strong></div>' +
+      '<div><span>Custo preliminar</span><strong data-fuel-vehicle-card-metric="cost_per_km" data-vehicle-index="' + index + '">' +
+        (typeof vehicleResult.cost_per_km === 'number' ? escapeHtml(formatDetailMoney(vehicleResult.cost_per_km)) + '/km' : 'Não calculado') + '</strong></div></div></article>';
+  }
+
+  function renderFuelVehicleDetails(current) {
+    if (!model.CLASSIFICATIONS[current.classification]) {
+      return '<div class="question-detail-prompt"><strong>Roteiro da visita</strong><span>Selecione D, E, N ou NA para abrir o detalhamento desta pergunta.</span></div>';
+    }
+    var details = current.details || {};
+    var fuelSpendDetails = state.answers.fuel_spend && state.answers.fuel_spend.details || {};
+    var snapshot = model.fuelVehicleSnapshot(details, fuelSpendDetails);
+    var vehicles = Array.isArray(details.vehicles) ? details.vehicles : [];
+    var standardOptions = [
+      { value: 'yes', label: 'Sim' }, { value: 'partial', label: 'Parcialmente' },
+      { value: 'no', label: 'Não' }, { value: 'unknown', label: 'Não soube informar' }
+    ];
+    return '<section class="question-detail-panel" aria-label="Detalhamento dos abastecimentos por veículo">' +
+      '<header><span>ROTEIRO DA VISITA · PERGUNTA 02</span><h4>Rastreabilidade por veículo e quilometragem mensal</h4><p>Relacione o total da empresa aos veículos. Os indicadores são preliminares e a validação do hodômetro permanece na Pergunta 03.</p></header>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>01</span><div><h5>Cobertura do controle</h5><p>Meça quantos veículos e abastecimentos estão corretamente identificados.</p></div></div>' +
+      renderFuelVehicleChoices('identifier_methods', 'Formas de identificação utilizadas', [
+        { value: 'plate', label: 'Placa' }, { value: 'internal_code', label: 'Código interno' }, { value: 'fleet_number', label: 'Número de frota' }
+      ], details) + '<div class="field-grid detail-grid">' +
+      renderFuelVehicleNumberField('Quantidade total de veículos', 'fleet_vehicle_count', details, 'Ex.: 40', '1') +
+      renderFuelVehicleNumberField('Veículos com controle individual', 'tracked_vehicle_count', details, 'Ex.: 36', '1') +
+      renderFuelVehicleMetric('vehicle_coverage_percentage', 'Cobertura da frota', formatDetailPercent(snapshot.vehicle_coverage_percentage)) +
+      renderFuelVehicleSelect('Existem abastecimentos sem placa ou genéricos?', 'generic_entries', details, standardOptions) +
+      renderFuelVehicleNumberField('Abastecimentos realizados no mês', 'total_refuels', details, 'Ex.: 520', '1') +
+      renderFuelVehicleNumberField('Abastecimentos vinculados corretamente', 'linked_refuels', details, 'Ex.: 490', '1') +
+      renderFuelVehicleMetric('refuel_traceability_percentage', 'Abastecimentos rastreados', formatDetailPercent(snapshot.refuel_traceability_percentage)) + '</div>' +
+      renderFuelVehicleScale('six_month_history', 'Existe controle por veículo nos últimos 6 meses?', details) +
+      renderFuelVehicleScale('annual_history', 'Existe controle por veículo nos últimos 12 meses?', details) +
+      renderFuelVehicleChoices('data_sources', 'Fontes utilizadas para localizar o veículo', [
+        { value: 'fuel_card', label: 'Cartão de combustível' }, { value: 'erp', label: 'ERP ou sistema' },
+        { value: 'spreadsheet', label: 'Planilha' }, { value: 'invoices', label: 'Notas fiscais' },
+        { value: 'own_tank', label: 'Controle do tanque próprio' }, { value: 'other', label: 'Outra fonte' }
+      ], details) + '<div class="field"><label for="fuel-vehicle-detail-data-source-other">Outra fonte</label><input id="fuel-vehicle-detail-data-source-other" type="text" maxlength="240" data-question-detail="fuel_vehicle" data-detail-field="data_source_other" value="' + escapeHtml(detailValue(details, 'data_source_other')) + '"></div></div>' +
+      '<div class="detail-block"><div class="detail-block-title detail-block-title-action"><span>02</span><div><h5>Dados mensais por veículo</h5><p>Adicione quantos veículos forem necessários para validar a rastreabilidade.</p></div><button class="button button-secondary" type="button" data-add-fuel-vehicle' + (vehicles.length >= 200 ? ' disabled' : '') + '>Adicionar veículo</button></div>' +
+      '<div class="field-grid detail-grid reconciliation-source">' +
+      '<div class="field"><label for="fuel-vehicle-detail-reference-month">Mês e ano analisados</label><input id="fuel-vehicle-detail-reference-month" type="month" data-question-detail="fuel_vehicle" data-detail-field="reference_month" value="' + escapeHtml(snapshot.reference_month || '') + '"></div>' +
+      renderFuelVehicleMetric('company_monthly_liters', 'Total da Pergunta 01', typeof snapshot.company_monthly_liters === 'number' ? formatDetailNumber(snapshot.company_monthly_liters, 3) + ' l' : 'Preencha a Pergunta 01') +
+      renderFuelVehicleMetric('company_monthly_spend', 'Gasto da Pergunta 01', typeof snapshot.company_monthly_spend === 'number' ? formatDetailMoney(snapshot.company_monthly_spend) : 'Preencha a Pergunta 01') + '</div>' +
+      '<div class="vehicle-list-editor">' + (vehicles.length ? vehicles.map(renderVehicleCard).join('') : '<div class="vehicle-empty-state"><strong>Nenhum veículo adicionado</strong><span>Use “Adicionar veículo” para registrar placa ou código, KM, litros e gasto do mês.</span></div>') + '</div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>03</span><div><h5>Conferência com a Pergunta 01</h5><p>Compare automaticamente o total geral com a soma dos veículos adicionados.</p></div></div>' +
+      '<div class="reconciliation-grid">' +
+      renderFuelVehicleMetric('registered_vehicle_liters', 'Litros vinculados aos veículos', typeof snapshot.registered_vehicle_liters === 'number' ? formatDetailNumber(snapshot.registered_vehicle_liters, 3) + ' l' : 'Nenhum volume informado') +
+      renderFuelVehicleMetric('liters_difference', 'Diferença de volume', typeof snapshot.liters_difference === 'number' ? formatDetailNumber(snapshot.liters_difference, 3) + ' l' : 'Não calculado') +
+      renderFuelVehicleMetric('liters_traceability_percentage', 'Rastreabilidade do volume', formatDetailPercent(snapshot.liters_traceability_percentage)) +
+      renderFuelVehicleMetric('registered_vehicle_spend', 'Gasto vinculado aos veículos', typeof snapshot.registered_vehicle_spend === 'number' ? formatDetailMoney(snapshot.registered_vehicle_spend) : 'Nenhum gasto informado') +
+      renderFuelVehicleMetric('spend_difference', 'Diferença financeira', typeof snapshot.spend_difference === 'number' ? formatDetailMoney(snapshot.spend_difference) : 'Não calculado') +
+      renderFuelVehicleMetric('spend_traceability_percentage', 'Rastreabilidade do gasto', formatDetailPercent(snapshot.spend_traceability_percentage)) + '</div>' +
+      '<div class="field"><label for="fuel-vehicle-detail-unassigned-explanation">Explique diferenças ou volumes sem veículo</label><textarea id="fuel-vehicle-detail-unassigned-explanation" rows="3" maxlength="2000" data-question-detail="fuel_vehicle" data-detail-field="unassigned_explanation" placeholder="Ex.: geradores, máquinas, veículos de terceiros, estoque do tanque ou lançamentos pendentes.">' + escapeHtml(detailValue(details, 'unassigned_explanation')) + '</textarea></div></div></section>';
+  }
+
+  function updateFuelVehicleCalculations() {
+    var answer = state.answers.fuel_vehicle || {};
+    var fuelSpend = state.answers.fuel_spend || {};
+    var snapshot = model.fuelVehicleSnapshot(answer.details || {}, fuelSpend.details || {});
+    var summaryValues = {
+      vehicle_coverage_percentage: formatDetailPercent(snapshot.vehicle_coverage_percentage),
+      refuel_traceability_percentage: formatDetailPercent(snapshot.refuel_traceability_percentage),
+      company_monthly_liters: typeof snapshot.company_monthly_liters === 'number' ? formatDetailNumber(snapshot.company_monthly_liters, 3) + ' l' : 'Preencha a Pergunta 01',
+      company_monthly_spend: typeof snapshot.company_monthly_spend === 'number' ? formatDetailMoney(snapshot.company_monthly_spend) : 'Preencha a Pergunta 01',
+      registered_vehicle_liters: typeof snapshot.registered_vehicle_liters === 'number' ? formatDetailNumber(snapshot.registered_vehicle_liters, 3) + ' l' : 'Nenhum volume informado',
+      liters_difference: typeof snapshot.liters_difference === 'number' ? formatDetailNumber(snapshot.liters_difference, 3) + ' l' : 'Não calculado',
+      liters_traceability_percentage: formatDetailPercent(snapshot.liters_traceability_percentage),
+      registered_vehicle_spend: typeof snapshot.registered_vehicle_spend === 'number' ? formatDetailMoney(snapshot.registered_vehicle_spend) : 'Nenhum gasto informado',
+      spend_difference: typeof snapshot.spend_difference === 'number' ? formatDetailMoney(snapshot.spend_difference) : 'Não calculado',
+      spend_traceability_percentage: formatDetailPercent(snapshot.spend_traceability_percentage)
+    };
+    Object.keys(summaryValues).forEach(function (key) {
+      elements.questionList.querySelectorAll('[data-fuel-vehicle-summary="' + key + '"]').forEach(function (element) {
+        element.textContent = summaryValues[key];
+      });
+    });
+    var referenceInput = elements.questionList.querySelector('#fuel-vehicle-detail-reference-month');
+    if (referenceInput && !(answer.details && answer.details.reference_month) && snapshot.reference_month) {
+      referenceInput.value = snapshot.reference_month;
+    }
+    var rawVehicles = answer.details && Array.isArray(answer.details.vehicles) ? answer.details.vehicles : [];
+    rawVehicles.forEach(function (vehicle, index) {
+      var calculated = model.fuelVehicleSnapshot({ vehicles: [vehicle] }, {}).vehicles[0] || {};
+      var bothOdometers = typeof vehicle.initial_odometer === 'number' && typeof vehicle.final_odometer === 'number';
+      var values = {
+        mileage: typeof calculated.mileage === 'number' ? formatDetailNumber(calculated.mileage, 3) + ' km' : (bothOdometers ? 'Verifique os hodômetros' : 'Preencha KM inicial e final'),
+        average_price: typeof calculated.average_price === 'number' ? formatDetailMoney(calculated.average_price) + '/l' : 'Preencha gasto e litros',
+        consumption_km_l: typeof calculated.consumption_km_l === 'number' ? formatDetailNumber(calculated.consumption_km_l, 2) + ' km/l' : 'Não calculado',
+        cost_per_km: typeof calculated.cost_per_km === 'number' ? formatDetailMoney(calculated.cost_per_km) + '/km' : 'Não calculado'
+      };
+      Object.keys(values).forEach(function (metric) {
+        var element = elements.questionList.querySelector('[data-fuel-vehicle-card-metric="' + metric + '"][data-vehicle-index="' + index + '"]');
+        if (element) element.textContent = values[metric];
+      });
+    });
+  }
+
   function renderQuestions() {
     var pillar = model.PILLARS[state.pillarIndex];
     var questions = model.visibleQuestions(state.answers, pillar.key);
@@ -612,7 +798,8 @@
           '" value="' + key + '" data-question-key="' + escapeHtml(question.key) + '"' + (current.classification === key ? ' checked' : '') +
           '><span><strong>' + key + '</strong>' + escapeHtml(definition.label) + '</span></label>';
       }).join('');
-      var detailPanel = question.key === 'fuel_spend' ? renderFuelSpendDetails(current) : '';
+      var detailPanel = question.key === 'fuel_spend' ? renderFuelSpendDetails(current) :
+        (question.key === 'fuel_vehicle' ? renderFuelVehicleDetails(current) : '');
       return '<fieldset class="question-card" data-question-card="' + escapeHtml(question.key) + '"><legend>' +
         String(questionIndex + 1).padStart(2, '0') + '. ' + escapeHtml(question.title) + '</legend><p class="question-help">' +
         escapeHtml(question.help) + '</p><div class="answer-options">' + options + '</div>' + detailPanel + '<details class="question-notes"' +
@@ -791,6 +978,47 @@
       (snapshot.external_stations ? '<p><strong>Postos externos:</strong> ' + escapeHtml(snapshot.external_stations) + '</p>' : '') + '</div>';
   }
 
+  function renderFuelVehicleResult(snapshot) {
+    var panel = document.getElementById('fuel-vehicle-summary');
+    if (!snapshot || !snapshot.has_data) {
+      panel.hidden = true;
+      panel.innerHTML = '';
+      return;
+    }
+    var identifierLabels = { plate: 'Placa', internal_code: 'Código interno', fleet_number: 'Número de frota' };
+    var sourceLabels = {
+      fuel_card: 'Cartão de combustível', erp: 'ERP ou sistema', spreadsheet: 'Planilha',
+      invoices: 'Notas fiscais', own_tank: 'Controle do tanque próprio', other: 'Outra fonte'
+    };
+    var statusLabels = { yes: 'Sim', partial: 'Parcialmente', no: 'Não', unknown: 'Não informado', D: 'Documentado', E: 'Estimado', N: 'Não controla', NA: 'Não se aplica' };
+    var vehicleList = snapshot.vehicles.length ? '<div class="fuel-vehicle-result-list">' + snapshot.vehicles.map(function (vehicle) {
+      return '<div><strong>' + escapeHtml(vehicle.identifier || 'Veículo sem identificação') + '</strong><span>' +
+        escapeHtml(identifierLabels[vehicle.identifier_type] || 'Identificação não informada') +
+        ' · ' + (typeof vehicle.mileage === 'number' ? escapeHtml(formatDetailNumber(vehicle.mileage, 3)) + ' km' : 'KM não calculado') +
+        ' · ' + (typeof vehicle.liters === 'number' ? escapeHtml(formatDetailNumber(vehicle.liters, 3)) + ' l' : 'litros não informados') +
+        ' · ' + (typeof vehicle.spend === 'number' ? escapeHtml(formatDetailMoney(vehicle.spend)) : 'gasto não informado') + '</span><small>' +
+        (typeof vehicle.consumption_km_l === 'number' ? escapeHtml(formatDetailNumber(vehicle.consumption_km_l, 2)) + ' km/l' : 'consumo não calculado') +
+        ' · ' + (typeof vehicle.cost_per_km === 'number' ? escapeHtml(formatDetailMoney(vehicle.cost_per_km)) + '/km' : 'custo/km não calculado') + '</small></div>';
+    }).join('') + '</div>' : '<p class="muted small">Nenhum veículo individual foi registrado no roteiro.</p>';
+    panel.hidden = false;
+    panel.innerHTML = '<div class="fuel-result-header"><div><p class="panel-kicker">Pergunta 02 · Combustível</p><h2>Rastreabilidade por veículo</h2></div><span class="badge">' +
+      escapeHtml(formatReferenceMonth(snapshot.reference_month)) + '</span></div><div class="fuel-result-metrics">' +
+      '<div><span>Cobertura da frota</span><strong>' + escapeHtml(formatDetailPercent(snapshot.vehicle_coverage_percentage)) + '</strong><small>' +
+        escapeHtml(formatDetailNumber(snapshot.tracked_vehicle_count, 0)) + ' de ' + escapeHtml(formatDetailNumber(snapshot.fleet_vehicle_count, 0)) + ' veículos</small></div>' +
+      '<div><span>Abastecimentos rastreados</span><strong>' + escapeHtml(formatDetailPercent(snapshot.refuel_traceability_percentage)) + '</strong><small>' +
+        escapeHtml(formatDetailNumber(snapshot.linked_refuels, 0)) + ' de ' + escapeHtml(formatDetailNumber(snapshot.total_refuels, 0)) + ' lançamentos</small></div>' +
+      '<div><span>Volume rastreado</span><strong>' + escapeHtml(formatDetailPercent(snapshot.liters_traceability_percentage)) + '</strong><small>Diferença: ' +
+        (typeof snapshot.liters_difference === 'number' ? escapeHtml(formatDetailNumber(snapshot.liters_difference, 3)) + ' l' : 'não calculada') + '</small></div>' +
+      '<div><span>Gasto rastreado</span><strong>' + escapeHtml(formatDetailPercent(snapshot.spend_traceability_percentage)) + '</strong><small>Diferença: ' +
+        (typeof snapshot.spend_difference === 'number' ? escapeHtml(formatDetailMoney(snapshot.spend_difference)) : 'não calculada') + '</small></div>' +
+      '<div><span>Histórico de 6 meses</span><strong>' + escapeHtml(statusLabels[snapshot.six_month_history] || 'Não informado') + '</strong></div>' +
+      '<div><span>Histórico de 12 meses</span><strong>' + escapeHtml(statusLabels[snapshot.annual_history] || 'Não informado') + '</strong></div></div>' +
+      '<div class="fuel-result-context"><p><strong>Identificação:</strong> ' + escapeHtml(detailLabels(snapshot.identifier_methods, identifierLabels)) + '</p>' +
+      '<p><strong>Fontes:</strong> ' + escapeHtml(detailLabels(snapshot.data_sources, sourceLabels, snapshot.data_source_other)) + '</p>' +
+      '<p><strong>Lançamentos sem veículo ou genéricos:</strong> ' + escapeHtml(statusLabels[snapshot.generic_entries] || 'Não informado') + '</p>' +
+      (snapshot.unassigned_explanation ? '<p><strong>Explicação das diferenças:</strong> ' + escapeHtml(snapshot.unassigned_explanation) + '</p>' : '') + '</div>' + vehicleList;
+  }
+
   function renderResult(diagnostic) {
     var summary = diagnostic.preliminary_summary && diagnostic.preliminary_summary.pillars ? diagnostic.preliminary_summary : model.evaluate(state.answers);
     var company = companyById(diagnostic.company_id);
@@ -801,6 +1029,7 @@
         escapeHtml(pillar.label) + '</strong><br>' + escapeHtml(pillar.description) + '</p></article>';
     }).join('');
     renderFuelSpendResult(summary.fuelSpend);
+    renderFuelVehicleResult(summary.fuelVehicle);
     document.getElementById('priority-title').textContent = summary.priority.name + ' — nível ' + summary.priority.level + '/3';
     document.getElementById('priority-copy').textContent = 'Este é o pilar inicial para aprofundar evidências e organizar a primeira frente de trabalho.';
     document.getElementById('gap-list').innerHTML = summary.gaps.length ? summary.gaps.map(function (gap) {
@@ -906,6 +1135,20 @@
       renderDiagnostic();
       queueAutosave();
     });
+    elements.diagnosticForm.addEventListener('click', function (event) {
+      var addButton = event.target.closest('[data-add-fuel-vehicle]');
+      var removeButton = event.target.closest('[data-remove-fuel-vehicle]');
+      if (!addButton && !removeButton) return;
+      state.answers.fuel_vehicle = state.answers.fuel_vehicle || { classification: '', notes: '', details: {} };
+      state.answers.fuel_vehicle.details = state.answers.fuel_vehicle.details || {};
+      var vehicles = Array.isArray(state.answers.fuel_vehicle.details.vehicles)
+        ? state.answers.fuel_vehicle.details.vehicles : [];
+      if (addButton && vehicles.length < 200) vehicles.push({});
+      if (removeButton) vehicles.splice(Number(removeButton.dataset.removeFuelVehicle), 1);
+      state.answers.fuel_vehicle.details.vehicles = vehicles;
+      renderQuestions();
+      queueAutosave();
+    });
     elements.diagnosticForm.addEventListener('input', function (event) {
       var key = event.target.dataset.questionKey || event.target.dataset.questionNotes || event.target.dataset.questionDetail;
       if (!key) {
@@ -934,7 +1177,15 @@
         var details = state.answers[key].details;
         var group = event.target.dataset.detailGroup;
         var field = event.target.dataset.detailField;
-        if (group) {
+        var vehicleIndex = event.target.dataset.vehicleIndex;
+        var vehicleField = event.target.dataset.vehicleField;
+        if (vehicleIndex !== undefined && vehicleField) {
+          details.vehicles = Array.isArray(details.vehicles) ? details.vehicles : [];
+          details.vehicles[Number(vehicleIndex)] = details.vehicles[Number(vehicleIndex)] || {};
+          details.vehicles[Number(vehicleIndex)][vehicleField] = event.target.type === 'number'
+            ? (event.target.value === '' ? '' : Number(event.target.value))
+            : event.target.value;
+        } else if (group) {
           var selected = Array.isArray(details[group]) ? details[group].slice() : [];
           var optionIndex = selected.indexOf(event.target.value);
           if (event.target.checked && optionIndex === -1) selected.push(event.target.value);
@@ -946,6 +1197,7 @@
             : event.target.value;
         }
         updateFuelSpendCalculations();
+        updateFuelVehicleCalculations();
       }
       queueAutosave();
     });
