@@ -20,6 +20,10 @@ No GitHub Pages, ela faz parte da mesma central do diagnóstico público:
 - detalhamento interativo da Pergunta 01 de combustível, com gasto e volume
   mensal, históricos de 6 e 12 meses, produtos, fontes, pagamentos,
   abastecimento interno e externo e cálculo do preço médio por litro;
+- detalhamento interativo da Pergunta 02 de combustível, com cobertura por
+  placa, código ou número de frota, cadastro mensal de veículos, hodômetros,
+  quilômetros rodados, litros, gasto, km/l, custo por km e conciliação
+  automática com os totais da Pergunta 01;
 - autosave, rascunho e retomada entre dispositivos;
 - conclusão preliminar, resumo em PDF e conversão em projeto;
 - estrutura privada para perfis, empresas, contatos, diagnósticos, respostas,
@@ -80,4 +84,4 @@ e-mail e retorno da sessão.
 - não há exclusão de registros no cliente;
 - não há estimativa automática de economia ou afirmação de desperdício;
 - o PDF é preliminar e exige validação de evidências;
-- não houve push, merge ou publicação automática.
+- a publicação no GitHub Pages é feita somente após a validação local.
