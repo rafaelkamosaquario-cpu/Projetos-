@@ -21,6 +21,14 @@ test('builds safe report data without requiring the browser', () => {
         liters_difference: 2000,
         vehicles: [{ identifier: 'ABC-1D23', mileage: 11500, liters: 3100, spend: 18600 }]
       },
+      maintenanceCost: {
+        has_data: true,
+        reference_month: '2026-08',
+        monthly_total_cost: 100000,
+        composition_total: 90000,
+        vehicle_cost_traceability_percentage: 33,
+        vehicles: [{ identifier: 'ABC-1D23', mileage: 11500, maintenance_count: 3, total_cost: 17000 }]
+      },
       priority: { name: 'Pneus', level: 1 },
       gaps: [],
       strengths: []
@@ -32,6 +40,8 @@ test('builds safe report data without requiring the browser', () => {
   assert.equal(data.fuelSpend.monthly_spend, 200000);
   assert.equal(data.fuelVehicle.vehicle_coverage_percentage, 90);
   assert.equal(data.fuelVehicle.vehicles[0].identifier, 'ABC-1D23');
+  assert.equal(data.maintenanceCost.monthly_total_cost, 100000);
+  assert.equal(data.maintenanceCost.vehicles[0].total_cost, 17000);
   assert.match(data.disclaimer, /preliminar/i);
 });
 

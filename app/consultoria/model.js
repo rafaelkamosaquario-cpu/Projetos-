@@ -64,6 +64,31 @@
 
   var FUEL_VEHICLE_TYPES = ['plate', 'internal_code', 'fleet_number'];
 
+  var MAINTENANCE_COST_DETAIL_OPTIONS = {
+    identifier_methods: ['plate', 'internal_code', 'fleet_number'],
+    data_sources: ['erp', 'work_orders', 'spreadsheet', 'invoices', 'workshop_control', 'accounting', 'other']
+  };
+
+  var MAINTENANCE_COST_DETAIL_ENUMS = {
+    six_month_history: ['D', 'E', 'N', 'NA'],
+    annual_history: ['D', 'E', 'N', 'NA'],
+    values_consolidated: ['yes', 'partial', 'no', 'unknown'],
+    unlinked_costs: ['yes', 'partial', 'no', 'unknown']
+  };
+
+  var MAINTENANCE_COST_DETAIL_NUMBERS = [
+    'monthly_total_cost', 'fleet_vehicle_count', 'maintained_vehicle_count', 'tracked_vehicle_count',
+    'maintenance_records_count', 'linked_maintenance_records_count', 'six_month_total_cost', 'annual_total_cost',
+    'parts_cost', 'internal_labor_cost', 'external_services_cost', 'lubricants_materials_cost',
+    'towing_emergency_cost', 'unrecovered_rework_cost', 'other_cost', 'preventive_cost', 'corrective_cost',
+    'predictive_cost', 'accident_damage_cost'
+  ];
+
+  var MAINTENANCE_VEHICLE_COST_FIELDS = [
+    'parts_cost', 'internal_labor_cost', 'external_services_cost', 'lubricants_materials_cost',
+    'towing_emergency_cost', 'unrecovered_rework_cost', 'other_cost'
+  ];
+
   function safeDetailNumber(value) {
     if (value === '' || value === null || value === undefined) return null;
     var number = Number(value);
@@ -176,9 +201,70 @@
     return details;
   }
 
+  function normalizeMaintenanceCostDetails(value) {
+    var source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+    var details = {};
+
+    MAINTENANCE_COST_DETAIL_NUMBERS.forEach(function (key) {
+      var number = safeDetailNumber(source[key]);
+      if (number !== null) {
+        details[key] = ['fleet_vehicle_count', 'maintained_vehicle_count', 'tracked_vehicle_count',
+          'maintenance_records_count', 'linked_maintenance_records_count'].indexOf(key) !== -1
+          ? Math.round(number) : number;
+      }
+    });
+
+    Object.keys(MAINTENANCE_COST_DETAIL_OPTIONS).forEach(function (key) {
+      var selected = Array.isArray(source[key]) ? source[key].filter(function (entry) {
+        return MAINTENANCE_COST_DETAIL_OPTIONS[key].indexOf(entry) !== -1;
+      }) : [];
+      if (selected.length) details[key] = selected.filter(function (entry, index, all) {
+        return all.indexOf(entry) === index;
+      });
+    });
+
+    Object.keys(MAINTENANCE_COST_DETAIL_ENUMS).forEach(function (key) {
+      if (MAINTENANCE_COST_DETAIL_ENUMS[key].indexOf(source[key]) !== -1) details[key] = source[key];
+    });
+
+    if (/^\d{4}-(0[1-9]|1[0-2])$/.test(source.reference_month || '')) {
+      details.reference_month = source.reference_month;
+    }
+
+    [
+      ['data_source_other', 240],
+      ['other_cost_description', 500],
+      ['unassigned_explanation', 2000]
+    ].forEach(function (definition) {
+      var text = safeDetailText(source[definition[0]], definition[1]);
+      if (text) details[definition[0]] = text;
+    });
+
+    var vehicles = Array.isArray(source.vehicles) ? source.vehicles.slice(0, 200).map(function (vehicle) {
+      var raw = vehicle && typeof vehicle === 'object' && !Array.isArray(vehicle) ? vehicle : {};
+      var normalized = {};
+      var identifier = safeDetailText(raw.identifier, 64);
+      if (identifier) normalized.identifier = identifier;
+      if (FUEL_VEHICLE_TYPES.indexOf(raw.identifier_type) !== -1) normalized.identifier_type = raw.identifier_type;
+      ['initial_odometer', 'final_odometer', 'maintenance_count'].concat(MAINTENANCE_VEHICLE_COST_FIELDS).forEach(function (key) {
+        var number = safeDetailNumber(raw[key]);
+        if (number !== null) normalized[key] = key === 'maintenance_count' ? Math.round(number) : number;
+      });
+      var adjustment = safeSignedDetailNumber(raw.mileage_adjustment);
+      if (adjustment !== null) normalized.mileage_adjustment = adjustment;
+      return normalized;
+    }).filter(function (vehicle) {
+      return Object.keys(vehicle).length > 0;
+    }) : [];
+    if (vehicles.length) details.vehicles = vehicles;
+
+    return details;
+  }
+
   function normalizeQuestionDetails(questionKey, value) {
     if (questionKey === 'fuel_spend') return normalizeFuelSpendDetails(value);
     if (questionKey === 'fuel_vehicle') return normalizeFuelVehicleDetails(value);
+    if (questionKey === 'maintenance_cost') return normalizeMaintenanceCostDetails(value);
     return {};
   }
 
@@ -253,6 +339,87 @@
       spend_difference: difference(fuelSpend.monthly_spend, vehicleSpend),
       liters_traceability_percentage: safeRatio(vehicleLiters, fuelSpend.monthly_liters, 100),
       spend_traceability_percentage: safeRatio(vehicleSpend, fuelSpend.monthly_spend, 100),
+      has_data: Object.keys(details).length > 0
+    });
+  }
+
+  function sumPresentFields(source, fields) {
+    var values = fields.filter(function (field) { return typeof source[field] === 'number'; });
+    return values.length ? Number(values.reduce(function (sum, field) { return sum + source[field]; }, 0).toFixed(3)) : null;
+  }
+
+  function maintenanceVehicleSnapshot(vehicle, monthlyTotalCost) {
+    var adjustment = typeof vehicle.mileage_adjustment === 'number' ? vehicle.mileage_adjustment : 0;
+    var mileage = typeof vehicle.initial_odometer === 'number' && typeof vehicle.final_odometer === 'number'
+      ? vehicle.final_odometer - vehicle.initial_odometer + adjustment
+      : null;
+    if (typeof mileage === 'number' && mileage < 0) mileage = null;
+    var totalCost = sumPresentFields(vehicle, MAINTENANCE_VEHICLE_COST_FIELDS);
+    return Object.assign({}, vehicle, {
+      mileage: mileage === null ? null : Number(mileage.toFixed(3)),
+      total_cost: totalCost,
+      cost_per_km: safeRatio(totalCost, mileage),
+      share_of_monthly_cost: safeRatio(totalCost, monthlyTotalCost, 100)
+    });
+  }
+
+  function maintenanceCostSnapshot(value) {
+    var details = normalizeQuestionDetails('maintenance_cost', value);
+    var vehicles = (details.vehicles || []).map(function (vehicle) {
+      return maintenanceVehicleSnapshot(vehicle, details.monthly_total_cost);
+    });
+    var vehicleCost = sumVehicleField(vehicles, 'total_cost');
+    var vehicleMileage = sumVehicleField(vehicles, 'mileage');
+    var maintenanceCount = sumVehicleField(vehicles, 'maintenance_count');
+    var compositionTotal = sumPresentFields(details, [
+      'parts_cost', 'internal_labor_cost', 'external_services_cost', 'lubricants_materials_cost',
+      'towing_emergency_cost', 'unrecovered_rework_cost', 'other_cost'
+    ]);
+    var typeTotal = sumPresentFields(details, [
+      'preventive_cost', 'corrective_cost', 'predictive_cost', 'accident_damage_cost'
+    ]);
+    var warnings = [];
+    if (typeof details.maintained_vehicle_count === 'number' && typeof details.fleet_vehicle_count === 'number' && details.maintained_vehicle_count > details.fleet_vehicle_count) {
+      warnings.push('Veículos com manutenção não podem superar a frota total.');
+    }
+    if (typeof details.tracked_vehicle_count === 'number' && typeof details.maintained_vehicle_count === 'number' && details.tracked_vehicle_count > details.maintained_vehicle_count) {
+      warnings.push('Veículos com custo identificado não podem superar os veículos que tiveram manutenção.');
+    }
+    if (typeof details.linked_maintenance_records_count === 'number' && typeof details.maintenance_records_count === 'number' && details.linked_maintenance_records_count > details.maintenance_records_count) {
+      warnings.push('Lançamentos vinculados não podem superar o total de lançamentos ou ordens de serviço.');
+    }
+    if (typeof compositionTotal === 'number' && typeof details.monthly_total_cost === 'number' && compositionTotal > details.monthly_total_cost) {
+      warnings.push('A soma da composição de custos supera o custo mensal declarado.');
+    }
+    if (typeof typeTotal === 'number' && typeof details.monthly_total_cost === 'number' && typeTotal > details.monthly_total_cost) {
+      warnings.push('A soma por tipo de manutenção supera o custo mensal declarado.');
+    }
+    if (typeof vehicleCost === 'number' && typeof details.monthly_total_cost === 'number' && vehicleCost > details.monthly_total_cost) {
+      warnings.push('A soma dos custos por veículo supera o custo mensal declarado.');
+    }
+    if (vehicles.some(function (vehicle) {
+      return typeof vehicle.initial_odometer === 'number' && typeof vehicle.final_odometer === 'number' && vehicle.mileage === null;
+    })) {
+      warnings.push('Há veículo com hodômetro final menor que o inicial após o ajuste informado.');
+    }
+    return Object.assign({}, details, {
+      maintained_fleet_percentage: safeRatio(details.maintained_vehicle_count, details.fleet_vehicle_count, 100),
+      vehicle_cost_coverage_percentage: safeRatio(details.tracked_vehicle_count, details.maintained_vehicle_count, 100),
+      maintenance_record_traceability_percentage: safeRatio(details.linked_maintenance_records_count, details.maintenance_records_count, 100),
+      composition_total: compositionTotal,
+      composition_difference: difference(details.monthly_total_cost, compositionTotal),
+      composition_percentage: safeRatio(compositionTotal, details.monthly_total_cost, 100),
+      type_total: typeTotal,
+      type_difference: difference(details.monthly_total_cost, typeTotal),
+      type_percentage: safeRatio(typeTotal, details.monthly_total_cost, 100),
+      vehicles: vehicles,
+      registered_vehicle_count: vehicles.length,
+      registered_vehicle_cost: vehicleCost,
+      registered_vehicle_mileage: vehicleMileage,
+      registered_maintenance_count: maintenanceCount,
+      vehicle_cost_difference: difference(details.monthly_total_cost, vehicleCost),
+      vehicle_cost_traceability_percentage: safeRatio(vehicleCost, details.monthly_total_cost, 100),
+      warnings: warnings,
       has_data: Object.keys(details).length > 0
     });
   }
@@ -470,6 +637,7 @@
         normalized.fuel_vehicle && normalized.fuel_vehicle.details,
         normalized.fuel_spend && normalized.fuel_spend.details
       ),
+      maintenanceCost: maintenanceCostSnapshot(normalized.maintenance_cost && normalized.maintenance_cost.details),
       disclaimer: 'Conclusão preliminar baseada nas respostas informadas. Evidências e impacto financeiro devem ser validados no projeto de consultoria.'
     };
   }
@@ -524,6 +692,7 @@
     normalizeQuestionDetails: normalizeQuestionDetails,
     fuelSpendSnapshot: fuelSpendSnapshot,
     fuelVehicleSnapshot: fuelVehicleSnapshot,
+    maintenanceCostSnapshot: maintenanceCostSnapshot,
     levelFromAverage: levelFromAverage,
     evaluate: evaluate,
     completeness: completeness,

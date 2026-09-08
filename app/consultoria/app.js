@@ -787,6 +787,232 @@
     });
   }
 
+  function renderMaintenanceNumberField(label, key, details, placeholder, step) {
+    return '<div class="field"><label for="maintenance-cost-detail-' + escapeHtml(key) + '">' + escapeHtml(label) + '</label><input id="maintenance-cost-detail-' +
+      escapeHtml(key) + '" type="number" min="0" max="1000000000000" step="' + escapeHtml(step || '0.01') + '" inputmode="decimal" ' +
+      'data-question-detail="maintenance_cost" data-detail-field="' + escapeHtml(key) + '" value="' + escapeHtml(detailValue(details, key)) +
+      '" placeholder="' + escapeHtml(placeholder || '') + '"></div>';
+  }
+
+  function renderMaintenanceChoices(group, label, options, details) {
+    var selected = Array.isArray(details[group]) ? details[group] : [];
+    return '<div class="detail-choice-group"><span class="detail-label">' + escapeHtml(label) + '</span><div class="detail-choice-grid">' +
+      options.map(function (option) {
+        return '<label class="detail-choice"><input type="checkbox" data-question-detail="maintenance_cost" data-detail-group="' +
+          escapeHtml(group) + '" value="' + escapeHtml(option.value) + '"' + (selected.indexOf(option.value) !== -1 ? ' checked' : '') +
+          '><span>' + escapeHtml(option.label) + '</span></label>';
+      }).join('') + '</div></div>';
+  }
+
+  function renderMaintenanceScale(field, label, details) {
+    var labels = { D: 'Documentado', E: 'Estimado', N: 'Não controla', NA: 'Não se aplica' };
+    return '<div class="detail-status-group"><span class="detail-label">' + escapeHtml(label) + '</span><div class="detail-scale">' +
+      Object.keys(labels).map(function (key) {
+        return '<label><input type="radio" name="maintenance-cost-' + escapeHtml(field) + '" data-question-detail="maintenance_cost" data-detail-field="' +
+          escapeHtml(field) + '" value="' + key + '"' + (details[field] === key ? ' checked' : '') + '><span><strong>' + key +
+          '</strong>' + escapeHtml(labels[key]) + '</span></label>';
+      }).join('') + '</div></div>';
+  }
+
+  function renderMaintenanceSelect(label, field, details, options) {
+    return '<div class="field"><label for="maintenance-cost-detail-' + escapeHtml(field) + '">' + escapeHtml(label) + '</label><select id="maintenance-cost-detail-' +
+      escapeHtml(field) + '" data-question-detail="maintenance_cost" data-detail-field="' + escapeHtml(field) + '"><option value="">Selecione</option>' +
+      options.map(function (option) {
+        return '<option value="' + escapeHtml(option.value) + '"' + (details[field] === option.value ? ' selected' : '') + '>' +
+          escapeHtml(option.label) + '</option>';
+      }).join('') + '</select></div>';
+  }
+
+  function renderMaintenanceMetric(key, label, value) {
+    return '<div class="calculated-metric"><span>' + escapeHtml(label) + '</span><strong data-maintenance-cost-summary="' + escapeHtml(key) + '">' +
+      escapeHtml(value) + '</strong></div>';
+  }
+
+  function renderMaintenanceVehicleInput(index, label, field, vehicle, options) {
+    var config = options || {};
+    var min = config.signed ? '' : ' min="0"';
+    return '<div class="field"><label for="maintenance-vehicle-' + index + '-' + escapeHtml(field) + '">' + escapeHtml(label) + '</label><input id="maintenance-vehicle-' +
+      index + '-' + escapeHtml(field) + '" type="' + escapeHtml(config.type || 'number') + '"' + min + ' max="1000000000000" step="' +
+      escapeHtml(config.step || '0.01') + '" ' + (config.type === 'text' ? 'maxlength="64"' : 'inputmode="decimal"') +
+      ' data-question-detail="maintenance_cost" data-vehicle-index="' + index + '" data-vehicle-field="' + escapeHtml(field) + '" value="' +
+      escapeHtml(detailValue(vehicle, field)) + '" placeholder="' + escapeHtml(config.placeholder || '') + '"></div>';
+  }
+
+  function renderMaintenanceVehicleSelect(index, label, field, vehicle, options) {
+    return '<div class="field"><label for="maintenance-vehicle-' + index + '-' + escapeHtml(field) + '">' + escapeHtml(label) + '</label><select id="maintenance-vehicle-' +
+      index + '-' + escapeHtml(field) + '" data-question-detail="maintenance_cost" data-vehicle-index="' + index + '" data-vehicle-field="' +
+      escapeHtml(field) + '"><option value="">Selecione</option>' + options.map(function (option) {
+        return '<option value="' + escapeHtml(option.value) + '"' + (vehicle[field] === option.value ? ' selected' : '') + '>' +
+          escapeHtml(option.label) + '</option>';
+      }).join('') + '</select></div>';
+  }
+
+  function renderMaintenanceVehicleCard(vehicle, index, monthlyTotalCost) {
+    var calculated = model.maintenanceCostSnapshot({ monthly_total_cost: monthlyTotalCost, vehicles: [vehicle] }).vehicles[0] || {};
+    var mileageFallback = typeof vehicle.initial_odometer === 'number' && typeof vehicle.final_odometer === 'number'
+      ? 'Verifique os hodômetros' : 'Preencha KM inicial e final';
+    return '<article class="vehicle-entry" data-maintenance-vehicle-card="' + index + '"><header><div><span>VEÍCULO ' +
+      String(index + 1).padStart(2, '0') + '</span><strong>' + escapeHtml(vehicle.identifier || 'Identificação pendente') +
+      '</strong></div><button class="button button-quiet vehicle-remove" type="button" data-remove-maintenance-vehicle="' + index + '">Remover</button></header>' +
+      '<div class="field-grid vehicle-entry-grid">' +
+      renderMaintenanceVehicleSelect(index, 'Tipo de identificação', 'identifier_type', vehicle, [
+        { value: 'plate', label: 'Placa' }, { value: 'internal_code', label: 'Código interno' }, { value: 'fleet_number', label: 'Número de frota' }
+      ]) +
+      renderMaintenanceVehicleInput(index, 'Placa, código ou número', 'identifier', vehicle, { type: 'text', placeholder: 'Ex.: ABC-1D23 ou FROTA-018' }) +
+      renderMaintenanceVehicleInput(index, 'Hodômetro inicial do mês', 'initial_odometer', vehicle, { step: '0.001', placeholder: 'Ex.: 250000' }) +
+      renderMaintenanceVehicleInput(index, 'Hodômetro final do mês', 'final_odometer', vehicle, { step: '0.001', placeholder: 'Ex.: 261500' }) +
+      renderMaintenanceVehicleInput(index, 'Ajuste de quilometragem', 'mileage_adjustment', vehicle, { step: '0.001', signed: true, placeholder: 'Ex.: 0 ou -120' }) +
+      renderMaintenanceVehicleInput(index, 'Quantidade de manutenções/OS', 'maintenance_count', vehicle, { step: '1', placeholder: 'Ex.: 3' }) +
+      renderMaintenanceVehicleInput(index, 'Peças (R$)', 'parts_cost', vehicle, { placeholder: 'Ex.: 4500' }) +
+      renderMaintenanceVehicleInput(index, 'Mão de obra interna (R$)', 'internal_labor_cost', vehicle, { placeholder: 'Ex.: 1200' }) +
+      renderMaintenanceVehicleInput(index, 'Serviços externos (R$)', 'external_services_cost', vehicle, { placeholder: 'Ex.: 1800' }) +
+      renderMaintenanceVehicleInput(index, 'Lubrificantes e materiais (R$)', 'lubricants_materials_cost', vehicle, { placeholder: 'Ex.: 650' }) +
+      renderMaintenanceVehicleInput(index, 'Guincho e emergência (R$)', 'towing_emergency_cost', vehicle, { placeholder: 'Ex.: 0' }) +
+      renderMaintenanceVehicleInput(index, 'Retrabalho não recuperado (R$)', 'unrecovered_rework_cost', vehicle, { placeholder: 'Ex.: 0' }) +
+      renderMaintenanceVehicleInput(index, 'Outros custos (R$)', 'other_cost', vehicle, { placeholder: 'Ex.: 300' }) + '</div>' +
+      '<div class="vehicle-calculation-grid">' +
+      '<div><span>KM rodado</span><strong data-maintenance-vehicle-card-metric="mileage" data-vehicle-index="' + index + '">' +
+        (typeof calculated.mileage === 'number' ? escapeHtml(formatDetailNumber(calculated.mileage, 3)) + ' km' : mileageFallback) + '</strong></div>' +
+      '<div><span>Custo total do veículo</span><strong data-maintenance-vehicle-card-metric="total_cost" data-vehicle-index="' + index + '">' +
+        (typeof calculated.total_cost === 'number' ? escapeHtml(formatDetailMoney(calculated.total_cost)) : 'Preencha os custos') + '</strong></div>' +
+      '<div><span>Custo de manutenção por KM</span><strong data-maintenance-vehicle-card-metric="cost_per_km" data-vehicle-index="' + index + '">' +
+        (typeof calculated.cost_per_km === 'number' ? escapeHtml(formatDetailMoney(calculated.cost_per_km)) + '/km' : 'Não calculado') + '</strong></div>' +
+      '<div><span>Participação no custo mensal</span><strong data-maintenance-vehicle-card-metric="share_of_monthly_cost" data-vehicle-index="' + index + '">' +
+        escapeHtml(formatDetailPercent(calculated.share_of_monthly_cost)) + '</strong></div></div></article>';
+  }
+
+  function renderMaintenanceCostDetails(current) {
+    if (!model.CLASSIFICATIONS[current.classification]) {
+      return '<div class="question-detail-prompt"><strong>Roteiro da visita</strong><span>Selecione D, E, N ou NA para abrir o detalhamento desta pergunta.</span></div>';
+    }
+    var details = current.details || {};
+    var snapshot = model.maintenanceCostSnapshot(details);
+    var vehicles = Array.isArray(details.vehicles) ? details.vehicles : [];
+    var standardOptions = [
+      { value: 'yes', label: 'Sim' }, { value: 'partial', label: 'Parcialmente' },
+      { value: 'no', label: 'Não' }, { value: 'unknown', label: 'Não soube informar' }
+    ];
+    var warningList = snapshot.warnings.length ? '<div class="detail-warning-list"><strong>Conferências necessárias</strong><ul>' +
+      snapshot.warnings.map(function (warning) { return '<li>' + escapeHtml(warning) + '</li>'; }).join('') + '</ul></div>' :
+      '<div class="detail-check-ok"><strong>Conferências automáticas sem divergência</strong><span>Os totais preenchidos ainda não apresentam inconsistência matemática.</span></div>';
+    return '<section class="question-detail-panel" aria-label="Detalhamento do custo de manutenção por veículo">' +
+      '<header><span>ROTEIRO DA VISITA · MANUTENÇÃO · PERGUNTA 01</span><h4>Custo mensal, composição e rastreabilidade por veículo</h4><p>Registre o que o cliente conseguir demonstrar. Os cálculos ajudam a conferir a informação e não alteram a classificação D, E, N ou NA.</p></header>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>01</span><div><h5>Referência e cobertura do controle</h5><p>Identifique o custo total do mês e quanto da frota está efetivamente coberto.</p></div></div>' +
+      '<div class="field-grid detail-grid">' +
+      renderMaintenanceNumberField('Custo total de manutenção no mês (R$)', 'monthly_total_cost', details, 'Ex.: 85000', '0.01') +
+      '<div class="field"><label for="maintenance-cost-reference-month">Mês e ano de referência</label><input id="maintenance-cost-reference-month" type="month" data-question-detail="maintenance_cost" data-detail-field="reference_month" value="' + escapeHtml(detailValue(details, 'reference_month')) + '"></div>' +
+      renderMaintenanceNumberField('Quantidade total de veículos', 'fleet_vehicle_count', details, 'Ex.: 40', '1') +
+      renderMaintenanceNumberField('Veículos com manutenção no mês', 'maintained_vehicle_count', details, 'Ex.: 22', '1') +
+      renderMaintenanceMetric('maintained_fleet_percentage', 'Frota que passou por manutenção', formatDetailPercent(snapshot.maintained_fleet_percentage)) +
+      renderMaintenanceNumberField('Veículos com custo identificado', 'tracked_vehicle_count', details, 'Ex.: 20', '1') +
+      renderMaintenanceMetric('vehicle_cost_coverage_percentage', 'Cobertura dos veículos mantidos', formatDetailPercent(snapshot.vehicle_cost_coverage_percentage)) +
+      renderMaintenanceNumberField('Lançamentos ou OS no mês', 'maintenance_records_count', details, 'Ex.: 38', '1') +
+      renderMaintenanceNumberField('Lançamentos vinculados ao veículo', 'linked_maintenance_records_count', details, 'Ex.: 35', '1') +
+      renderMaintenanceMetric('maintenance_record_traceability_percentage', 'Rastreabilidade dos lançamentos', formatDetailPercent(snapshot.maintenance_record_traceability_percentage)) + '</div>' +
+      renderMaintenanceChoices('identifier_methods', 'Formas de identificação utilizadas', [
+        { value: 'plate', label: 'Placa' }, { value: 'internal_code', label: 'Código interno' }, { value: 'fleet_number', label: 'Número de frota' }
+      ], details) +
+      '<div class="field-grid two-columns">' +
+      renderMaintenanceSelect('Existem custos sem veículo identificado?', 'unlinked_costs', details, standardOptions) +
+      renderMaintenanceSelect('Custos e documentos estão consolidados?', 'values_consolidated', details, standardOptions) + '</div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>02</span><div><h5>Composição do custo</h5><p>Separe o valor mensal para descobrir o que está incluído ou esquecido no número informado.</p></div></div>' +
+      '<div class="field-grid detail-grid">' +
+      renderMaintenanceNumberField('Peças (R$)', 'parts_cost', details, 'Total no mês') +
+      renderMaintenanceNumberField('Mão de obra interna (R$)', 'internal_labor_cost', details, 'Total no mês') +
+      renderMaintenanceNumberField('Serviços e mão de obra externa (R$)', 'external_services_cost', details, 'Total no mês') +
+      renderMaintenanceNumberField('Lubrificantes e materiais (R$)', 'lubricants_materials_cost', details, 'Total no mês') +
+      renderMaintenanceNumberField('Guincho e emergência (R$)', 'towing_emergency_cost', details, 'Total no mês') +
+      renderMaintenanceNumberField('Retrabalho não recuperado (R$)', 'unrecovered_rework_cost', details, 'Total no mês') +
+      renderMaintenanceNumberField('Outros custos (R$)', 'other_cost', details, 'Total no mês') +
+      renderMaintenanceMetric('composition_total', 'Soma da composição', typeof snapshot.composition_total === 'number' ? formatDetailMoney(snapshot.composition_total) : 'Não calculada') +
+      renderMaintenanceMetric('composition_difference', 'Diferença para o custo mensal', typeof snapshot.composition_difference === 'number' ? formatDetailMoney(snapshot.composition_difference) : 'Não calculada') +
+      renderMaintenanceMetric('composition_percentage', 'Custo mensal explicado', formatDetailPercent(snapshot.composition_percentage)) + '</div>' +
+      '<div class="field"><label for="maintenance-cost-other-description">Descrição de outros custos</label><textarea id="maintenance-cost-other-description" rows="2" maxlength="500" data-question-detail="maintenance_cost" data-detail-field="other_cost_description" placeholder="Informe o que está incluído em outros custos.">' + escapeHtml(detailValue(details, 'other_cost_description')) + '</textarea></div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>03</span><div><h5>Custo por tipo de manutenção</h5><p>Separe preventiva, corretiva, preditiva e ocorrências para orientar a análise.</p></div></div>' +
+      '<div class="field-grid detail-grid">' +
+      renderMaintenanceNumberField('Preventiva (R$)', 'preventive_cost', details, 'Total no mês') +
+      renderMaintenanceNumberField('Corretiva (R$)', 'corrective_cost', details, 'Total no mês') +
+      renderMaintenanceNumberField('Preditiva (R$)', 'predictive_cost', details, 'Total no mês') +
+      renderMaintenanceNumberField('Acidente ou avaria (R$)', 'accident_damage_cost', details, 'Total no mês') +
+      renderMaintenanceMetric('type_total', 'Soma por tipo', typeof snapshot.type_total === 'number' ? formatDetailMoney(snapshot.type_total) : 'Não calculada') +
+      renderMaintenanceMetric('type_difference', 'Diferença para o custo mensal', typeof snapshot.type_difference === 'number' ? formatDetailMoney(snapshot.type_difference) : 'Não calculada') +
+      renderMaintenanceMetric('type_percentage', 'Custo mensal classificado', formatDetailPercent(snapshot.type_percentage)) + '</div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>04</span><div><h5>Histórico e fontes</h5><p>Confirme se o mês representa um controle contínuo e de onde os números foram extraídos.</p></div></div>' +
+      renderMaintenanceScale('six_month_history', 'A empresa possui histórico de custos dos últimos 6 meses?', details) +
+      '<div class="field-grid two-columns">' + renderMaintenanceNumberField('Custo em 6 meses (R$)', 'six_month_total_cost', details, 'Total do período') +
+      renderMaintenanceNumberField('Custo em 12 meses (R$)', 'annual_total_cost', details, 'Total do período') + '</div>' +
+      renderMaintenanceScale('annual_history', 'A empresa possui histórico de custos dos últimos 12 meses?', details) +
+      renderMaintenanceChoices('data_sources', 'Fontes da informação', [
+        { value: 'erp', label: 'ERP ou sistema' }, { value: 'work_orders', label: 'Ordens de serviço' },
+        { value: 'spreadsheet', label: 'Planilha' }, { value: 'invoices', label: 'Notas fiscais' },
+        { value: 'workshop_control', label: 'Controle da oficina' }, { value: 'accounting', label: 'Financeiro/contabilidade' },
+        { value: 'other', label: 'Outra fonte' }
+      ], details) + '<div class="field"><label for="maintenance-cost-source-other">Outra fonte</label><input id="maintenance-cost-source-other" type="text" maxlength="240" data-question-detail="maintenance_cost" data-detail-field="data_source_other" value="' + escapeHtml(detailValue(details, 'data_source_other')) + '"></div></div>' +
+      '<div class="detail-block"><div class="detail-block-title detail-block-title-action"><span>05</span><div><h5>Custos mensais por veículo</h5><p>Cadastre os veículos necessários para validar custo, quilometragem e participação no total.</p></div><button class="button button-secondary" type="button" data-add-maintenance-vehicle' + (vehicles.length >= 200 ? ' disabled' : '') + '>Adicionar veículo</button></div>' +
+      '<div class="vehicle-list-editor">' + (vehicles.length ? vehicles.map(function (vehicle, index) {
+        return renderMaintenanceVehicleCard(vehicle, index, details.monthly_total_cost);
+      }).join('') : '<div class="vehicle-empty-state"><strong>Nenhum veículo adicionado</strong><span>Use “Adicionar veículo” para registrar identificação, KM e composição do custo.</span></div>') + '</div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>06</span><div><h5>Conciliação e evidências</h5><p>Compare o custo declarado com os valores individualizados antes de concluir a leitura.</p></div></div>' +
+      '<div class="reconciliation-grid">' +
+      renderMaintenanceMetric('monthly_total_cost', 'Custo mensal declarado', typeof snapshot.monthly_total_cost === 'number' ? formatDetailMoney(snapshot.monthly_total_cost) : 'Não informado') +
+      renderMaintenanceMetric('registered_vehicle_cost', 'Custo vinculado aos veículos', typeof snapshot.registered_vehicle_cost === 'number' ? formatDetailMoney(snapshot.registered_vehicle_cost) : 'Nenhum custo informado') +
+      renderMaintenanceMetric('vehicle_cost_difference', 'Custo ainda não conciliado', typeof snapshot.vehicle_cost_difference === 'number' ? formatDetailMoney(snapshot.vehicle_cost_difference) : 'Não calculado') +
+      renderMaintenanceMetric('vehicle_cost_traceability_percentage', 'Rastreabilidade financeira', formatDetailPercent(snapshot.vehicle_cost_traceability_percentage)) +
+      renderMaintenanceMetric('registered_vehicle_mileage', 'KM somado dos veículos', typeof snapshot.registered_vehicle_mileage === 'number' ? formatDetailNumber(snapshot.registered_vehicle_mileage, 3) + ' km' : 'Não calculado') +
+      renderMaintenanceMetric('registered_maintenance_count', 'Manutenções/OS cadastradas', typeof snapshot.registered_maintenance_count === 'number' ? formatDetailNumber(snapshot.registered_maintenance_count, 0) : 'Não informado') + '</div>' +
+      warningList + '<div class="field"><label for="maintenance-cost-unassigned-explanation">Explique diferenças, custos indiretos ou valores sem veículo</label><textarea id="maintenance-cost-unassigned-explanation" rows="3" maxlength="2000" data-question-detail="maintenance_cost" data-detail-field="unassigned_explanation" placeholder="Ex.: estoque de peças, manutenção predial da oficina, nota ainda não rateada, veículo de terceiro ou lançamento pendente.">' + escapeHtml(detailValue(details, 'unassigned_explanation')) + '</textarea></div></div></section>';
+  }
+
+  function updateMaintenanceCostCalculations() {
+    var answer = state.answers.maintenance_cost || {};
+    var snapshot = model.maintenanceCostSnapshot(answer.details || {});
+    var values = {
+      maintained_fleet_percentage: formatDetailPercent(snapshot.maintained_fleet_percentage),
+      vehicle_cost_coverage_percentage: formatDetailPercent(snapshot.vehicle_cost_coverage_percentage),
+      maintenance_record_traceability_percentage: formatDetailPercent(snapshot.maintenance_record_traceability_percentage),
+      composition_total: typeof snapshot.composition_total === 'number' ? formatDetailMoney(snapshot.composition_total) : 'Não calculada',
+      composition_difference: typeof snapshot.composition_difference === 'number' ? formatDetailMoney(snapshot.composition_difference) : 'Não calculada',
+      composition_percentage: formatDetailPercent(snapshot.composition_percentage),
+      type_total: typeof snapshot.type_total === 'number' ? formatDetailMoney(snapshot.type_total) : 'Não calculada',
+      type_difference: typeof snapshot.type_difference === 'number' ? formatDetailMoney(snapshot.type_difference) : 'Não calculada',
+      type_percentage: formatDetailPercent(snapshot.type_percentage),
+      monthly_total_cost: typeof snapshot.monthly_total_cost === 'number' ? formatDetailMoney(snapshot.monthly_total_cost) : 'Não informado',
+      registered_vehicle_cost: typeof snapshot.registered_vehicle_cost === 'number' ? formatDetailMoney(snapshot.registered_vehicle_cost) : 'Nenhum custo informado',
+      vehicle_cost_difference: typeof snapshot.vehicle_cost_difference === 'number' ? formatDetailMoney(snapshot.vehicle_cost_difference) : 'Não calculado',
+      vehicle_cost_traceability_percentage: formatDetailPercent(snapshot.vehicle_cost_traceability_percentage),
+      registered_vehicle_mileage: typeof snapshot.registered_vehicle_mileage === 'number' ? formatDetailNumber(snapshot.registered_vehicle_mileage, 3) + ' km' : 'Não calculado',
+      registered_maintenance_count: typeof snapshot.registered_maintenance_count === 'number' ? formatDetailNumber(snapshot.registered_maintenance_count, 0) : 'Não informado'
+    };
+    Object.keys(values).forEach(function (key) {
+      elements.questionList.querySelectorAll('[data-maintenance-cost-summary="' + key + '"]').forEach(function (element) {
+        element.textContent = values[key];
+      });
+    });
+    var rawVehicles = answer.details && Array.isArray(answer.details.vehicles) ? answer.details.vehicles : [];
+    rawVehicles.forEach(function (vehicle, index) {
+      var calculated = model.maintenanceCostSnapshot({ monthly_total_cost: snapshot.monthly_total_cost, vehicles: [vehicle] }).vehicles[0] || {};
+      var bothOdometers = typeof vehicle.initial_odometer === 'number' && typeof vehicle.final_odometer === 'number';
+      var cardValues = {
+        mileage: typeof calculated.mileage === 'number' ? formatDetailNumber(calculated.mileage, 3) + ' km' : (bothOdometers ? 'Verifique os hodômetros' : 'Preencha KM inicial e final'),
+        total_cost: typeof calculated.total_cost === 'number' ? formatDetailMoney(calculated.total_cost) : 'Preencha os custos',
+        cost_per_km: typeof calculated.cost_per_km === 'number' ? formatDetailMoney(calculated.cost_per_km) + '/km' : 'Não calculado',
+        share_of_monthly_cost: formatDetailPercent(calculated.share_of_monthly_cost)
+      };
+      Object.keys(cardValues).forEach(function (metric) {
+        var element = elements.questionList.querySelector('[data-maintenance-vehicle-card-metric="' + metric + '"][data-vehicle-index="' + index + '"]');
+        if (element) element.textContent = cardValues[metric];
+      });
+    });
+    var existingChecks = elements.questionList.querySelector('.detail-warning-list, .detail-check-ok');
+    if (existingChecks) {
+      var replacement = document.createElement('div');
+      replacement.innerHTML = snapshot.warnings.length ? '<div class="detail-warning-list"><strong>Conferências necessárias</strong><ul>' +
+        snapshot.warnings.map(function (warning) { return '<li>' + escapeHtml(warning) + '</li>'; }).join('') + '</ul></div>' :
+        '<div class="detail-check-ok"><strong>Conferências automáticas sem divergência</strong><span>Os totais preenchidos ainda não apresentam inconsistência matemática.</span></div>';
+      existingChecks.replaceWith(replacement.firstElementChild);
+    }
+  }
+
   function renderQuestions() {
     var pillar = model.PILLARS[state.pillarIndex];
     var questions = model.visibleQuestions(state.answers, pillar.key);
@@ -799,7 +1025,8 @@
           '><span><strong>' + key + '</strong>' + escapeHtml(definition.label) + '</span></label>';
       }).join('');
       var detailPanel = question.key === 'fuel_spend' ? renderFuelSpendDetails(current) :
-        (question.key === 'fuel_vehicle' ? renderFuelVehicleDetails(current) : '');
+        (question.key === 'fuel_vehicle' ? renderFuelVehicleDetails(current) :
+          (question.key === 'maintenance_cost' ? renderMaintenanceCostDetails(current) : ''));
       return '<fieldset class="question-card" data-question-card="' + escapeHtml(question.key) + '"><legend>' +
         String(questionIndex + 1).padStart(2, '0') + '. ' + escapeHtml(question.title) + '</legend><p class="question-help">' +
         escapeHtml(question.help) + '</p><div class="answer-options">' + options + '</div>' + detailPanel + '<details class="question-notes"' +
@@ -1019,6 +1246,55 @@
       (snapshot.unassigned_explanation ? '<p><strong>Explicação das diferenças:</strong> ' + escapeHtml(snapshot.unassigned_explanation) + '</p>' : '') + '</div>' + vehicleList;
   }
 
+  function renderMaintenanceCostResult(snapshot) {
+    var panel = document.getElementById('maintenance-cost-summary');
+    if (!snapshot || !snapshot.has_data) {
+      panel.hidden = true;
+      panel.innerHTML = '';
+      return;
+    }
+    var identifierLabels = { plate: 'Placa', internal_code: 'Código interno', fleet_number: 'Número de frota' };
+    var sourceLabels = {
+      erp: 'ERP ou sistema', work_orders: 'Ordens de serviço', spreadsheet: 'Planilha', invoices: 'Notas fiscais',
+      workshop_control: 'Controle da oficina', accounting: 'Financeiro/contabilidade', other: 'Outra fonte'
+    };
+    var statusLabels = { yes: 'Sim', partial: 'Parcialmente', no: 'Não', unknown: 'Não informado', D: 'Documentado', E: 'Estimado', N: 'Não controla', NA: 'Não se aplica' };
+    var vehicleList = snapshot.vehicles.length ? '<div class="fuel-vehicle-result-list">' + snapshot.vehicles.map(function (vehicle) {
+      return '<div><strong>' + escapeHtml(vehicle.identifier || 'Veículo sem identificação') + '</strong><span>' +
+        escapeHtml(identifierLabels[vehicle.identifier_type] || 'Identificação não informada') +
+        ' · ' + (typeof vehicle.mileage === 'number' ? escapeHtml(formatDetailNumber(vehicle.mileage, 3)) + ' km' : 'KM não calculado') +
+        ' · ' + (typeof vehicle.maintenance_count === 'number' ? escapeHtml(formatDetailNumber(vehicle.maintenance_count, 0)) + ' manutenções/OS' : 'quantidade não informada') + '</span><small>' +
+        (typeof vehicle.total_cost === 'number' ? escapeHtml(formatDetailMoney(vehicle.total_cost)) : 'custo não informado') +
+        ' · ' + (typeof vehicle.cost_per_km === 'number' ? escapeHtml(formatDetailMoney(vehicle.cost_per_km)) + '/km' : 'custo/km não calculado') +
+        ' · ' + escapeHtml(formatDetailPercent(vehicle.share_of_monthly_cost)) + ' do mês</small></div>';
+    }).join('') + '</div>' : '<p class="muted small">Nenhum veículo individual foi registrado no roteiro de manutenção.</p>';
+    var warningBlock = snapshot.warnings.length ? '<div class="result-warning"><strong>Conferências pendentes</strong><ul>' +
+      snapshot.warnings.map(function (warning) { return '<li>' + escapeHtml(warning) + '</li>'; }).join('') + '</ul></div>' : '';
+    panel.hidden = false;
+    panel.innerHTML = '<div class="fuel-result-header"><div><p class="panel-kicker">Pergunta 01 · Manutenção</p><h2>Leitura de custos por veículo</h2></div><span class="badge">' +
+      escapeHtml(formatReferenceMonth(snapshot.reference_month)) + '</span></div><div class="fuel-result-metrics">' +
+      '<div><span>Custo mensal</span><strong>' + escapeHtml(formatDetailMoney(snapshot.monthly_total_cost)) + '</strong></div>' +
+      '<div><span>Veículos mantidos</span><strong>' + escapeHtml(formatDetailPercent(snapshot.maintained_fleet_percentage)) + '</strong><small>' +
+        escapeHtml(formatDetailNumber(snapshot.maintained_vehicle_count, 0)) + ' de ' + escapeHtml(formatDetailNumber(snapshot.fleet_vehicle_count, 0)) + ' veículos</small></div>' +
+      '<div><span>Custos por veículo</span><strong>' + escapeHtml(formatDetailPercent(snapshot.vehicle_cost_coverage_percentage)) + '</strong><small>' +
+        escapeHtml(formatDetailNumber(snapshot.tracked_vehicle_count, 0)) + ' de ' + escapeHtml(formatDetailNumber(snapshot.maintained_vehicle_count, 0)) + ' veículos mantidos</small></div>' +
+      '<div><span>Lançamentos rastreados</span><strong>' + escapeHtml(formatDetailPercent(snapshot.maintenance_record_traceability_percentage)) + '</strong><small>' +
+        escapeHtml(formatDetailNumber(snapshot.linked_maintenance_records_count, 0)) + ' de ' + escapeHtml(formatDetailNumber(snapshot.maintenance_records_count, 0)) + ' lançamentos/OS</small></div>' +
+      '<div><span>Custo conciliado por veículo</span><strong>' + escapeHtml(formatDetailPercent(snapshot.vehicle_cost_traceability_percentage)) + '</strong><small>Diferença: ' +
+        (typeof snapshot.vehicle_cost_difference === 'number' ? escapeHtml(formatDetailMoney(snapshot.vehicle_cost_difference)) : 'não calculada') + '</small></div>' +
+      '<div><span>Composição explicada</span><strong>' + escapeHtml(formatDetailPercent(snapshot.composition_percentage)) + '</strong><small>Soma: ' +
+        (typeof snapshot.composition_total === 'number' ? escapeHtml(formatDetailMoney(snapshot.composition_total)) : 'não calculada') + '</small></div>' +
+      '<div><span>Preventiva</span><strong>' + escapeHtml(formatDetailMoney(snapshot.preventive_cost)) + '</strong></div>' +
+      '<div><span>Corretiva</span><strong>' + escapeHtml(formatDetailMoney(snapshot.corrective_cost)) + '</strong></div>' +
+      '<div><span>Histórico</span><strong>6 meses: ' + escapeHtml(statusLabels[snapshot.six_month_history] || 'Não informado') + '</strong><small>12 meses: ' +
+        escapeHtml(statusLabels[snapshot.annual_history] || 'Não informado') + '</small></div></div>' +
+      '<div class="fuel-result-context"><p><strong>Identificação:</strong> ' + escapeHtml(detailLabels(snapshot.identifier_methods, identifierLabels)) + '</p>' +
+      '<p><strong>Fontes:</strong> ' + escapeHtml(detailLabels(snapshot.data_sources, sourceLabels, snapshot.data_source_other)) + '</p>' +
+      '<p><strong>Consolidação:</strong> ' + escapeHtml(statusLabels[snapshot.values_consolidated] || 'Não informado') +
+      ' · <strong>Custos sem veículo:</strong> ' + escapeHtml(statusLabels[snapshot.unlinked_costs] || 'Não informado') + '</p>' +
+      (snapshot.unassigned_explanation ? '<p><strong>Explicação das diferenças:</strong> ' + escapeHtml(snapshot.unassigned_explanation) + '</p>' : '') + '</div>' + warningBlock + vehicleList;
+  }
+
   function renderResult(diagnostic) {
     var summary = diagnostic.preliminary_summary && diagnostic.preliminary_summary.pillars ? diagnostic.preliminary_summary : model.evaluate(state.answers);
     var company = companyById(diagnostic.company_id);
@@ -1030,6 +1306,7 @@
     }).join('');
     renderFuelSpendResult(summary.fuelSpend);
     renderFuelVehicleResult(summary.fuelVehicle);
+    renderMaintenanceCostResult(summary.maintenanceCost);
     document.getElementById('priority-title').textContent = summary.priority.name + ' — nível ' + summary.priority.level + '/3';
     document.getElementById('priority-copy').textContent = 'Este é o pilar inicial para aprofundar evidências e organizar a primeira frente de trabalho.';
     document.getElementById('gap-list').innerHTML = summary.gaps.length ? summary.gaps.map(function (gap) {
@@ -1138,14 +1415,18 @@
     elements.diagnosticForm.addEventListener('click', function (event) {
       var addButton = event.target.closest('[data-add-fuel-vehicle]');
       var removeButton = event.target.closest('[data-remove-fuel-vehicle]');
-      if (!addButton && !removeButton) return;
-      state.answers.fuel_vehicle = state.answers.fuel_vehicle || { classification: '', notes: '', details: {} };
-      state.answers.fuel_vehicle.details = state.answers.fuel_vehicle.details || {};
-      var vehicles = Array.isArray(state.answers.fuel_vehicle.details.vehicles)
-        ? state.answers.fuel_vehicle.details.vehicles : [];
-      if (addButton && vehicles.length < 200) vehicles.push({});
+      var addMaintenanceButton = event.target.closest('[data-add-maintenance-vehicle]');
+      var removeMaintenanceButton = event.target.closest('[data-remove-maintenance-vehicle]');
+      if (!addButton && !removeButton && !addMaintenanceButton && !removeMaintenanceButton) return;
+      var answerKey = addMaintenanceButton || removeMaintenanceButton ? 'maintenance_cost' : 'fuel_vehicle';
+      state.answers[answerKey] = state.answers[answerKey] || { classification: '', notes: '', details: {} };
+      state.answers[answerKey].details = state.answers[answerKey].details || {};
+      var vehicles = Array.isArray(state.answers[answerKey].details.vehicles)
+        ? state.answers[answerKey].details.vehicles : [];
+      if ((addButton || addMaintenanceButton) && vehicles.length < 200) vehicles.push({});
       if (removeButton) vehicles.splice(Number(removeButton.dataset.removeFuelVehicle), 1);
-      state.answers.fuel_vehicle.details.vehicles = vehicles;
+      if (removeMaintenanceButton) vehicles.splice(Number(removeMaintenanceButton.dataset.removeMaintenanceVehicle), 1);
+      state.answers[answerKey].details.vehicles = vehicles;
       renderQuestions();
       queueAutosave();
     });
@@ -1164,7 +1445,7 @@
         var controlsConditional = model.QUESTIONS.some(function (question) {
           return question.condition && question.condition.key === key;
         });
-        if (controlsConditional || key === 'fuel_spend') {
+        if (controlsConditional || key === 'fuel_spend' || key === 'maintenance_cost') {
           renderPillarTabs();
           renderQuestions();
         } else {
@@ -1198,6 +1479,7 @@
         }
         updateFuelSpendCalculations();
         updateFuelVehicleCalculations();
+        updateMaintenanceCostCalculations();
       }
       queueAutosave();
     });

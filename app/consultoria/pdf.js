@@ -99,6 +99,7 @@
       pillars: Array.isArray(summary.pillars) ? summary.pillars : [],
       fuelSpend: summary.fuelSpend && typeof summary.fuelSpend === 'object' ? summary.fuelSpend : {},
       fuelVehicle: summary.fuelVehicle && typeof summary.fuelVehicle === 'object' ? summary.fuelVehicle : {},
+      maintenanceCost: summary.maintenanceCost && typeof summary.maintenanceCost === 'object' ? summary.maintenanceCost : {},
       priority: summary.priority || {},
       gaps: Array.isArray(summary.gaps) ? summary.gaps : [],
       strengths: Array.isArray(summary.strengths) ? summary.strengths : [],
@@ -301,6 +302,77 @@
       });
       if (safeText(data.fuelVehicle.unassigned_explanation)) {
         paragraph('Explicação das diferenças: ' + safeText(data.fuelVehicle.unassigned_explanation), { size: 8, color: COLORS.soft, after: 5 });
+      }
+    }
+
+    if (data.maintenanceCost.has_data) {
+      var maintenanceIdentifierLabels = { plate: 'placa', internal_code: 'código interno', fleet_number: 'número de frota' };
+      var maintenanceSourceLabels = {
+        erp: 'ERP ou sistema', work_orders: 'ordens de serviço', spreadsheet: 'planilha', invoices: 'notas fiscais',
+        workshop_control: 'controle da oficina', accounting: 'financeiro/contabilidade', other: 'outra fonte'
+      };
+      var maintenanceStatusLabels = { yes: 'sim', partial: 'parcialmente', no: 'não', unknown: 'não informado', D: 'documentado', E: 'estimado', N: 'não controla', NA: 'não se aplica' };
+      sectionLabel('Manutenção — custos por veículo', COLORS.blue);
+      paragraph(
+        'Referência ' + formatMonth(data.maintenanceCost.reference_month) +
+        ' • Custo mensal ' + formatMoney(data.maintenanceCost.monthly_total_cost) +
+        ' • Frota mantida ' + formatPercent(data.maintenanceCost.maintained_fleet_percentage) +
+        ' • Cobertura dos veículos mantidos ' + formatPercent(data.maintenanceCost.vehicle_cost_coverage_percentage) +
+        ' • Lançamentos rastreados ' + formatPercent(data.maintenanceCost.maintenance_record_traceability_percentage),
+        { size: 8.5, bold: true, after: 3 }
+      );
+      paragraph(
+        'Composição apurada ' + formatMoney(data.maintenanceCost.composition_total) +
+        ' (' + formatPercent(data.maintenanceCost.composition_percentage) + ' do total; diferença ' + formatMoney(data.maintenanceCost.composition_difference) + '). ' +
+        'Classificação por tipo ' + formatMoney(data.maintenanceCost.type_total) +
+        ' (' + formatPercent(data.maintenanceCost.type_percentage) + ' do total; diferença ' + formatMoney(data.maintenanceCost.type_difference) + '). ' +
+        'Vinculado aos veículos ' + formatMoney(data.maintenanceCost.registered_vehicle_cost) +
+        ' (' + formatPercent(data.maintenanceCost.vehicle_cost_traceability_percentage) + '; diferença ' + formatMoney(data.maintenanceCost.vehicle_cost_difference) + ').',
+        { size: 8, color: COLORS.soft, after: 3 }
+      );
+      paragraph(
+        'Composição: peças ' + formatMoney(data.maintenanceCost.parts_cost) +
+        '; mão de obra interna ' + formatMoney(data.maintenanceCost.internal_labor_cost) +
+        '; serviços externos ' + formatMoney(data.maintenanceCost.external_services_cost) +
+        '; lubrificantes e materiais ' + formatMoney(data.maintenanceCost.lubricants_materials_cost) +
+        '; guincho e emergência ' + formatMoney(data.maintenanceCost.towing_emergency_cost) +
+        '; retrabalho não recuperado ' + formatMoney(data.maintenanceCost.unrecovered_rework_cost) +
+        '; outros ' + formatMoney(data.maintenanceCost.other_cost) + '.',
+        { size: 8, color: COLORS.soft, after: 3 }
+      );
+      paragraph(
+        'Tipos: preventiva ' + formatMoney(data.maintenanceCost.preventive_cost) +
+        '; corretiva ' + formatMoney(data.maintenanceCost.corrective_cost) +
+        '; preditiva ' + formatMoney(data.maintenanceCost.predictive_cost) +
+        '; acidente ou avaria ' + formatMoney(data.maintenanceCost.accident_damage_cost) + '. ' +
+        'Histórico de 6 meses: ' + (maintenanceStatusLabels[data.maintenanceCost.six_month_history] || 'não informado') +
+        ' (' + formatMoney(data.maintenanceCost.six_month_total_cost) + '). Histórico de 12 meses: ' +
+        (maintenanceStatusLabels[data.maintenanceCost.annual_history] || 'não informado') +
+        ' (' + formatMoney(data.maintenanceCost.annual_total_cost) + ').',
+        { size: 8, color: COLORS.soft, after: 3 }
+      );
+      paragraph(
+        'Identificação: ' + selectedLabels(data.maintenanceCost.identifier_methods, maintenanceIdentifierLabels) +
+        '. Fontes: ' + selectedLabels(data.maintenanceCost.data_sources, maintenanceSourceLabels, data.maintenanceCost.data_source_other) +
+        '. Consolidação: ' + (maintenanceStatusLabels[data.maintenanceCost.values_consolidated] || 'não informado') +
+        '. Custos sem veículo: ' + (maintenanceStatusLabels[data.maintenanceCost.unlinked_costs] || 'não informado') + '.',
+        { size: 8, color: COLORS.soft, after: 3 }
+      );
+      (data.maintenanceCost.vehicles || []).slice(0, 30).forEach(function (vehicle, index) {
+        paragraph(
+          String(index + 1).padStart(2, '0') + ' · ' + safeText(vehicle.identifier, 'Veículo sem identificação') +
+          ' (' + (maintenanceIdentifierLabels[vehicle.identifier_type] || 'tipo não informado') + ')' +
+          ' — ' + formatNumber(vehicle.mileage, 3) + ' km; ' + formatNumber(vehicle.maintenance_count, 0) + ' manutenções/OS; ' +
+          formatMoney(vehicle.total_cost) + '; ' + formatMoney(vehicle.cost_per_km) + '/km; ' +
+          formatPercent(vehicle.share_of_monthly_cost) + ' do custo mensal.',
+          { size: 7.7, color: COLORS.text, after: 1.5 }
+        );
+      });
+      (data.maintenanceCost.warnings || []).forEach(function (warning) {
+        paragraph('Conferir: ' + safeText(warning), { size: 8, color: COLORS.gold, after: 2 });
+      });
+      if (safeText(data.maintenanceCost.unassigned_explanation)) {
+        paragraph('Explicação das diferenças: ' + safeText(data.maintenanceCost.unassigned_explanation), { size: 8, color: COLORS.soft, after: 5 });
       }
     }
 

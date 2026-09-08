@@ -249,6 +249,14 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.17; text-wrap: balance;
 .vehicle-calculation-grid strong { color: var(--check); font-size: .76rem; overflow-wrap: anywhere; }
 .reconciliation-source { margin-bottom: .4rem; }
 .reconciliation-grid { margin-bottom: 1rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; }
+.detail-warning-list, .detail-check-ok { margin: .8rem 0 1rem; padding: .8rem .9rem; display: grid; gap: .35rem; border-radius: 9px; font-size: .75rem; }
+.detail-warning-list { border: 1px solid rgba(246,184,74,.34); background: rgba(246,184,74,.08); color: #f7dca7; }
+.detail-warning-list strong { color: var(--warning); }
+.detail-warning-list ul { margin: 0; padding-left: 1.1rem; }
+.detail-warning-list li + li { margin-top: .25rem; }
+.detail-check-ok { border: 1px solid rgba(46,204,113,.26); background: var(--check-soft); }
+.detail-check-ok strong { color: var(--check); }
+.detail-check-ok span { color: var(--text-muted); }
 .question-notes { margin-top: .8rem; }
 .question-notes summary { width: max-content; color: var(--signal-strong); cursor: pointer; font-size: .78rem; }
 .question-notes textarea { width: 100%; margin-top: .65rem; border: 1px solid var(--line); border-radius: 8px; padding: .7rem; background: #080d16; color: var(--text); resize: vertical; }
@@ -279,6 +287,10 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.17; text-wrap: balance;
 .fuel-vehicle-result-list strong { color: var(--text); font-size: .8rem; }
 .fuel-vehicle-result-list span, .fuel-vehicle-result-list small { color: var(--text-muted); font-size: .68rem; overflow-wrap: anywhere; }
 .fuel-vehicle-result-list small { color: var(--check); }
+.result-warning { margin-top: 1rem; padding: .8rem .9rem; border: 1px solid rgba(246,184,74,.32); border-radius: 9px; background: rgba(246,184,74,.07); color: #f7dca7; font-size: .75rem; }
+.result-warning strong { color: var(--warning); }
+.result-warning ul { margin: .4rem 0 0; padding-left: 1.1rem; }
+.result-warning li + li { margin-top: .25rem; }
 .result-grid { grid-template-columns: 1.2fr .8fr; }
 .lead-copy { color: var(--text-soft); }
 .recommendation-list { display: grid; gap: .65rem; }

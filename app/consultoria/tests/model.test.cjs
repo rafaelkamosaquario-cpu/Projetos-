@@ -202,3 +202,98 @@ test('stores vehicle details and reconciles question two with question one', () 
   assert.equal(row.answer_payload.details.vehicles[0].ignored_field, undefined);
   assert.equal(row.answer_payload.details.unassigned_explanation, 'Geradores e lançamentos pendentes.');
 });
+
+test('stores maintenance costs and reconciles composition, types and vehicles', () => {
+  const answers = all('D');
+  answers.maintenance_cost.details = {
+    reference_month: '2026-08',
+    monthly_total_cost: 100000,
+    fleet_vehicle_count: 50,
+    maintained_vehicle_count: 20,
+    tracked_vehicle_count: 18,
+    maintenance_records_count: 30,
+    linked_maintenance_records_count: 27,
+    identifier_methods: ['plate', 'fleet_number', 'invalid'],
+    values_consolidated: 'partial',
+    unlinked_costs: 'yes',
+    parts_cost: 40000,
+    internal_labor_cost: 20000,
+    external_services_cost: 15000,
+    lubricants_materials_cost: 5000,
+    towing_emergency_cost: 2000,
+    unrecovered_rework_cost: 3000,
+    other_cost: 5000,
+    preventive_cost: 30000,
+    corrective_cost: 50000,
+    predictive_cost: 5000,
+    accident_damage_cost: 5000,
+    six_month_history: 'D',
+    six_month_total_cost: 570000,
+    annual_history: 'E',
+    annual_total_cost: 1180000,
+    data_sources: ['erp', 'work_orders', 'invalid'],
+    vehicles: [
+      {
+        identifier_type: 'plate', identifier: 'ABC-1D23', initial_odometer: 250000, final_odometer: 261000,
+        maintenance_count: 3, parts_cost: 10000, internal_labor_cost: 2000, external_services_cost: 3000,
+        lubricants_materials_cost: 1000, towing_emergency_cost: 0, unrecovered_rework_cost: 0, other_cost: 1000,
+        ignored_field: 'não deve persistir'
+      },
+      {
+        identifier_type: 'fleet_number', identifier: 'FROTA-018', initial_odometer: 100000, final_odometer: 108000,
+        mileage_adjustment: -200, maintenance_count: 2, parts_cost: 8000, internal_labor_cost: 1000,
+        external_services_cost: 4000, lubricants_materials_cost: 1000, towing_emergency_cost: 1000,
+        unrecovered_rework_cost: 0, other_cost: 1000
+      }
+    ],
+    unassigned_explanation: 'Estoque de peças e notas ainda sem rateio.',
+    ignored_field: 'não deve persistir'
+  };
+
+  const snapshot = model.evaluate(answers).maintenanceCost;
+  assert.equal(snapshot.maintained_fleet_percentage, 40);
+  assert.equal(snapshot.vehicle_cost_coverage_percentage, 90);
+  assert.equal(snapshot.maintenance_record_traceability_percentage, 90);
+  assert.equal(snapshot.composition_total, 90000);
+  assert.equal(snapshot.composition_difference, 10000);
+  assert.equal(snapshot.composition_percentage, 90);
+  assert.equal(snapshot.type_total, 90000);
+  assert.equal(snapshot.type_difference, 10000);
+  assert.equal(snapshot.vehicles[0].mileage, 11000);
+  assert.equal(snapshot.vehicles[0].total_cost, 17000);
+  assert.equal(snapshot.vehicles[0].cost_per_km, 1.55);
+  assert.equal(snapshot.vehicles[0].share_of_monthly_cost, 17);
+  assert.equal(snapshot.vehicles[1].mileage, 7800);
+  assert.equal(snapshot.registered_vehicle_cost, 33000);
+  assert.equal(snapshot.registered_vehicle_mileage, 18800);
+  assert.equal(snapshot.registered_maintenance_count, 5);
+  assert.equal(snapshot.vehicle_cost_difference, 67000);
+  assert.equal(snapshot.vehicle_cost_traceability_percentage, 33);
+  assert.deepEqual(snapshot.identifier_methods, ['plate', 'fleet_number']);
+  assert.deepEqual(snapshot.data_sources, ['erp', 'work_orders']);
+  assert.deepEqual(snapshot.warnings, []);
+  assert.equal(snapshot.ignored_field, undefined);
+
+  const row = model.toRows('diagnostic-id', 'owner-id', answers)
+    .find((entry) => entry.question_key === 'maintenance_cost');
+  assert.equal(row.answer_payload.details.vehicles[0].identifier, 'ABC-1D23');
+  assert.equal(row.answer_payload.details.vehicles[0].ignored_field, undefined);
+  assert.equal(row.answer_payload.details.unassigned_explanation, 'Estoque de peças e notas ainda sem rateio.');
+});
+
+test('flags inconsistent maintenance totals and odometers', () => {
+  const snapshot = model.maintenanceCostSnapshot({
+    monthly_total_cost: 1000,
+    fleet_vehicle_count: 2,
+    maintained_vehicle_count: 3,
+    tracked_vehicle_count: 4,
+    maintenance_records_count: 2,
+    linked_maintenance_records_count: 3,
+    parts_cost: 1200,
+    preventive_cost: 1200,
+    vehicles: [{ initial_odometer: 2000, final_odometer: 1000, parts_cost: 1200 }]
+  });
+  assert.equal(snapshot.warnings.length, 7);
+  assert.match(snapshot.warnings.join(' '), /hodômetro final/i);
+  assert.match(snapshot.warnings.join(' '), /custos por veículo supera/i);
+});

@@ -24,6 +24,11 @@ No GitHub Pages, ela faz parte da mesma central do diagnóstico público:
   placa, código ou número de frota, cadastro mensal de veículos, hodômetros,
   quilômetros rodados, litros, gasto, km/l, custo por km e conciliação
   automática com os totais da Pergunta 01;
+- detalhamento interativo da Pergunta 01 de manutenção, com custo mensal,
+  cobertura da frota, composição de peças, mão de obra e serviços, separação
+  entre preventiva, corretiva, preditiva e avarias, históricos de 6 e 12
+  meses, fontes, cadastro por veículo, custo por km, conciliação financeira e
+  alertas automáticos de inconsistência;
 - autosave, rascunho e retomada entre dispositivos;
 - conclusão preliminar, resumo em PDF e conversão em projeto;
 - estrutura privada para perfis, empresas, contatos, diagnósticos, respostas,
