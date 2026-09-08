@@ -47,6 +47,7 @@
   }
 
   function formatNumber(value, digits) {
+    if (value === '' || value === null || value === undefined) return 'não informado';
     var number = Number(value);
     if (!Number.isFinite(number)) return 'não informado';
     return new Intl.NumberFormat('pt-BR', {
@@ -56,11 +57,18 @@
   }
 
   function formatMoney(value) {
+    if (value === '' || value === null || value === undefined) return 'não informado';
     var number = Number(value);
     if (!Number.isFinite(number)) return 'não informado';
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2
     }).format(number);
+  }
+
+  function formatPercent(value) {
+    if (value === '' || value === null || value === undefined) return 'não calculado';
+    var number = Number(value);
+    return Number.isFinite(number) ? formatNumber(number, 2) + '%' : 'não calculado';
   }
 
   function formatMonth(value) {
@@ -90,6 +98,7 @@
       generalNotes: safeText(source.diagnostic && source.diagnostic.general_notes),
       pillars: Array.isArray(summary.pillars) ? summary.pillars : [],
       fuelSpend: summary.fuelSpend && typeof summary.fuelSpend === 'object' ? summary.fuelSpend : {},
+      fuelVehicle: summary.fuelVehicle && typeof summary.fuelVehicle === 'object' ? summary.fuelVehicle : {},
       priority: summary.priority || {},
       gaps: Array.isArray(summary.gaps) ? summary.gaps : [],
       strengths: Array.isArray(summary.strengths) ? summary.strengths : [],
@@ -247,6 +256,52 @@
         '. Consolidação: ' + (statusLabels[data.fuelSpend.values_consolidated] || 'não informado') + '.',
         { size: 8, color: COLORS.soft, after: 5 }
       );
+    }
+
+    if (data.fuelVehicle.has_data) {
+      var vehicleIdentifierLabels = { plate: 'placa', internal_code: 'código interno', fleet_number: 'número de frota' };
+      var vehicleSourceLabels = { fuel_card: 'cartão de combustível', erp: 'ERP ou sistema', spreadsheet: 'planilha', invoices: 'notas fiscais', own_tank: 'tanque próprio', other: 'outra fonte' };
+      var vehicleStatusLabels = { yes: 'sim', partial: 'parcialmente', no: 'não', unknown: 'não informado', D: 'documentado', E: 'estimado', N: 'não controla', NA: 'não se aplica' };
+      sectionLabel('Combustível — rastreabilidade por veículo', COLORS.blue);
+      paragraph(
+        'Referência ' + formatMonth(data.fuelVehicle.reference_month) +
+        ' • Cobertura da frota ' + formatPercent(data.fuelVehicle.vehicle_coverage_percentage) +
+        ' (' + formatNumber(data.fuelVehicle.tracked_vehicle_count, 0) + ' de ' + formatNumber(data.fuelVehicle.fleet_vehicle_count, 0) + ' veículos)' +
+        ' • Abastecimentos rastreados ' + formatPercent(data.fuelVehicle.refuel_traceability_percentage),
+        { size: 8.5, bold: true, after: 3 }
+      );
+      paragraph(
+        'Volume geral ' + formatNumber(data.fuelVehicle.company_monthly_liters, 3) + ' litros; vinculado aos veículos ' +
+        formatNumber(data.fuelVehicle.registered_vehicle_liters, 3) + ' litros; diferença ' +
+        formatNumber(data.fuelVehicle.liters_difference, 3) + ' litros; rastreabilidade ' +
+        formatPercent(data.fuelVehicle.liters_traceability_percentage) + '. Gasto geral ' +
+        formatMoney(data.fuelVehicle.company_monthly_spend) + '; vinculado aos veículos ' +
+        formatMoney(data.fuelVehicle.registered_vehicle_spend) + '; diferença ' +
+        formatMoney(data.fuelVehicle.spend_difference) + '; rastreabilidade ' +
+        formatPercent(data.fuelVehicle.spend_traceability_percentage) + '.',
+        { size: 8, color: COLORS.soft, after: 3 }
+      );
+      paragraph(
+        'Identificação: ' + selectedLabels(data.fuelVehicle.identifier_methods, vehicleIdentifierLabels) +
+        '. Fontes: ' + selectedLabels(data.fuelVehicle.data_sources, vehicleSourceLabels, data.fuelVehicle.data_source_other) +
+        '. Lançamentos sem veículo ou genéricos: ' + (vehicleStatusLabels[data.fuelVehicle.generic_entries] || 'não informado') +
+        '. Histórico de 6 meses: ' + (vehicleStatusLabels[data.fuelVehicle.six_month_history] || 'não informado') +
+        '. Histórico de 12 meses: ' + (vehicleStatusLabels[data.fuelVehicle.annual_history] || 'não informado') + '.',
+        { size: 8, color: COLORS.soft, after: 3 }
+      );
+      (data.fuelVehicle.vehicles || []).slice(0, 30).forEach(function (vehicle, index) {
+        paragraph(
+          String(index + 1).padStart(2, '0') + ' · ' + safeText(vehicle.identifier, 'Veículo sem identificação') +
+          ' (' + (vehicleIdentifierLabels[vehicle.identifier_type] || 'tipo não informado') + ')' +
+          ' — ' + formatNumber(vehicle.mileage, 3) + ' km; ' + formatNumber(vehicle.liters, 3) + ' litros; ' +
+          formatMoney(vehicle.spend) + '; ' + formatNumber(vehicle.consumption_km_l, 2) + ' km/l; ' +
+          formatMoney(vehicle.cost_per_km) + '/km.',
+          { size: 7.7, color: COLORS.text, after: 1.5 }
+        );
+      });
+      if (safeText(data.fuelVehicle.unassigned_explanation)) {
+        paragraph('Explicação das diferenças: ' + safeText(data.fuelVehicle.unassigned_explanation), { size: 8, color: COLORS.soft, after: 5 });
+      }
     }
 
     sectionLabel('Prioridade inicial', COLORS.gold);
