@@ -47,6 +47,23 @@
     'internal_monthly_liters', 'external_monthly_liters'
   ];
 
+  var FUEL_VEHICLE_DETAIL_OPTIONS = {
+    identifier_methods: ['plate', 'internal_code', 'fleet_number'],
+    data_sources: ['fuel_card', 'erp', 'spreadsheet', 'invoices', 'own_tank', 'other']
+  };
+
+  var FUEL_VEHICLE_DETAIL_ENUMS = {
+    generic_entries: ['yes', 'partial', 'no', 'unknown'],
+    six_month_history: ['D', 'E', 'N', 'NA'],
+    annual_history: ['D', 'E', 'N', 'NA']
+  };
+
+  var FUEL_VEHICLE_DETAIL_NUMBERS = [
+    'fleet_vehicle_count', 'tracked_vehicle_count', 'total_refuels', 'linked_refuels'
+  ];
+
+  var FUEL_VEHICLE_TYPES = ['plate', 'internal_code', 'fleet_number'];
+
   function safeDetailNumber(value) {
     if (value === '' || value === null || value === undefined) return null;
     var number = Number(value);
@@ -58,8 +75,14 @@
     return typeof value === 'string' ? value.trim().slice(0, limit) : '';
   }
 
-  function normalizeQuestionDetails(questionKey, value) {
-    if (questionKey !== 'fuel_spend') return {};
+  function safeSignedDetailNumber(value) {
+    if (value === '' || value === null || value === undefined) return null;
+    var number = Number(value);
+    if (!Number.isFinite(number) || number < -1000000000000 || number > 1000000000000) return null;
+    return Number(number.toFixed(3));
+  }
+
+  function normalizeFuelSpendDetails(value) {
     var source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
     var details = {};
 
@@ -98,6 +121,67 @@
     return details;
   }
 
+  function normalizeFuelVehicleDetails(value) {
+    var source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+    var details = {};
+
+    FUEL_VEHICLE_DETAIL_NUMBERS.forEach(function (key) {
+      var number = safeDetailNumber(source[key]);
+      if (number !== null) details[key] = Math.round(number);
+    });
+
+    Object.keys(FUEL_VEHICLE_DETAIL_OPTIONS).forEach(function (key) {
+      var selected = Array.isArray(source[key]) ? source[key].filter(function (entry) {
+        return FUEL_VEHICLE_DETAIL_OPTIONS[key].indexOf(entry) !== -1;
+      }) : [];
+      if (selected.length) details[key] = selected.filter(function (entry, index, all) {
+        return all.indexOf(entry) === index;
+      });
+    });
+
+    Object.keys(FUEL_VEHICLE_DETAIL_ENUMS).forEach(function (key) {
+      if (FUEL_VEHICLE_DETAIL_ENUMS[key].indexOf(source[key]) !== -1) details[key] = source[key];
+    });
+
+    if (/^\d{4}-(0[1-9]|1[0-2])$/.test(source.reference_month || '')) {
+      details.reference_month = source.reference_month;
+    }
+
+    [
+      ['data_source_other', 240],
+      ['unassigned_explanation', 2000]
+    ].forEach(function (definition) {
+      var text = safeDetailText(source[definition[0]], definition[1]);
+      if (text) details[definition[0]] = text;
+    });
+
+    var vehicles = Array.isArray(source.vehicles) ? source.vehicles.slice(0, 200).map(function (vehicle) {
+      var raw = vehicle && typeof vehicle === 'object' && !Array.isArray(vehicle) ? vehicle : {};
+      var normalized = {};
+      var identifier = safeDetailText(raw.identifier, 64);
+      if (identifier) normalized.identifier = identifier;
+      if (FUEL_VEHICLE_TYPES.indexOf(raw.identifier_type) !== -1) normalized.identifier_type = raw.identifier_type;
+      ['initial_odometer', 'final_odometer', 'refuel_count', 'liters', 'spend'].forEach(function (key) {
+        var number = safeDetailNumber(raw[key]);
+        if (number !== null) normalized[key] = key === 'refuel_count' ? Math.round(number) : number;
+      });
+      var adjustment = safeSignedDetailNumber(raw.mileage_adjustment);
+      if (adjustment !== null) normalized.mileage_adjustment = adjustment;
+      return normalized;
+    }).filter(function (vehicle) {
+      return Object.keys(vehicle).length > 0;
+    }) : [];
+    if (vehicles.length) details.vehicles = vehicles;
+
+    return details;
+  }
+
+  function normalizeQuestionDetails(questionKey, value) {
+    if (questionKey === 'fuel_spend') return normalizeFuelSpendDetails(value);
+    if (questionKey === 'fuel_vehicle') return normalizeFuelVehicleDetails(value);
+    return {};
+  }
+
   function averagePrice(spend, liters) {
     return typeof spend === 'number' && typeof liters === 'number' && liters > 0
       ? Number((spend / liters).toFixed(4))
@@ -110,6 +194,65 @@
       monthly_average_price: averagePrice(details.monthly_spend, details.monthly_liters),
       six_month_average_price: averagePrice(details.six_month_spend, details.six_month_liters),
       annual_average_price: averagePrice(details.annual_spend, details.annual_liters),
+      has_data: Object.keys(details).length > 0
+    });
+  }
+
+  function safeRatio(numerator, denominator, multiplier) {
+    return typeof numerator === 'number' && typeof denominator === 'number' && denominator > 0
+      ? Number(((numerator / denominator) * (multiplier || 1)).toFixed(2))
+      : null;
+  }
+
+  function vehicleSnapshot(vehicle) {
+    var adjustment = typeof vehicle.mileage_adjustment === 'number' ? vehicle.mileage_adjustment : 0;
+    var mileage = typeof vehicle.initial_odometer === 'number' && typeof vehicle.final_odometer === 'number'
+      ? vehicle.final_odometer - vehicle.initial_odometer + adjustment
+      : null;
+    if (typeof mileage === 'number' && mileage < 0) mileage = null;
+    return Object.assign({}, vehicle, {
+      mileage: mileage === null ? null : Number(mileage.toFixed(3)),
+      average_price: averagePrice(vehicle.spend, vehicle.liters),
+      consumption_km_l: safeRatio(mileage, vehicle.liters),
+      cost_per_km: safeRatio(vehicle.spend, mileage)
+    });
+  }
+
+  function sumVehicleField(vehicles, field) {
+    var values = vehicles.filter(function (vehicle) { return typeof vehicle[field] === 'number'; });
+    return values.length ? Number(values.reduce(function (sum, vehicle) { return sum + vehicle[field]; }, 0).toFixed(3)) : null;
+  }
+
+  function difference(total, allocated) {
+    return typeof total === 'number' && typeof allocated === 'number'
+      ? Number((total - allocated).toFixed(3))
+      : null;
+  }
+
+  function fuelVehicleSnapshot(value, fuelSpendValue) {
+    var details = normalizeQuestionDetails('fuel_vehicle', value);
+    var fuelSpend = fuelSpendSnapshot(fuelSpendValue);
+    var vehicles = (details.vehicles || []).map(vehicleSnapshot);
+    var vehicleLiters = sumVehicleField(vehicles, 'liters');
+    var vehicleSpend = sumVehicleField(vehicles, 'spend');
+    var vehicleMileage = sumVehicleField(vehicles, 'mileage');
+    var vehicleRefuels = sumVehicleField(vehicles, 'refuel_count');
+    return Object.assign({}, details, {
+      reference_month: details.reference_month || fuelSpend.reference_month,
+      company_monthly_liters: typeof fuelSpend.monthly_liters === 'number' ? fuelSpend.monthly_liters : null,
+      company_monthly_spend: typeof fuelSpend.monthly_spend === 'number' ? fuelSpend.monthly_spend : null,
+      vehicle_coverage_percentage: safeRatio(details.tracked_vehicle_count, details.fleet_vehicle_count, 100),
+      refuel_traceability_percentage: safeRatio(details.linked_refuels, details.total_refuels, 100),
+      vehicles: vehicles,
+      registered_vehicle_count: vehicles.length,
+      registered_vehicle_liters: vehicleLiters,
+      registered_vehicle_spend: vehicleSpend,
+      registered_vehicle_mileage: vehicleMileage,
+      registered_vehicle_refuels: vehicleRefuels,
+      liters_difference: difference(fuelSpend.monthly_liters, vehicleLiters),
+      spend_difference: difference(fuelSpend.monthly_spend, vehicleSpend),
+      liters_traceability_percentage: safeRatio(vehicleLiters, fuelSpend.monthly_liters, 100),
+      spend_traceability_percentage: safeRatio(vehicleSpend, fuelSpend.monthly_spend, 100),
       has_data: Object.keys(details).length > 0
     });
   }
@@ -323,6 +466,10 @@
       strengths: strengths,
       gaps: gaps,
       fuelSpend: fuelSpendSnapshot(normalized.fuel_spend && normalized.fuel_spend.details),
+      fuelVehicle: fuelVehicleSnapshot(
+        normalized.fuel_vehicle && normalized.fuel_vehicle.details,
+        normalized.fuel_spend && normalized.fuel_spend.details
+      ),
       disclaimer: 'Conclusão preliminar baseada nas respostas informadas. Evidências e impacto financeiro devem ser validados no projeto de consultoria.'
     };
   }
@@ -376,6 +523,7 @@
     normalizeAnswers: normalizeAnswers,
     normalizeQuestionDetails: normalizeQuestionDetails,
     fuelSpendSnapshot: fuelSpendSnapshot,
+    fuelVehicleSnapshot: fuelVehicleSnapshot,
     levelFromAverage: levelFromAverage,
     evaluate: evaluate,
     completeness: completeness,
