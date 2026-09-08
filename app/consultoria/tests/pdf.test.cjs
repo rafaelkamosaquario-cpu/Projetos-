@@ -13,6 +13,14 @@ test('builds safe report data without requiring the browser', () => {
     summary: {
       pillars: [],
       fuelSpend: { has_data: true, monthly_spend: 200000, monthly_liters: 30000, monthly_average_price: 6.6667 },
+      fuelVehicle: {
+        has_data: true,
+        vehicle_coverage_percentage: 90,
+        refuel_traceability_percentage: 94.23,
+        registered_vehicle_liters: 28000,
+        liters_difference: 2000,
+        vehicles: [{ identifier: 'ABC-1D23', mileage: 11500, liters: 3100, spend: 18600 }]
+      },
       priority: { name: 'Pneus', level: 1 },
       gaps: [],
       strengths: []
@@ -22,6 +30,8 @@ test('builds safe report data without requiring the browser', () => {
   assert.equal(data.fleetSize, '18');
   assert.equal(data.priority.name, 'Pneus');
   assert.equal(data.fuelSpend.monthly_spend, 200000);
+  assert.equal(data.fuelVehicle.vehicle_coverage_percentage, 90);
+  assert.equal(data.fuelVehicle.vehicles[0].identifier, 'ABC-1D23');
   assert.match(data.disclaimer, /preliminar/i);
 });
 
