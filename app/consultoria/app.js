@@ -863,18 +863,21 @@
       renderMaintenanceVehicleInput(index, 'Hodômetro final do mês', 'final_odometer', vehicle, { step: '0.001', placeholder: 'Ex.: 261500' }) +
       renderMaintenanceVehicleInput(index, 'Ajuste de quilometragem', 'mileage_adjustment', vehicle, { step: '0.001', signed: true, placeholder: 'Ex.: 0 ou -120' }) +
       renderMaintenanceVehicleInput(index, 'Quantidade de manutenções/OS', 'maintenance_count', vehicle, { step: '1', placeholder: 'Ex.: 3' }) +
-      renderMaintenanceVehicleInput(index, 'Peças (R$)', 'parts_cost', vehicle, { placeholder: 'Ex.: 4500' }) +
-      renderMaintenanceVehicleInput(index, 'Mão de obra interna (R$)', 'internal_labor_cost', vehicle, { placeholder: 'Ex.: 1200' }) +
-      renderMaintenanceVehicleInput(index, 'Serviços externos (R$)', 'external_services_cost', vehicle, { placeholder: 'Ex.: 1800' }) +
-      renderMaintenanceVehicleInput(index, 'Lubrificantes e materiais (R$)', 'lubricants_materials_cost', vehicle, { placeholder: 'Ex.: 650' }) +
-      renderMaintenanceVehicleInput(index, 'Guincho e emergência (R$)', 'towing_emergency_cost', vehicle, { placeholder: 'Ex.: 0' }) +
-      renderMaintenanceVehicleInput(index, 'Retrabalho não recuperado (R$)', 'unrecovered_rework_cost', vehicle, { placeholder: 'Ex.: 0' }) +
-      renderMaintenanceVehicleInput(index, 'Outros custos (R$)', 'other_cost', vehicle, { placeholder: 'Ex.: 300' }) + '</div>' +
+      renderMaintenanceVehicleInput(index, 'Tempo parado no mês (horas)', 'downtime_hours', vehicle, { step: '0.01', placeholder: 'Ex.: 36' }) +
+      renderMaintenanceVehicleInput(index, 'Custo total do veículo (R$)', 'declared_total_cost', vehicle, { placeholder: 'Ex.: 12000' }) +
+      renderMaintenanceVehicleInput(index, 'Preventiva (R$)', 'preventive_cost', vehicle, { placeholder: 'Ex.: 3500' }) +
+      renderMaintenanceVehicleInput(index, 'Corretiva (R$)', 'corrective_cost', vehicle, { placeholder: 'Ex.: 5000' }) +
+      renderMaintenanceVehicleInput(index, 'Preditiva (R$)', 'predictive_cost', vehicle, { placeholder: 'Ex.: 500' }) +
+      renderMaintenanceVehicleInput(index, 'Sinistro ou avaria (R$)', 'accident_damage_cost', vehicle, { placeholder: 'Ex.: 1000' }) +
+      renderMaintenanceVehicleInput(index, 'Erro operacional (R$)', 'operational_error_cost', vehicle, { placeholder: 'Ex.: 1500' }) +
+      renderMaintenanceVehicleInput(index, 'Garantia (R$)', 'warranty_cost', vehicle, { placeholder: 'Ex.: 500' }) + '</div>' +
       '<div class="vehicle-calculation-grid">' +
       '<div><span>KM rodado</span><strong data-maintenance-vehicle-card-metric="mileage" data-vehicle-index="' + index + '">' +
         (typeof calculated.mileage === 'number' ? escapeHtml(formatDetailNumber(calculated.mileage, 3)) + ' km' : mileageFallback) + '</strong></div>' +
       '<div><span>Custo total do veículo</span><strong data-maintenance-vehicle-card-metric="total_cost" data-vehicle-index="' + index + '">' +
         (typeof calculated.total_cost === 'number' ? escapeHtml(formatDetailMoney(calculated.total_cost)) : 'Preencha os custos') + '</strong></div>' +
+      '<div><span>Fluxos classificados</span><strong data-maintenance-vehicle-card-metric="flow_total" data-vehicle-index="' + index + '">' +
+        (typeof calculated.flow_total === 'number' ? escapeHtml(formatDetailMoney(calculated.flow_total)) : 'Não calculado') + '</strong></div>' +
       '<div><span>Custo de manutenção por KM</span><strong data-maintenance-vehicle-card-metric="cost_per_km" data-vehicle-index="' + index + '">' +
         (typeof calculated.cost_per_km === 'number' ? escapeHtml(formatDetailMoney(calculated.cost_per_km)) + '/km' : 'Não calculado') + '</strong></div>' +
       '<div><span>Participação no custo mensal</span><strong data-maintenance-vehicle-card-metric="share_of_monthly_cost" data-vehicle-index="' + index + '">' +
@@ -928,31 +931,45 @@
       renderMaintenanceMetric('composition_difference', 'Diferença para o custo mensal', typeof snapshot.composition_difference === 'number' ? formatDetailMoney(snapshot.composition_difference) : 'Não calculada') +
       renderMaintenanceMetric('composition_percentage', 'Custo mensal explicado', formatDetailPercent(snapshot.composition_percentage)) + '</div>' +
       '<div class="field"><label for="maintenance-cost-other-description">Descrição de outros custos</label><textarea id="maintenance-cost-other-description" rows="2" maxlength="500" data-question-detail="maintenance_cost" data-detail-field="other_cost_description" placeholder="Informe o que está incluído em outros custos.">' + escapeHtml(detailValue(details, 'other_cost_description')) + '</textarea></div></div>' +
-      '<div class="detail-block"><div class="detail-block-title"><span>03</span><div><h5>Custo por tipo de manutenção</h5><p>Separe preventiva, corretiva, preditiva e ocorrências para orientar a análise.</p></div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>03</span><div><h5>Custo por fluxo de manutenção</h5><p>Separe preventiva, corretiva, sinistro, erro operacional e garantia para mostrar onde o custo nasceu.</p></div></div>' +
       '<div class="field-grid detail-grid">' +
       renderMaintenanceNumberField('Preventiva (R$)', 'preventive_cost', details, 'Total no mês') +
       renderMaintenanceNumberField('Corretiva (R$)', 'corrective_cost', details, 'Total no mês') +
       renderMaintenanceNumberField('Preditiva (R$)', 'predictive_cost', details, 'Total no mês') +
-      renderMaintenanceNumberField('Acidente ou avaria (R$)', 'accident_damage_cost', details, 'Total no mês') +
+      renderMaintenanceNumberField('Sinistro ou avaria (R$)', 'accident_damage_cost', details, 'Total no mês') +
+      renderMaintenanceNumberField('Erro operacional (R$)', 'operational_error_cost', details, 'Total no mês') +
+      renderMaintenanceNumberField('Garantias acionadas (R$)', 'warranty_cost', details, 'Total no mês') +
+      renderMaintenanceNumberField('Valor recuperado em garantia (R$)', 'warranty_recovered_cost', details, 'Crédito, peça ou serviço recuperado') +
       renderMaintenanceMetric('type_total', 'Soma por tipo', typeof snapshot.type_total === 'number' ? formatDetailMoney(snapshot.type_total) : 'Não calculada') +
       renderMaintenanceMetric('type_difference', 'Diferença para o custo mensal', typeof snapshot.type_difference === 'number' ? formatDetailMoney(snapshot.type_difference) : 'Não calculada') +
-      renderMaintenanceMetric('type_percentage', 'Custo mensal classificado', formatDetailPercent(snapshot.type_percentage)) + '</div></div>' +
-      '<div class="detail-block"><div class="detail-block-title"><span>04</span><div><h5>Histórico e fontes</h5><p>Confirme se o mês representa um controle contínuo e de onde os números foram extraídos.</p></div></div>' +
+      renderMaintenanceMetric('type_percentage', 'Custo mensal classificado', formatDetailPercent(snapshot.type_percentage)) +
+      renderMaintenanceMetric('warranty_recovery_percentage', 'Recuperação das garantias', formatDetailPercent(snapshot.warranty_recovery_percentage)) + '</div>' +
+      renderMaintenanceScale('flow_separation', 'A empresa separa os custos por esses fluxos?', details) + '</div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>04</span><div><h5>Controle operacional e tempo parado</h5><p>Confirme histórico, planejamento, garantias e o impacto da permanência na oficina.</p></div></div>' +
+      renderMaintenanceScale('vehicle_history_control', 'Existe histórico de manutenção por veículo?', details) +
+      renderMaintenanceScale('preventive_plan_control', 'Existe plano de manutenção preventiva por veículo?', details) +
+      renderMaintenanceScale('downtime_control', 'O tempo parado na oficina é acompanhado?', details) +
+      renderMaintenanceScale('warranty_control', 'Garantias e reincidências são acompanhadas?', details) +
+      '<div class="field-grid detail-grid">' +
+      renderMaintenanceNumberField('Tempo total parado no mês (horas)', 'downtime_total_hours', details, 'Ex.: 420', '0.01') +
+      renderMaintenanceNumberField('Veículos parados no mês', 'stopped_vehicle_count', details, 'Ex.: 12', '1') +
+      renderMaintenanceMetric('average_downtime_hours', 'Média de horas por manutenção/OS', typeof snapshot.average_downtime_hours === 'number' ? formatDetailNumber(snapshot.average_downtime_hours, 2) + ' h' : 'Não calculada') + '</div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>05</span><div><h5>Histórico e fontes</h5><p>Confirme se o mês representa um controle contínuo e de onde os números foram extraídos.</p></div></div>' +
       renderMaintenanceScale('six_month_history', 'A empresa possui histórico de custos dos últimos 6 meses?', details) +
-      '<div class="field-grid two-columns">' + renderMaintenanceNumberField('Custo em 6 meses (R$)', 'six_month_total_cost', details, 'Total do período') +
-      renderMaintenanceNumberField('Custo em 12 meses (R$)', 'annual_total_cost', details, 'Total do período') + '</div>' +
+      '<div class="field-grid two-columns">' + renderMaintenanceNumberField('Custo em 6 meses (R$)', 'six_month_total_cost', details, 'Total do período') + '</div>' +
       renderMaintenanceScale('annual_history', 'A empresa possui histórico de custos dos últimos 12 meses?', details) +
+      '<div class="field-grid two-columns">' + renderMaintenanceNumberField('Custo em 12 meses (R$)', 'annual_total_cost', details, 'Total do período') + '</div>' +
       renderMaintenanceChoices('data_sources', 'Fontes da informação', [
         { value: 'erp', label: 'ERP ou sistema' }, { value: 'work_orders', label: 'Ordens de serviço' },
         { value: 'spreadsheet', label: 'Planilha' }, { value: 'invoices', label: 'Notas fiscais' },
         { value: 'workshop_control', label: 'Controle da oficina' }, { value: 'accounting', label: 'Financeiro/contabilidade' },
         { value: 'other', label: 'Outra fonte' }
       ], details) + '<div class="field"><label for="maintenance-cost-source-other">Outra fonte</label><input id="maintenance-cost-source-other" type="text" maxlength="240" data-question-detail="maintenance_cost" data-detail-field="data_source_other" value="' + escapeHtml(detailValue(details, 'data_source_other')) + '"></div></div>' +
-      '<div class="detail-block"><div class="detail-block-title detail-block-title-action"><span>05</span><div><h5>Custos mensais por veículo</h5><p>Cadastre os veículos necessários para validar custo, quilometragem e participação no total.</p></div><button class="button button-secondary" type="button" data-add-maintenance-vehicle' + (vehicles.length >= 200 ? ' disabled' : '') + '>Adicionar veículo</button></div>' +
+      '<div class="detail-block"><div class="detail-block-title detail-block-title-action"><span>06</span><div><h5>Custos mensais por veículo</h5><p>Cadastre cada veículo e distribua seu custo entre preventiva, corretiva, sinistro, erro operacional e garantia.</p></div><button class="button button-secondary" type="button" data-add-maintenance-vehicle' + (vehicles.length >= 200 ? ' disabled' : '') + '>Adicionar veículo</button></div>' +
       '<div class="vehicle-list-editor">' + (vehicles.length ? vehicles.map(function (vehicle, index) {
         return renderMaintenanceVehicleCard(vehicle, index, details.monthly_total_cost);
       }).join('') : '<div class="vehicle-empty-state"><strong>Nenhum veículo adicionado</strong><span>Use “Adicionar veículo” para registrar identificação, KM e composição do custo.</span></div>') + '</div></div>' +
-      '<div class="detail-block"><div class="detail-block-title"><span>06</span><div><h5>Conciliação e evidências</h5><p>Compare o custo declarado com os valores individualizados antes de concluir a leitura.</p></div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>07</span><div><h5>Conciliação e evidências</h5><p>Compare o custo declarado com os valores individualizados antes de concluir a leitura.</p></div></div>' +
       '<div class="reconciliation-grid">' +
       renderMaintenanceMetric('monthly_total_cost', 'Custo mensal declarado', typeof snapshot.monthly_total_cost === 'number' ? formatDetailMoney(snapshot.monthly_total_cost) : 'Não informado') +
       renderMaintenanceMetric('registered_vehicle_cost', 'Custo vinculado aos veículos', typeof snapshot.registered_vehicle_cost === 'number' ? formatDetailMoney(snapshot.registered_vehicle_cost) : 'Nenhum custo informado') +
@@ -976,6 +993,8 @@
       type_total: typeof snapshot.type_total === 'number' ? formatDetailMoney(snapshot.type_total) : 'Não calculada',
       type_difference: typeof snapshot.type_difference === 'number' ? formatDetailMoney(snapshot.type_difference) : 'Não calculada',
       type_percentage: formatDetailPercent(snapshot.type_percentage),
+      warranty_recovery_percentage: formatDetailPercent(snapshot.warranty_recovery_percentage),
+      average_downtime_hours: typeof snapshot.average_downtime_hours === 'number' ? formatDetailNumber(snapshot.average_downtime_hours, 2) + ' h' : 'Não calculada',
       monthly_total_cost: typeof snapshot.monthly_total_cost === 'number' ? formatDetailMoney(snapshot.monthly_total_cost) : 'Não informado',
       registered_vehicle_cost: typeof snapshot.registered_vehicle_cost === 'number' ? formatDetailMoney(snapshot.registered_vehicle_cost) : 'Nenhum custo informado',
       vehicle_cost_difference: typeof snapshot.vehicle_cost_difference === 'number' ? formatDetailMoney(snapshot.vehicle_cost_difference) : 'Não calculado',
@@ -995,6 +1014,7 @@
       var cardValues = {
         mileage: typeof calculated.mileage === 'number' ? formatDetailNumber(calculated.mileage, 3) + ' km' : (bothOdometers ? 'Verifique os hodômetros' : 'Preencha KM inicial e final'),
         total_cost: typeof calculated.total_cost === 'number' ? formatDetailMoney(calculated.total_cost) : 'Preencha os custos',
+        flow_total: typeof calculated.flow_total === 'number' ? formatDetailMoney(calculated.flow_total) : 'Não calculado',
         cost_per_km: typeof calculated.cost_per_km === 'number' ? formatDetailMoney(calculated.cost_per_km) + '/km' : 'Não calculado',
         share_of_monthly_cost: formatDetailPercent(calculated.share_of_monthly_cost)
       };
@@ -1004,6 +1024,245 @@
       });
     });
     var existingChecks = elements.questionList.querySelector('.detail-warning-list, .detail-check-ok');
+    if (existingChecks) {
+      var replacement = document.createElement('div');
+      replacement.innerHTML = snapshot.warnings.length ? '<div class="detail-warning-list"><strong>Conferências necessárias</strong><ul>' +
+        snapshot.warnings.map(function (warning) { return '<li>' + escapeHtml(warning) + '</li>'; }).join('') + '</ul></div>' :
+        '<div class="detail-check-ok"><strong>Conferências automáticas sem divergência</strong><span>Os totais preenchidos ainda não apresentam inconsistência matemática.</span></div>';
+      existingChecks.replaceWith(replacement.firstElementChild);
+    }
+  }
+
+  function renderTireNumberField(label, key, details, placeholder, step) {
+    return '<div class="field"><label for="tire-detail-' + escapeHtml(key) + '">' + escapeHtml(label) + '</label><input id="tire-detail-' +
+      escapeHtml(key) + '" type="number" min="0" max="1000000000000" step="' + escapeHtml(step || '0.01') + '" inputmode="decimal" ' +
+      'data-question-detail="tires_inventory" data-detail-field="' + escapeHtml(key) + '" value="' + escapeHtml(detailValue(details, key)) +
+      '" placeholder="' + escapeHtml(placeholder || '') + '"></div>';
+  }
+
+  function renderTireChoices(group, label, options, details) {
+    var selected = Array.isArray(details[group]) ? details[group] : [];
+    return '<div class="detail-choice-group"><span class="detail-label">' + escapeHtml(label) + '</span><div class="detail-choice-grid">' +
+      options.map(function (option) {
+        return '<label class="detail-choice"><input type="checkbox" data-question-detail="tires_inventory" data-detail-group="' +
+          escapeHtml(group) + '" value="' + escapeHtml(option.value) + '"' + (selected.indexOf(option.value) !== -1 ? ' checked' : '') +
+          '><span>' + escapeHtml(option.label) + '</span></label>';
+      }).join('') + '</div></div>';
+  }
+
+  function renderTireScale(field, label, details) {
+    var labels = { D: 'Documentado', E: 'Estimado', N: 'Não controla', NA: 'Não se aplica' };
+    return '<div class="detail-status-group"><span class="detail-label">' + escapeHtml(label) + '</span><div class="detail-scale">' +
+      Object.keys(labels).map(function (key) {
+        return '<label><input type="radio" name="tires-inventory-' + escapeHtml(field) + '" data-question-detail="tires_inventory" data-detail-field="' +
+          escapeHtml(field) + '" value="' + key + '"' + (details[field] === key ? ' checked' : '') + '><span><strong>' + key +
+          '</strong>' + escapeHtml(labels[key]) + '</span></label>';
+      }).join('') + '</div></div>';
+  }
+
+  function renderTireSelect(label, field, details, options) {
+    return '<div class="field"><label for="tire-detail-' + escapeHtml(field) + '">' + escapeHtml(label) + '</label><select id="tire-detail-' +
+      escapeHtml(field) + '" data-question-detail="tires_inventory" data-detail-field="' + escapeHtml(field) + '"><option value="">Selecione</option>' +
+      options.map(function (option) {
+        return '<option value="' + escapeHtml(option.value) + '"' + (details[field] === option.value ? ' selected' : '') + '>' +
+          escapeHtml(option.label) + '</option>';
+      }).join('') + '</select></div>';
+  }
+
+  function renderTireMetric(key, label, value) {
+    return '<div class="calculated-metric"><span>' + escapeHtml(label) + '</span><strong data-tire-summary="' + escapeHtml(key) + '">' +
+      escapeHtml(value) + '</strong></div>';
+  }
+
+  function renderTireVehicleInput(index, label, field, vehicle, options) {
+    var config = options || {};
+    var min = config.signed ? '' : ' min="0"';
+    return '<div class="field"><label for="tire-vehicle-' + index + '-' + escapeHtml(field) + '">' + escapeHtml(label) + '</label><input id="tire-vehicle-' +
+      index + '-' + escapeHtml(field) + '" type="' + escapeHtml(config.type || 'number') + '"' + min + ' max="1000000000000" step="' +
+      escapeHtml(config.step || '0.01') + '" ' + (config.type === 'text' ? 'maxlength="64"' : 'inputmode="decimal"') +
+      ' data-question-detail="tires_inventory" data-vehicle-index="' + index + '" data-vehicle-field="' + escapeHtml(field) + '" value="' +
+      escapeHtml(detailValue(vehicle, field)) + '" placeholder="' + escapeHtml(config.placeholder || '') + '"></div>';
+  }
+
+  function renderTireVehicleSelect(index, label, field, vehicle, options) {
+    return '<div class="field"><label for="tire-vehicle-' + index + '-' + escapeHtml(field) + '">' + escapeHtml(label) + '</label><select id="tire-vehicle-' +
+      index + '-' + escapeHtml(field) + '" data-question-detail="tires_inventory" data-vehicle-index="' + index + '" data-vehicle-field="' +
+      escapeHtml(field) + '"><option value="">Selecione</option>' + options.map(function (option) {
+        return '<option value="' + escapeHtml(option.value) + '"' + (vehicle[field] === option.value ? ' selected' : '') + '>' +
+          escapeHtml(option.label) + '</option>';
+      }).join('') + '</select></div>';
+  }
+
+  function renderTireVehicleCard(vehicle, index, monthlyTotalCost) {
+    var calculated = model.tireInventorySnapshot({ monthly_total_cost: monthlyTotalCost, vehicles: [vehicle] }).vehicles[0] || {};
+    var mileageFallback = typeof vehicle.initial_odometer === 'number' && typeof vehicle.final_odometer === 'number'
+      ? 'Verifique os hodômetros' : 'Preencha KM inicial e final';
+    return '<article class="vehicle-entry" data-tire-vehicle-card="' + index + '"><header><div><span>VEÍCULO ' +
+      String(index + 1).padStart(2, '0') + '</span><strong>' + escapeHtml(vehicle.identifier || 'Identificação pendente') +
+      '</strong></div><button class="button button-quiet vehicle-remove" type="button" data-remove-tire-vehicle="' + index + '">Remover</button></header>' +
+      '<div class="field-grid vehicle-entry-grid">' +
+      renderTireVehicleSelect(index, 'Tipo de identificação', 'identifier_type', vehicle, [
+        { value: 'plate', label: 'Placa' }, { value: 'internal_code', label: 'Código interno' }, { value: 'fleet_number', label: 'Número de frota' }
+      ]) +
+      renderTireVehicleInput(index, 'Placa, código ou número', 'identifier', vehicle, { type: 'text', placeholder: 'Ex.: ABC-1D23 ou FROTA-018' }) +
+      renderTireVehicleInput(index, 'Pneus em operação', 'tires_in_operation', vehicle, { step: '1', placeholder: 'Ex.: 10' }) +
+      renderTireVehicleInput(index, 'Pneus identificados', 'identified_tires', vehicle, { step: '1', placeholder: 'Ex.: 10' }) +
+      renderTireVehicleInput(index, 'Hodômetro inicial do mês', 'initial_odometer', vehicle, { step: '0.001', placeholder: 'Ex.: 250000' }) +
+      renderTireVehicleInput(index, 'Hodômetro final do mês', 'final_odometer', vehicle, { step: '0.001', placeholder: 'Ex.: 261500' }) +
+      renderTireVehicleInput(index, 'Ajuste de quilometragem', 'mileage_adjustment', vehicle, { step: '0.001', signed: true, placeholder: 'Ex.: 0 ou -120' }) +
+      renderTireVehicleInput(index, 'Movimentações de pneus', 'movement_count', vehicle, { step: '1', placeholder: 'Ex.: 4' }) +
+      renderTireVehicleInput(index, 'Tempo parado por pneus (horas)', 'downtime_hours', vehicle, { placeholder: 'Ex.: 8' }) +
+      renderTireVehicleInput(index, 'Custo total de pneus (R$)', 'declared_total_cost', vehicle, { placeholder: 'Ex.: 9000' }) +
+      renderTireVehicleInput(index, 'Pneus novos (R$)', 'new_tire_cost', vehicle, { placeholder: 'Ex.: 4000' }) +
+      renderTireVehicleInput(index, 'Recapagens (R$)', 'retread_cost', vehicle, { placeholder: 'Ex.: 2500' }) +
+      renderTireVehicleInput(index, 'Consertos (R$)', 'repair_cost', vehicle, { placeholder: 'Ex.: 500' }) +
+      renderTireVehicleInput(index, 'Inspeção, calibragem e rodízio (R$)', 'preventive_service_cost', vehicle, { placeholder: 'Ex.: 300' }) +
+      renderTireVehicleInput(index, 'Sinistro ou avaria (R$)', 'accident_damage_cost', vehicle, { placeholder: 'Ex.: 500' }) +
+      renderTireVehicleInput(index, 'Erro operacional (R$)', 'operational_error_cost', vehicle, { placeholder: 'Ex.: 700' }) +
+      renderTireVehicleInput(index, 'Garantia (R$)', 'warranty_cost', vehicle, { placeholder: 'Ex.: 300' }) +
+      renderTireVehicleInput(index, 'Descarte (R$)', 'disposal_cost', vehicle, { placeholder: 'Ex.: 200' }) + '</div>' +
+      '<div class="vehicle-calculation-grid">' +
+      '<div><span>Pneus identificados</span><strong data-tire-vehicle-card-metric="identification_percentage" data-vehicle-index="' + index + '">' + escapeHtml(formatDetailPercent(calculated.identification_percentage)) + '</strong></div>' +
+      '<div><span>KM rodado</span><strong data-tire-vehicle-card-metric="mileage" data-vehicle-index="' + index + '">' +
+        (typeof calculated.mileage === 'number' ? escapeHtml(formatDetailNumber(calculated.mileage, 3)) + ' km' : mileageFallback) + '</strong></div>' +
+      '<div><span>Custo total do veículo</span><strong data-tire-vehicle-card-metric="total_cost" data-vehicle-index="' + index + '">' +
+        (typeof calculated.total_cost === 'number' ? escapeHtml(formatDetailMoney(calculated.total_cost)) : 'Não informado') + '</strong></div>' +
+      '<div><span>Fluxos classificados</span><strong data-tire-vehicle-card-metric="flow_total" data-vehicle-index="' + index + '">' +
+        (typeof calculated.flow_total === 'number' ? escapeHtml(formatDetailMoney(calculated.flow_total)) : 'Não calculado') + '</strong></div>' +
+      '<div><span>Custo de pneus por KM</span><strong data-tire-vehicle-card-metric="cost_per_km" data-vehicle-index="' + index + '">' +
+        (typeof calculated.cost_per_km === 'number' ? escapeHtml(formatDetailMoney(calculated.cost_per_km)) + '/km' : 'Não calculado') + '</strong></div>' +
+      '<div><span>Participação no custo mensal</span><strong data-tire-vehicle-card-metric="share_of_monthly_cost" data-vehicle-index="' + index + '">' + escapeHtml(formatDetailPercent(calculated.share_of_monthly_cost)) + '</strong></div></div></article>';
+  }
+
+  function renderTireInventoryDetails(current) {
+    if (!model.CLASSIFICATIONS[current.classification]) {
+      return '<div class="question-detail-prompt"><strong>Roteiro da visita</strong><span>Selecione D, E, N ou NA para abrir o detalhamento desta pergunta.</span></div>';
+    }
+    var details = current.details || {};
+    var snapshot = model.tireInventorySnapshot(details);
+    var vehicles = Array.isArray(details.vehicles) ? details.vehicles : [];
+    var standardOptions = [
+      { value: 'yes', label: 'Sim' }, { value: 'partial', label: 'Parcialmente' },
+      { value: 'no', label: 'Não' }, { value: 'unknown', label: 'Não soube informar' }
+    ];
+    var warningList = snapshot.warnings.length ? '<div class="detail-warning-list"><strong>Conferências necessárias</strong><ul>' +
+      snapshot.warnings.map(function (warning) { return '<li>' + escapeHtml(warning) + '</li>'; }).join('') + '</ul></div>' :
+      '<div class="detail-check-ok"><strong>Conferências automáticas sem divergência</strong><span>Os totais preenchidos ainda não apresentam inconsistência matemática.</span></div>';
+    return '<section class="question-detail-panel" aria-label="Detalhamento da identificação, custos e fluxos de pneus">' +
+      '<header><span>ROTEIRO DA VISITA · PNEUS · PERGUNTA 01</span><h4>Identificação, custo e fluxo dos pneus por veículo</h4><p>Use o mês de referência para relacionar o controle individual dos pneus ao custo total, às causas e aos veículos.</p></header>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>01</span><div><h5>Referência e identificação</h5><p>Meça quantos pneus estão individualizados e quantos veículos possuem mapa de montagem.</p></div></div>' +
+      '<div class="field-grid detail-grid">' +
+      renderTireNumberField('Custo total de pneus no mês (R$)', 'monthly_total_cost', details, 'Ex.: 70000') +
+      '<div class="field"><label for="tire-reference-month">Mês e ano de referência</label><input id="tire-reference-month" type="month" data-question-detail="tires_inventory" data-detail-field="reference_month" value="' + escapeHtml(detailValue(details, 'reference_month')) + '"></div>' +
+      renderTireNumberField('Quantidade total de veículos', 'fleet_vehicle_count', details, 'Ex.: 40', '1') +
+      renderTireNumberField('Pneus em operação', 'active_tire_count', details, 'Ex.: 360', '1') +
+      renderTireNumberField('Pneus identificados individualmente', 'identified_tire_count', details, 'Ex.: 330', '1') +
+      renderTireMetric('tire_identification_percentage', 'Identificação dos pneus', formatDetailPercent(snapshot.tire_identification_percentage)) +
+      renderTireNumberField('Veículos com mapa de pneus', 'vehicles_with_tire_map_count', details, 'Ex.: 35', '1') +
+      renderTireMetric('vehicle_map_coverage_percentage', 'Cobertura do mapa por veículo', formatDetailPercent(snapshot.vehicle_map_coverage_percentage)) +
+      renderTireNumberField('Movimentações no mês', 'tire_movements_count', details, 'Ex.: 90', '1') +
+      renderTireNumberField('Movimentações vinculadas corretamente', 'linked_tire_movements_count', details, 'Ex.: 84', '1') +
+      renderTireMetric('movement_traceability_percentage', 'Rastreabilidade das movimentações', formatDetailPercent(snapshot.movement_traceability_percentage)) + '</div>' +
+      renderTireChoices('identifier_methods', 'Formas de identificação dos pneus', [
+        { value: 'fire_number', label: 'Número a fogo' }, { value: 'serial_number', label: 'Número de série' },
+        { value: 'rfid', label: 'RFID' }, { value: 'barcode', label: 'Código de barras' },
+        { value: 'manufacturer_number', label: 'Número do fabricante' }, { value: 'other', label: 'Outra forma' }
+      ], details) + '<div class="field"><label for="tire-identifier-other">Outra forma de identificação</label><input id="tire-identifier-other" type="text" maxlength="240" data-question-detail="tires_inventory" data-detail-field="identifier_method_other" value="' + escapeHtml(detailValue(details, 'identifier_method_other')) + '"></div>' +
+      renderTireScale('vehicle_link_control', 'Os pneus são vinculados à placa ou ao código do veículo?', details) +
+      renderTireScale('movement_history_control', 'Entradas, saídas, posições e movimentações possuem histórico?', details) +
+      '<div class="field-grid two-columns">' +
+      renderTireSelect('Existem custos ou pneus sem identificação?', 'unidentified_costs', details, standardOptions) +
+      renderTireSelect('Custos, estoque e movimentações estão consolidados?', 'values_consolidated', details, standardOptions) + '</div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>02</span><div><h5>Custo por fluxo de pneus</h5><p>Separe aquisição, recapagem, conserto, prevenção, sinistro, erro operacional, garantia e descarte.</p></div></div>' +
+      '<div class="field-grid detail-grid">' +
+      renderTireNumberField('Pneus novos (R$)', 'new_tire_cost', details, 'Total no mês') +
+      renderTireNumberField('Recapagens (R$)', 'retread_cost', details, 'Total no mês') +
+      renderTireNumberField('Consertos (R$)', 'repair_cost', details, 'Total no mês') +
+      renderTireNumberField('Inspeção, calibragem e rodízio (R$)', 'preventive_service_cost', details, 'Total no mês') +
+      renderTireNumberField('Sinistro ou avaria (R$)', 'accident_damage_cost', details, 'Total no mês') +
+      renderTireNumberField('Erro operacional (R$)', 'operational_error_cost', details, 'Total no mês') +
+      renderTireNumberField('Garantias acionadas (R$)', 'warranty_cost', details, 'Total no mês') +
+      renderTireNumberField('Descarte (R$)', 'disposal_cost', details, 'Total no mês') +
+      renderTireNumberField('Valor recuperado em garantia (R$)', 'warranty_recovered_cost', details, 'Crédito, pneu ou serviço recuperado') +
+      renderTireMetric('flow_total', 'Soma dos fluxos', typeof snapshot.flow_total === 'number' ? formatDetailMoney(snapshot.flow_total) : 'Não calculada') +
+      renderTireMetric('flow_difference', 'Diferença para o custo mensal', typeof snapshot.flow_difference === 'number' ? formatDetailMoney(snapshot.flow_difference) : 'Não calculada') +
+      renderTireMetric('flow_percentage', 'Custo mensal classificado', formatDetailPercent(snapshot.flow_percentage)) +
+      renderTireMetric('warranty_recovery_percentage', 'Recuperação das garantias', formatDetailPercent(snapshot.warranty_recovery_percentage)) + '</div>' +
+      renderTireScale('flow_separation', 'A empresa separa os custos por esses fluxos?', details) + '</div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>03</span><div><h5>Garantia e tempo parado</h5><p>Registre o tratamento das garantias e a indisponibilidade provocada por pneus.</p></div></div>' +
+      renderTireScale('warranty_control', 'Garantias, reformas recusadas e reincidências são acompanhadas?', details) +
+      renderTireScale('downtime_control', 'O tempo parado por pneus é acompanhado?', details) +
+      '<div class="field-grid detail-grid">' +
+      renderTireNumberField('Tempo total parado no mês (horas)', 'downtime_total_hours', details, 'Ex.: 80') +
+      renderTireNumberField('Veículos parados por pneus', 'stopped_vehicle_count', details, 'Ex.: 6', '1') +
+      renderTireMetric('average_downtime_hours', 'Média de horas por movimentação', typeof snapshot.average_downtime_hours === 'number' ? formatDetailNumber(snapshot.average_downtime_hours, 2) + ' h' : 'Não calculada') + '</div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>04</span><div><h5>Histórico e fontes</h5><p>Confirme a continuidade do controle e a origem das informações apresentadas.</p></div></div>' +
+      renderTireScale('six_month_history', 'A empresa possui histórico de custos e movimentações dos últimos 6 meses?', details) +
+      '<div class="field-grid two-columns">' + renderTireNumberField('Custo em 6 meses (R$)', 'six_month_total_cost', details, 'Total do período') + '</div>' +
+      renderTireScale('annual_history', 'A empresa possui histórico de custos e movimentações dos últimos 12 meses?', details) +
+      '<div class="field-grid two-columns">' + renderTireNumberField('Custo em 12 meses (R$)', 'annual_total_cost', details, 'Total do período') + '</div>' +
+      renderTireChoices('data_sources', 'Fontes da informação', [
+        { value: 'tire_system', label: 'Sistema de pneus' }, { value: 'erp', label: 'ERP ou sistema' },
+        { value: 'spreadsheet', label: 'Planilha' }, { value: 'service_orders', label: 'Ordens de serviço' },
+        { value: 'invoices', label: 'Notas fiscais' }, { value: 'manual_control', label: 'Controle manual' },
+        { value: 'other', label: 'Outra fonte' }
+      ], details) + '<div class="field"><label for="tire-source-other">Outra fonte</label><input id="tire-source-other" type="text" maxlength="240" data-question-detail="tires_inventory" data-detail-field="data_source_other" value="' + escapeHtml(detailValue(details, 'data_source_other')) + '"></div></div>' +
+      '<div class="detail-block"><div class="detail-block-title detail-block-title-action"><span>05</span><div><h5>Pneus e custos por veículo</h5><p>Cadastre cada veículo para conciliar identificação, quilometragem, fluxos, custo por km e tempo parado.</p></div><button class="button button-secondary" type="button" data-add-tire-vehicle' + (vehicles.length >= 200 ? ' disabled' : '') + '>Adicionar veículo</button></div>' +
+      '<div class="vehicle-list-editor">' + (vehicles.length ? vehicles.map(function (vehicle, index) {
+        return renderTireVehicleCard(vehicle, index, details.monthly_total_cost);
+      }).join('') : '<div class="vehicle-empty-state"><strong>Nenhum veículo adicionado</strong><span>Use “Adicionar veículo” para registrar pneus, KM, custos e fluxos.</span></div>') + '</div></div>' +
+      '<div class="detail-block"><div class="detail-block-title"><span>06</span><div><h5>Conciliação e evidências</h5><p>Compare o total da empresa com os veículos e verifique o custo preliminar por quilômetro.</p></div></div>' +
+      '<div class="reconciliation-grid">' +
+      renderTireMetric('monthly_total_cost', 'Custo mensal declarado', typeof snapshot.monthly_total_cost === 'number' ? formatDetailMoney(snapshot.monthly_total_cost) : 'Não informado') +
+      renderTireMetric('registered_vehicle_cost', 'Custo vinculado aos veículos', typeof snapshot.registered_vehicle_cost === 'number' ? formatDetailMoney(snapshot.registered_vehicle_cost) : 'Nenhum custo informado') +
+      renderTireMetric('vehicle_cost_difference', 'Custo ainda não conciliado', typeof snapshot.vehicle_cost_difference === 'number' ? formatDetailMoney(snapshot.vehicle_cost_difference) : 'Não calculado') +
+      renderTireMetric('vehicle_cost_traceability_percentage', 'Rastreabilidade financeira', formatDetailPercent(snapshot.vehicle_cost_traceability_percentage)) +
+      renderTireMetric('registered_vehicle_mileage', 'KM somado dos veículos', typeof snapshot.registered_vehicle_mileage === 'number' ? formatDetailNumber(snapshot.registered_vehicle_mileage, 3) + ' km' : 'Não calculado') +
+      renderTireMetric('fleet_cost_per_km', 'Custo preliminar de pneus por KM', typeof snapshot.fleet_cost_per_km === 'number' ? formatDetailMoney(snapshot.fleet_cost_per_km) + '/km' : 'Não calculado') + '</div>' +
+      warningList + '<div class="field"><label for="tire-unassigned-explanation">Explique diferenças, custos indiretos ou pneus sem veículo</label><textarea id="tire-unassigned-explanation" rows="3" maxlength="2000" data-question-detail="tires_inventory" data-detail-field="unassigned_explanation" placeholder="Ex.: estoque, pneus de reserva, nota sem rateio, veículo de terceiro, garantia ou movimentação pendente.">' + escapeHtml(detailValue(details, 'unassigned_explanation')) + '</textarea></div></div></section>';
+  }
+
+  function updateTireCalculations() {
+    var answer = state.answers.tires_inventory || {};
+    var snapshot = model.tireInventorySnapshot(answer.details || {});
+    var values = {
+      tire_identification_percentage: formatDetailPercent(snapshot.tire_identification_percentage),
+      vehicle_map_coverage_percentage: formatDetailPercent(snapshot.vehicle_map_coverage_percentage),
+      movement_traceability_percentage: formatDetailPercent(snapshot.movement_traceability_percentage),
+      flow_total: typeof snapshot.flow_total === 'number' ? formatDetailMoney(snapshot.flow_total) : 'Não calculada',
+      flow_difference: typeof snapshot.flow_difference === 'number' ? formatDetailMoney(snapshot.flow_difference) : 'Não calculada',
+      flow_percentage: formatDetailPercent(snapshot.flow_percentage),
+      warranty_recovery_percentage: formatDetailPercent(snapshot.warranty_recovery_percentage),
+      average_downtime_hours: typeof snapshot.average_downtime_hours === 'number' ? formatDetailNumber(snapshot.average_downtime_hours, 2) + ' h' : 'Não calculada',
+      monthly_total_cost: typeof snapshot.monthly_total_cost === 'number' ? formatDetailMoney(snapshot.monthly_total_cost) : 'Não informado',
+      registered_vehicle_cost: typeof snapshot.registered_vehicle_cost === 'number' ? formatDetailMoney(snapshot.registered_vehicle_cost) : 'Nenhum custo informado',
+      vehicle_cost_difference: typeof snapshot.vehicle_cost_difference === 'number' ? formatDetailMoney(snapshot.vehicle_cost_difference) : 'Não calculado',
+      vehicle_cost_traceability_percentage: formatDetailPercent(snapshot.vehicle_cost_traceability_percentage),
+      registered_vehicle_mileage: typeof snapshot.registered_vehicle_mileage === 'number' ? formatDetailNumber(snapshot.registered_vehicle_mileage, 3) + ' km' : 'Não calculado',
+      fleet_cost_per_km: typeof snapshot.fleet_cost_per_km === 'number' ? formatDetailMoney(snapshot.fleet_cost_per_km) + '/km' : 'Não calculado'
+    };
+    Object.keys(values).forEach(function (key) {
+      elements.questionList.querySelectorAll('[data-tire-summary="' + key + '"]').forEach(function (element) { element.textContent = values[key]; });
+    });
+    var rawVehicles = answer.details && Array.isArray(answer.details.vehicles) ? answer.details.vehicles : [];
+    rawVehicles.forEach(function (vehicle, index) {
+      var calculated = model.tireInventorySnapshot({ monthly_total_cost: snapshot.monthly_total_cost, vehicles: [vehicle] }).vehicles[0] || {};
+      var bothOdometers = typeof vehicle.initial_odometer === 'number' && typeof vehicle.final_odometer === 'number';
+      var cardValues = {
+        identification_percentage: formatDetailPercent(calculated.identification_percentage),
+        mileage: typeof calculated.mileage === 'number' ? formatDetailNumber(calculated.mileage, 3) + ' km' : (bothOdometers ? 'Verifique os hodômetros' : 'Preencha KM inicial e final'),
+        total_cost: typeof calculated.total_cost === 'number' ? formatDetailMoney(calculated.total_cost) : 'Não informado',
+        flow_total: typeof calculated.flow_total === 'number' ? formatDetailMoney(calculated.flow_total) : 'Não calculado',
+        cost_per_km: typeof calculated.cost_per_km === 'number' ? formatDetailMoney(calculated.cost_per_km) + '/km' : 'Não calculado',
+        share_of_monthly_cost: formatDetailPercent(calculated.share_of_monthly_cost)
+      };
+      Object.keys(cardValues).forEach(function (metric) {
+        var element = elements.questionList.querySelector('[data-tire-vehicle-card-metric="' + metric + '"][data-vehicle-index="' + index + '"]');
+        if (element) element.textContent = cardValues[metric];
+      });
+    });
+    var tireCard = elements.questionList.querySelector('[data-question-card="tires_inventory"]');
+    var existingChecks = tireCard && tireCard.querySelector('.detail-warning-list, .detail-check-ok');
     if (existingChecks) {
       var replacement = document.createElement('div');
       replacement.innerHTML = snapshot.warnings.length ? '<div class="detail-warning-list"><strong>Conferências necessárias</strong><ul>' +
@@ -1026,7 +1285,8 @@
       }).join('');
       var detailPanel = question.key === 'fuel_spend' ? renderFuelSpendDetails(current) :
         (question.key === 'fuel_vehicle' ? renderFuelVehicleDetails(current) :
-          (question.key === 'maintenance_cost' ? renderMaintenanceCostDetails(current) : ''));
+          (question.key === 'maintenance_cost' ? renderMaintenanceCostDetails(current) :
+            (question.key === 'tires_inventory' ? renderTireInventoryDetails(current) : '')));
       return '<fieldset class="question-card" data-question-card="' + escapeHtml(question.key) + '"><legend>' +
         String(questionIndex + 1).padStart(2, '0') + '. ' + escapeHtml(question.title) + '</legend><p class="question-help">' +
         escapeHtml(question.help) + '</p><div class="answer-options">' + options + '</div>' + detailPanel + '<details class="question-notes"' +
@@ -1265,8 +1525,10 @@
         ' · ' + (typeof vehicle.mileage === 'number' ? escapeHtml(formatDetailNumber(vehicle.mileage, 3)) + ' km' : 'KM não calculado') +
         ' · ' + (typeof vehicle.maintenance_count === 'number' ? escapeHtml(formatDetailNumber(vehicle.maintenance_count, 0)) + ' manutenções/OS' : 'quantidade não informada') + '</span><small>' +
         (typeof vehicle.total_cost === 'number' ? escapeHtml(formatDetailMoney(vehicle.total_cost)) : 'custo não informado') +
+        ' · fluxos ' + (typeof vehicle.flow_total === 'number' ? escapeHtml(formatDetailMoney(vehicle.flow_total)) : 'não classificados') +
         ' · ' + (typeof vehicle.cost_per_km === 'number' ? escapeHtml(formatDetailMoney(vehicle.cost_per_km)) + '/km' : 'custo/km não calculado') +
-        ' · ' + escapeHtml(formatDetailPercent(vehicle.share_of_monthly_cost)) + ' do mês</small></div>';
+        ' · ' + escapeHtml(formatDetailPercent(vehicle.share_of_monthly_cost)) + ' do mês' +
+        (typeof vehicle.downtime_hours === 'number' ? ' · ' + escapeHtml(formatDetailNumber(vehicle.downtime_hours, 2)) + ' h parado' : '') + '</small></div>';
     }).join('') + '</div>' : '<p class="muted small">Nenhum veículo individual foi registrado no roteiro de manutenção.</p>';
     var warningBlock = snapshot.warnings.length ? '<div class="result-warning"><strong>Conferências pendentes</strong><ul>' +
       snapshot.warnings.map(function (warning) { return '<li>' + escapeHtml(warning) + '</li>'; }).join('') + '</ul></div>' : '';
@@ -1286,12 +1548,79 @@
         (typeof snapshot.composition_total === 'number' ? escapeHtml(formatDetailMoney(snapshot.composition_total)) : 'não calculada') + '</small></div>' +
       '<div><span>Preventiva</span><strong>' + escapeHtml(formatDetailMoney(snapshot.preventive_cost)) + '</strong></div>' +
       '<div><span>Corretiva</span><strong>' + escapeHtml(formatDetailMoney(snapshot.corrective_cost)) + '</strong></div>' +
+      '<div><span>Sinistro ou avaria</span><strong>' + escapeHtml(formatDetailMoney(snapshot.accident_damage_cost)) + '</strong></div>' +
+      '<div><span>Erro operacional</span><strong>' + escapeHtml(formatDetailMoney(snapshot.operational_error_cost)) + '</strong></div>' +
+      '<div><span>Garantias acionadas</span><strong>' + escapeHtml(formatDetailMoney(snapshot.warranty_cost)) + '</strong><small>Recuperado: ' + escapeHtml(formatDetailMoney(snapshot.warranty_recovered_cost)) + '</small></div>' +
+      '<div><span>Tempo parado</span><strong>' + (typeof snapshot.downtime_total_hours === 'number' ? escapeHtml(formatDetailNumber(snapshot.downtime_total_hours, 2)) + ' h' : 'Não informado') + '</strong><small>Média: ' +
+        (typeof snapshot.average_downtime_hours === 'number' ? escapeHtml(formatDetailNumber(snapshot.average_downtime_hours, 2)) + ' h por manutenção/OS' : 'não calculada') + '</small></div>' +
       '<div><span>Histórico</span><strong>6 meses: ' + escapeHtml(statusLabels[snapshot.six_month_history] || 'Não informado') + '</strong><small>12 meses: ' +
         escapeHtml(statusLabels[snapshot.annual_history] || 'Não informado') + '</small></div></div>' +
       '<div class="fuel-result-context"><p><strong>Identificação:</strong> ' + escapeHtml(detailLabels(snapshot.identifier_methods, identifierLabels)) + '</p>' +
       '<p><strong>Fontes:</strong> ' + escapeHtml(detailLabels(snapshot.data_sources, sourceLabels, snapshot.data_source_other)) + '</p>' +
       '<p><strong>Consolidação:</strong> ' + escapeHtml(statusLabels[snapshot.values_consolidated] || 'Não informado') +
       ' · <strong>Custos sem veículo:</strong> ' + escapeHtml(statusLabels[snapshot.unlinked_costs] || 'Não informado') + '</p>' +
+      '<p><strong>Histórico por veículo:</strong> ' + escapeHtml(statusLabels[snapshot.vehicle_history_control] || 'Não informado') +
+      ' · <strong>Plano preventivo:</strong> ' + escapeHtml(statusLabels[snapshot.preventive_plan_control] || 'Não informado') +
+      ' · <strong>Fluxos separados:</strong> ' + escapeHtml(statusLabels[snapshot.flow_separation] || 'Não informado') +
+      ' · <strong>Tempo parado:</strong> ' + escapeHtml(statusLabels[snapshot.downtime_control] || 'Não informado') +
+      ' · <strong>Garantias:</strong> ' + escapeHtml(statusLabels[snapshot.warranty_control] || 'Não informado') + '</p>' +
+      (snapshot.unassigned_explanation ? '<p><strong>Explicação das diferenças:</strong> ' + escapeHtml(snapshot.unassigned_explanation) + '</p>' : '') + '</div>' + warningBlock + vehicleList;
+  }
+
+  function renderTireInventoryResult(snapshot) {
+    var panel = document.getElementById('tire-inventory-summary');
+    if (!snapshot || !snapshot.has_data) {
+      panel.hidden = true;
+      panel.innerHTML = '';
+      return;
+    }
+    var identifierLabels = {
+      fire_number: 'Número a fogo', serial_number: 'Número de série', rfid: 'RFID', barcode: 'Código de barras',
+      manufacturer_number: 'Número do fabricante', other: 'Outra forma'
+    };
+    var vehicleIdentifierLabels = { plate: 'Placa', internal_code: 'Código interno', fleet_number: 'Número de frota' };
+    var sourceLabels = {
+      tire_system: 'Sistema de pneus', erp: 'ERP ou sistema', spreadsheet: 'Planilha', service_orders: 'Ordens de serviço',
+      invoices: 'Notas fiscais', manual_control: 'Controle manual', other: 'Outra fonte'
+    };
+    var statusLabels = { yes: 'Sim', partial: 'Parcialmente', no: 'Não', unknown: 'Não informado', D: 'Documentado', E: 'Estimado', N: 'Não controla', NA: 'Não se aplica' };
+    var vehicleList = snapshot.vehicles.length ? '<div class="fuel-vehicle-result-list">' + snapshot.vehicles.map(function (vehicle) {
+      return '<div><strong>' + escapeHtml(vehicle.identifier || 'Veículo sem identificação') + '</strong><span>' +
+        escapeHtml(vehicleIdentifierLabels[vehicle.identifier_type] || 'Identificação não informada') +
+        ' · ' + escapeHtml(formatDetailPercent(vehicle.identification_percentage)) + ' dos pneus identificados' +
+        ' · ' + (typeof vehicle.mileage === 'number' ? escapeHtml(formatDetailNumber(vehicle.mileage, 3)) + ' km' : 'KM não calculado') + '</span><small>' +
+        (typeof vehicle.total_cost === 'number' ? escapeHtml(formatDetailMoney(vehicle.total_cost)) : 'custo não informado') +
+        ' · fluxos ' + (typeof vehicle.flow_total === 'number' ? escapeHtml(formatDetailMoney(vehicle.flow_total)) : 'não classificados') +
+        ' · ' + (typeof vehicle.cost_per_km === 'number' ? escapeHtml(formatDetailMoney(vehicle.cost_per_km)) + '/km' : 'custo/km não calculado') +
+        (typeof vehicle.downtime_hours === 'number' ? ' · ' + escapeHtml(formatDetailNumber(vehicle.downtime_hours, 2)) + ' h parado' : '') + '</small></div>';
+    }).join('') + '</div>' : '<p class="muted small">Nenhum veículo individual foi registrado no roteiro de pneus.</p>';
+    var warningBlock = snapshot.warnings.length ? '<div class="result-warning"><strong>Conferências pendentes</strong><ul>' +
+      snapshot.warnings.map(function (warning) { return '<li>' + escapeHtml(warning) + '</li>'; }).join('') + '</ul></div>' : '';
+    panel.hidden = false;
+    panel.innerHTML = '<div class="fuel-result-header"><div><p class="panel-kicker">Pergunta 01 · Pneus</p><h2>Leitura de identificação, custos e fluxos</h2></div><span class="badge">' +
+      escapeHtml(formatReferenceMonth(snapshot.reference_month)) + '</span></div><div class="fuel-result-metrics">' +
+      '<div><span>Custo mensal</span><strong>' + escapeHtml(formatDetailMoney(snapshot.monthly_total_cost)) + '</strong></div>' +
+      '<div><span>Pneus identificados</span><strong>' + escapeHtml(formatDetailPercent(snapshot.tire_identification_percentage)) + '</strong><small>' +
+        escapeHtml(formatDetailNumber(snapshot.identified_tire_count, 0)) + ' de ' + escapeHtml(formatDetailNumber(snapshot.active_tire_count, 0)) + ' pneus</small></div>' +
+      '<div><span>Veículos com mapa</span><strong>' + escapeHtml(formatDetailPercent(snapshot.vehicle_map_coverage_percentage)) + '</strong><small>' +
+        escapeHtml(formatDetailNumber(snapshot.vehicles_with_tire_map_count, 0)) + ' de ' + escapeHtml(formatDetailNumber(snapshot.fleet_vehicle_count, 0)) + ' veículos</small></div>' +
+      '<div><span>Movimentações rastreadas</span><strong>' + escapeHtml(formatDetailPercent(snapshot.movement_traceability_percentage)) + '</strong></div>' +
+      '<div><span>Custo conciliado por veículo</span><strong>' + escapeHtml(formatDetailPercent(snapshot.vehicle_cost_traceability_percentage)) + '</strong><small>Diferença: ' +
+        (typeof snapshot.vehicle_cost_difference === 'number' ? escapeHtml(formatDetailMoney(snapshot.vehicle_cost_difference)) : 'não calculada') + '</small></div>' +
+      '<div><span>Custo de pneus por KM</span><strong>' + (typeof snapshot.fleet_cost_per_km === 'number' ? escapeHtml(formatDetailMoney(snapshot.fleet_cost_per_km)) + '/km' : 'Não calculado') + '</strong></div>' +
+      '<div><span>Pneus novos</span><strong>' + escapeHtml(formatDetailMoney(snapshot.new_tire_cost)) + '</strong></div>' +
+      '<div><span>Recapagens</span><strong>' + escapeHtml(formatDetailMoney(snapshot.retread_cost)) + '</strong></div>' +
+      '<div><span>Consertos</span><strong>' + escapeHtml(formatDetailMoney(snapshot.repair_cost)) + '</strong></div>' +
+      '<div><span>Sinistro ou avaria</span><strong>' + escapeHtml(formatDetailMoney(snapshot.accident_damage_cost)) + '</strong></div>' +
+      '<div><span>Erro operacional</span><strong>' + escapeHtml(formatDetailMoney(snapshot.operational_error_cost)) + '</strong></div>' +
+      '<div><span>Garantias acionadas</span><strong>' + escapeHtml(formatDetailMoney(snapshot.warranty_cost)) + '</strong><small>Recuperado: ' + escapeHtml(formatDetailMoney(snapshot.warranty_recovered_cost)) + '</small></div>' +
+      '<div><span>Tempo parado</span><strong>' + (typeof snapshot.downtime_total_hours === 'number' ? escapeHtml(formatDetailNumber(snapshot.downtime_total_hours, 2)) + ' h' : 'Não informado') + '</strong></div></div>' +
+      '<div class="fuel-result-context"><p><strong>Identificação:</strong> ' + escapeHtml(detailLabels(snapshot.identifier_methods, identifierLabels, snapshot.identifier_method_other)) + '</p>' +
+      '<p><strong>Fontes:</strong> ' + escapeHtml(detailLabels(snapshot.data_sources, sourceLabels, snapshot.data_source_other)) + '</p>' +
+      '<p><strong>Vínculo com veículo:</strong> ' + escapeHtml(statusLabels[snapshot.vehicle_link_control] || 'Não informado') +
+      ' · <strong>Histórico de movimentações:</strong> ' + escapeHtml(statusLabels[snapshot.movement_history_control] || 'Não informado') +
+      ' · <strong>Fluxos separados:</strong> ' + escapeHtml(statusLabels[snapshot.flow_separation] || 'Não informado') +
+      ' · <strong>Garantias:</strong> ' + escapeHtml(statusLabels[snapshot.warranty_control] || 'Não informado') + '</p>' +
       (snapshot.unassigned_explanation ? '<p><strong>Explicação das diferenças:</strong> ' + escapeHtml(snapshot.unassigned_explanation) + '</p>' : '') + '</div>' + warningBlock + vehicleList;
   }
 
@@ -1307,6 +1636,7 @@
     renderFuelSpendResult(summary.fuelSpend);
     renderFuelVehicleResult(summary.fuelVehicle);
     renderMaintenanceCostResult(summary.maintenanceCost);
+    renderTireInventoryResult(summary.tireInventory);
     document.getElementById('priority-title').textContent = summary.priority.name + ' — nível ' + summary.priority.level + '/3';
     document.getElementById('priority-copy').textContent = 'Este é o pilar inicial para aprofundar evidências e organizar a primeira frente de trabalho.';
     document.getElementById('gap-list').innerHTML = summary.gaps.length ? summary.gaps.map(function (gap) {
@@ -1417,15 +1747,19 @@
       var removeButton = event.target.closest('[data-remove-fuel-vehicle]');
       var addMaintenanceButton = event.target.closest('[data-add-maintenance-vehicle]');
       var removeMaintenanceButton = event.target.closest('[data-remove-maintenance-vehicle]');
-      if (!addButton && !removeButton && !addMaintenanceButton && !removeMaintenanceButton) return;
-      var answerKey = addMaintenanceButton || removeMaintenanceButton ? 'maintenance_cost' : 'fuel_vehicle';
+      var addTireButton = event.target.closest('[data-add-tire-vehicle]');
+      var removeTireButton = event.target.closest('[data-remove-tire-vehicle]');
+      if (!addButton && !removeButton && !addMaintenanceButton && !removeMaintenanceButton && !addTireButton && !removeTireButton) return;
+      var answerKey = addTireButton || removeTireButton ? 'tires_inventory'
+        : (addMaintenanceButton || removeMaintenanceButton ? 'maintenance_cost' : 'fuel_vehicle');
       state.answers[answerKey] = state.answers[answerKey] || { classification: '', notes: '', details: {} };
       state.answers[answerKey].details = state.answers[answerKey].details || {};
       var vehicles = Array.isArray(state.answers[answerKey].details.vehicles)
         ? state.answers[answerKey].details.vehicles : [];
-      if ((addButton || addMaintenanceButton) && vehicles.length < 200) vehicles.push({});
+      if ((addButton || addMaintenanceButton || addTireButton) && vehicles.length < 200) vehicles.push({});
       if (removeButton) vehicles.splice(Number(removeButton.dataset.removeFuelVehicle), 1);
       if (removeMaintenanceButton) vehicles.splice(Number(removeMaintenanceButton.dataset.removeMaintenanceVehicle), 1);
+      if (removeTireButton) vehicles.splice(Number(removeTireButton.dataset.removeTireVehicle), 1);
       state.answers[answerKey].details.vehicles = vehicles;
       renderQuestions();
       queueAutosave();
@@ -1445,7 +1779,7 @@
         var controlsConditional = model.QUESTIONS.some(function (question) {
           return question.condition && question.condition.key === key;
         });
-        if (controlsConditional || key === 'fuel_spend' || key === 'maintenance_cost') {
+        if (controlsConditional || key === 'fuel_spend' || key === 'maintenance_cost' || key === 'tires_inventory') {
           renderPillarTabs();
           renderQuestions();
         } else {
@@ -1480,6 +1814,7 @@
         updateFuelSpendCalculations();
         updateFuelVehicleCalculations();
         updateMaintenanceCostCalculations();
+        updateTireCalculations();
       }
       queueAutosave();
     });

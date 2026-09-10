@@ -29,6 +29,14 @@ test('builds safe report data without requiring the browser', () => {
         vehicle_cost_traceability_percentage: 33,
         vehicles: [{ identifier: 'ABC-1D23', mileage: 11500, maintenance_count: 3, total_cost: 17000 }]
       },
+      tireInventory: {
+        has_data: true,
+        reference_month: '2026-08',
+        monthly_total_cost: 70000,
+        tire_identification_percentage: 91.67,
+        fleet_cost_per_km: 4.14,
+        vehicles: [{ identifier: 'ABC-1D23', mileage: 10000, identification_percentage: 100, total_cost: 8000 }]
+      },
       priority: { name: 'Pneus', level: 1 },
       gaps: [],
       strengths: []
@@ -42,6 +50,8 @@ test('builds safe report data without requiring the browser', () => {
   assert.equal(data.fuelVehicle.vehicles[0].identifier, 'ABC-1D23');
   assert.equal(data.maintenanceCost.monthly_total_cost, 100000);
   assert.equal(data.maintenanceCost.vehicles[0].total_cost, 17000);
+  assert.equal(data.tireInventory.monthly_total_cost, 70000);
+  assert.equal(data.tireInventory.vehicles[0].identification_percentage, 100);
   assert.match(data.disclaimer, /preliminar/i);
 });
 

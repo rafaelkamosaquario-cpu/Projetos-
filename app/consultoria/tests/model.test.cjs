@@ -227,6 +227,16 @@ test('stores maintenance costs and reconciles composition, types and vehicles', 
     corrective_cost: 50000,
     predictive_cost: 5000,
     accident_damage_cost: 5000,
+    operational_error_cost: 3000,
+    warranty_cost: 2000,
+    warranty_recovered_cost: 1000,
+    downtime_total_hours: 120,
+    stopped_vehicle_count: 8,
+    vehicle_history_control: 'D',
+    preventive_plan_control: 'E',
+    downtime_control: 'D',
+    flow_separation: 'D',
+    warranty_control: 'E',
     six_month_history: 'D',
     six_month_total_cost: 570000,
     annual_history: 'E',
@@ -235,13 +245,19 @@ test('stores maintenance costs and reconciles composition, types and vehicles', 
     vehicles: [
       {
         identifier_type: 'plate', identifier: 'ABC-1D23', initial_odometer: 250000, final_odometer: 261000,
-        maintenance_count: 3, parts_cost: 10000, internal_labor_cost: 2000, external_services_cost: 3000,
+        maintenance_count: 3, downtime_hours: 36, declared_total_cost: 17000,
+        preventive_cost: 5000, corrective_cost: 8000, predictive_cost: 0, accident_damage_cost: 1000,
+        operational_error_cost: 2000, warranty_cost: 1000,
+        parts_cost: 10000, internal_labor_cost: 2000, external_services_cost: 3000,
         lubricants_materials_cost: 1000, towing_emergency_cost: 0, unrecovered_rework_cost: 0, other_cost: 1000,
         ignored_field: 'não deve persistir'
       },
       {
         identifier_type: 'fleet_number', identifier: 'FROTA-018', initial_odometer: 100000, final_odometer: 108000,
-        mileage_adjustment: -200, maintenance_count: 2, parts_cost: 8000, internal_labor_cost: 1000,
+        mileage_adjustment: -200, maintenance_count: 2, downtime_hours: 24, declared_total_cost: 16000,
+        preventive_cost: 4000, corrective_cost: 7000, predictive_cost: 1000, accident_damage_cost: 1000,
+        operational_error_cost: 2000, warranty_cost: 1000,
+        parts_cost: 8000, internal_labor_cost: 1000,
         external_services_cost: 4000, lubricants_materials_cost: 1000, towing_emergency_cost: 1000,
         unrecovered_rework_cost: 0, other_cost: 1000
       }
@@ -257,10 +273,14 @@ test('stores maintenance costs and reconciles composition, types and vehicles', 
   assert.equal(snapshot.composition_total, 90000);
   assert.equal(snapshot.composition_difference, 10000);
   assert.equal(snapshot.composition_percentage, 90);
-  assert.equal(snapshot.type_total, 90000);
-  assert.equal(snapshot.type_difference, 10000);
+  assert.equal(snapshot.type_total, 95000);
+  assert.equal(snapshot.type_difference, 5000);
+  assert.equal(snapshot.type_percentage, 95);
+  assert.equal(snapshot.warranty_recovery_percentage, 50);
+  assert.equal(snapshot.average_downtime_hours, 4);
   assert.equal(snapshot.vehicles[0].mileage, 11000);
   assert.equal(snapshot.vehicles[0].total_cost, 17000);
+  assert.equal(snapshot.vehicles[0].flow_total, 17000);
   assert.equal(snapshot.vehicles[0].cost_per_km, 1.55);
   assert.equal(snapshot.vehicles[0].share_of_monthly_cost, 17);
   assert.equal(snapshot.vehicles[1].mileage, 7800);
@@ -296,4 +316,93 @@ test('flags inconsistent maintenance totals and odometers', () => {
   assert.equal(snapshot.warnings.length, 7);
   assert.match(snapshot.warnings.join(' '), /hodômetro final/i);
   assert.match(snapshot.warnings.join(' '), /custos por veículo supera/i);
+});
+
+test('stores tire identification, costs and flows by vehicle', () => {
+  const answers = all('D');
+  answers.tires_inventory.details = {
+    reference_month: '2026-08',
+    monthly_total_cost: 70000,
+    fleet_vehicle_count: 40,
+    active_tire_count: 360,
+    identified_tire_count: 330,
+    vehicles_with_tire_map_count: 35,
+    tire_movements_count: 90,
+    linked_tire_movements_count: 84,
+    identifier_methods: ['fire_number', 'rfid', 'invalid'],
+    vehicle_link_control: 'D',
+    movement_history_control: 'E',
+    flow_separation: 'D',
+    warranty_control: 'E',
+    downtime_control: 'D',
+    values_consolidated: 'partial',
+    unidentified_costs: 'yes',
+    new_tire_cost: 25000,
+    retread_cost: 15000,
+    repair_cost: 5000,
+    preventive_service_cost: 3000,
+    accident_damage_cost: 5000,
+    operational_error_cost: 4000,
+    warranty_cost: 2000,
+    disposal_cost: 1000,
+    warranty_recovered_cost: 1000,
+    downtime_total_hours: 90,
+    stopped_vehicle_count: 6,
+    six_month_history: 'D',
+    six_month_total_cost: 410000,
+    annual_history: 'E',
+    annual_total_cost: 830000,
+    data_sources: ['tire_system', 'service_orders', 'invalid'],
+    vehicles: [
+      {
+        identifier_type: 'plate', identifier: 'ABC-1D23', tires_in_operation: 10, identified_tires: 10,
+        initial_odometer: 250000, final_odometer: 260000, movement_count: 4, downtime_hours: 8,
+        declared_total_cost: 8000, new_tire_cost: 3000, retread_cost: 2000, repair_cost: 500,
+        preventive_service_cost: 500, accident_damage_cost: 500, operational_error_cost: 1000,
+        warranty_cost: 300, disposal_cost: 200, ignored_field: 'não deve persistir'
+      },
+      {
+        identifier_type: 'fleet_number', identifier: 'FROTA-018', tires_in_operation: 8, identified_tires: 6,
+        initial_odometer: 100000, final_odometer: 107000, mileage_adjustment: -100, movement_count: 2,
+        downtime_hours: 4, declared_total_cost: 5000, new_tire_cost: 2000, retread_cost: 1500,
+        repair_cost: 500, preventive_service_cost: 200, accident_damage_cost: 300,
+        operational_error_cost: 300, warranty_cost: 100, disposal_cost: 100
+      }
+    ],
+    unassigned_explanation: 'Pneus em estoque e notas ainda sem rateio.',
+    ignored_field: 'não deve persistir'
+  };
+
+  const snapshot = model.evaluate(answers).tireInventory;
+  assert.equal(snapshot.tire_identification_percentage, 91.67);
+  assert.equal(snapshot.vehicle_map_coverage_percentage, 87.5);
+  assert.equal(snapshot.movement_traceability_percentage, 93.33);
+  assert.equal(snapshot.flow_total, 60000);
+  assert.equal(snapshot.flow_difference, 10000);
+  assert.equal(snapshot.flow_percentage, 85.71);
+  assert.equal(snapshot.warranty_recovery_percentage, 50);
+  assert.equal(snapshot.average_downtime_hours, 1);
+  assert.equal(snapshot.vehicles[0].identification_percentage, 100);
+  assert.equal(snapshot.vehicles[0].mileage, 10000);
+  assert.equal(snapshot.vehicles[0].flow_total, 8000);
+  assert.equal(snapshot.vehicles[0].total_cost, 8000);
+  assert.equal(snapshot.vehicles[0].cost_per_km, 0.8);
+  assert.equal(snapshot.vehicles[0].share_of_monthly_cost, 11.43);
+  assert.equal(snapshot.vehicles[1].identification_percentage, 75);
+  assert.equal(snapshot.vehicles[1].mileage, 6900);
+  assert.equal(snapshot.registered_vehicle_cost, 13000);
+  assert.equal(snapshot.registered_vehicle_mileage, 16900);
+  assert.equal(snapshot.vehicle_cost_difference, 57000);
+  assert.equal(snapshot.vehicle_cost_traceability_percentage, 18.57);
+  assert.equal(snapshot.fleet_cost_per_km, 4.14);
+  assert.deepEqual(snapshot.identifier_methods, ['fire_number', 'rfid']);
+  assert.deepEqual(snapshot.data_sources, ['tire_system', 'service_orders']);
+  assert.deepEqual(snapshot.warnings, []);
+  assert.equal(snapshot.ignored_field, undefined);
+
+  const row = model.toRows('diagnostic-id', 'owner-id', answers)
+    .find((entry) => entry.question_key === 'tires_inventory');
+  assert.equal(row.answer_payload.details.vehicles[0].identifier, 'ABC-1D23');
+  assert.equal(row.answer_payload.details.vehicles[0].ignored_field, undefined);
+  assert.equal(row.answer_payload.details.unassigned_explanation, 'Pneus em estoque e notas ainda sem rateio.');
 });

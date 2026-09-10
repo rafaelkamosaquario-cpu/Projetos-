@@ -100,6 +100,7 @@
       fuelSpend: summary.fuelSpend && typeof summary.fuelSpend === 'object' ? summary.fuelSpend : {},
       fuelVehicle: summary.fuelVehicle && typeof summary.fuelVehicle === 'object' ? summary.fuelVehicle : {},
       maintenanceCost: summary.maintenanceCost && typeof summary.maintenanceCost === 'object' ? summary.maintenanceCost : {},
+      tireInventory: summary.tireInventory && typeof summary.tireInventory === 'object' ? summary.tireInventory : {},
       priority: summary.priority || {},
       gaps: Array.isArray(summary.gaps) ? summary.gaps : [],
       strengths: Array.isArray(summary.strengths) ? summary.strengths : [],
@@ -344,7 +345,12 @@
         'Tipos: preventiva ' + formatMoney(data.maintenanceCost.preventive_cost) +
         '; corretiva ' + formatMoney(data.maintenanceCost.corrective_cost) +
         '; preditiva ' + formatMoney(data.maintenanceCost.predictive_cost) +
-        '; acidente ou avaria ' + formatMoney(data.maintenanceCost.accident_damage_cost) + '. ' +
+        '; sinistro ou avaria ' + formatMoney(data.maintenanceCost.accident_damage_cost) +
+        '; erro operacional ' + formatMoney(data.maintenanceCost.operational_error_cost) +
+        '; garantia ' + formatMoney(data.maintenanceCost.warranty_cost) +
+        '; recuperado em garantia ' + formatMoney(data.maintenanceCost.warranty_recovered_cost) + '. ' +
+        'Tempo parado ' + formatNumber(data.maintenanceCost.downtime_total_hours, 2) + ' horas; média ' +
+        formatNumber(data.maintenanceCost.average_downtime_hours, 2) + ' horas por manutenção/OS. ' +
         'Histórico de 6 meses: ' + (maintenanceStatusLabels[data.maintenanceCost.six_month_history] || 'não informado') +
         ' (' + formatMoney(data.maintenanceCost.six_month_total_cost) + '). Histórico de 12 meses: ' +
         (maintenanceStatusLabels[data.maintenanceCost.annual_history] || 'não informado') +
@@ -355,7 +361,12 @@
         'Identificação: ' + selectedLabels(data.maintenanceCost.identifier_methods, maintenanceIdentifierLabels) +
         '. Fontes: ' + selectedLabels(data.maintenanceCost.data_sources, maintenanceSourceLabels, data.maintenanceCost.data_source_other) +
         '. Consolidação: ' + (maintenanceStatusLabels[data.maintenanceCost.values_consolidated] || 'não informado') +
-        '. Custos sem veículo: ' + (maintenanceStatusLabels[data.maintenanceCost.unlinked_costs] || 'não informado') + '.',
+        '. Custos sem veículo: ' + (maintenanceStatusLabels[data.maintenanceCost.unlinked_costs] || 'não informado') +
+        '. Histórico por veículo: ' + (maintenanceStatusLabels[data.maintenanceCost.vehicle_history_control] || 'não informado') +
+        '. Plano preventivo: ' + (maintenanceStatusLabels[data.maintenanceCost.preventive_plan_control] || 'não informado') +
+        '. Fluxos separados: ' + (maintenanceStatusLabels[data.maintenanceCost.flow_separation] || 'não informado') +
+        '. Tempo parado controlado: ' + (maintenanceStatusLabels[data.maintenanceCost.downtime_control] || 'não informado') +
+        '. Garantias controladas: ' + (maintenanceStatusLabels[data.maintenanceCost.warranty_control] || 'não informado') + '.',
         { size: 8, color: COLORS.soft, after: 3 }
       );
       (data.maintenanceCost.vehicles || []).slice(0, 30).forEach(function (vehicle, index) {
@@ -363,8 +374,8 @@
           String(index + 1).padStart(2, '0') + ' · ' + safeText(vehicle.identifier, 'Veículo sem identificação') +
           ' (' + (maintenanceIdentifierLabels[vehicle.identifier_type] || 'tipo não informado') + ')' +
           ' — ' + formatNumber(vehicle.mileage, 3) + ' km; ' + formatNumber(vehicle.maintenance_count, 0) + ' manutenções/OS; ' +
-          formatMoney(vehicle.total_cost) + '; ' + formatMoney(vehicle.cost_per_km) + '/km; ' +
-          formatPercent(vehicle.share_of_monthly_cost) + ' do custo mensal.',
+          formatMoney(vehicle.total_cost) + '; fluxos ' + formatMoney(vehicle.flow_total) + '; ' + formatMoney(vehicle.cost_per_km) + '/km; ' +
+          formatPercent(vehicle.share_of_monthly_cost) + ' do custo mensal; ' + formatNumber(vehicle.downtime_hours, 2) + ' horas parado.',
           { size: 7.7, color: COLORS.text, after: 1.5 }
         );
       });
@@ -373,6 +384,75 @@
       });
       if (safeText(data.maintenanceCost.unassigned_explanation)) {
         paragraph('Explicação das diferenças: ' + safeText(data.maintenanceCost.unassigned_explanation), { size: 8, color: COLORS.soft, after: 5 });
+      }
+    }
+
+    if (data.tireInventory.has_data) {
+      var tireIdentifierLabels = {
+        fire_number: 'número a fogo', serial_number: 'número de série', rfid: 'RFID', barcode: 'código de barras',
+        manufacturer_number: 'número do fabricante', other: 'outra forma'
+      };
+      var tireVehicleIdentifierLabels = { plate: 'placa', internal_code: 'código interno', fleet_number: 'número de frota' };
+      var tireSourceLabels = {
+        tire_system: 'sistema de pneus', erp: 'ERP ou sistema', spreadsheet: 'planilha', service_orders: 'ordens de serviço',
+        invoices: 'notas fiscais', manual_control: 'controle manual', other: 'outra fonte'
+      };
+      var tireStatusLabels = { yes: 'sim', partial: 'parcialmente', no: 'não', unknown: 'não informado', D: 'documentado', E: 'estimado', N: 'não controla', NA: 'não se aplica' };
+      sectionLabel('Pneus — identificação, custos e fluxos', COLORS.blue);
+      paragraph(
+        'Referência ' + formatMonth(data.tireInventory.reference_month) +
+        ' • Custo mensal ' + formatMoney(data.tireInventory.monthly_total_cost) +
+        ' • Pneus identificados ' + formatPercent(data.tireInventory.tire_identification_percentage) +
+        ' • Veículos com mapa ' + formatPercent(data.tireInventory.vehicle_map_coverage_percentage) +
+        ' • Movimentações rastreadas ' + formatPercent(data.tireInventory.movement_traceability_percentage) +
+        ' • Custo preliminar ' + formatMoney(data.tireInventory.fleet_cost_per_km) + '/km',
+        { size: 8.5, bold: true, after: 3 }
+      );
+      paragraph(
+        'Fluxos: pneus novos ' + formatMoney(data.tireInventory.new_tire_cost) +
+        '; recapagens ' + formatMoney(data.tireInventory.retread_cost) +
+        '; consertos ' + formatMoney(data.tireInventory.repair_cost) +
+        '; inspeção, calibragem e rodízio ' + formatMoney(data.tireInventory.preventive_service_cost) +
+        '; sinistro ou avaria ' + formatMoney(data.tireInventory.accident_damage_cost) +
+        '; erro operacional ' + formatMoney(data.tireInventory.operational_error_cost) +
+        '; garantia ' + formatMoney(data.tireInventory.warranty_cost) +
+        '; descarte ' + formatMoney(data.tireInventory.disposal_cost) + '.',
+        { size: 8, color: COLORS.soft, after: 3 }
+      );
+      paragraph(
+        'Soma dos fluxos ' + formatMoney(data.tireInventory.flow_total) +
+        ' (' + formatPercent(data.tireInventory.flow_percentage) + ' do custo; diferença ' + formatMoney(data.tireInventory.flow_difference) + '). ' +
+        'Vinculado aos veículos ' + formatMoney(data.tireInventory.registered_vehicle_cost) +
+        ' (' + formatPercent(data.tireInventory.vehicle_cost_traceability_percentage) + '; diferença ' + formatMoney(data.tireInventory.vehicle_cost_difference) + '). ' +
+        'Garantia recuperada ' + formatMoney(data.tireInventory.warranty_recovered_cost) +
+        ' (' + formatPercent(data.tireInventory.warranty_recovery_percentage) + '). Tempo parado ' +
+        formatNumber(data.tireInventory.downtime_total_hours, 2) + ' horas.',
+        { size: 8, color: COLORS.soft, after: 3 }
+      );
+      paragraph(
+        'Identificação: ' + selectedLabels(data.tireInventory.identifier_methods, tireIdentifierLabels, data.tireInventory.identifier_method_other) +
+        '. Fontes: ' + selectedLabels(data.tireInventory.data_sources, tireSourceLabels, data.tireInventory.data_source_other) +
+        '. Vínculo com veículo: ' + (tireStatusLabels[data.tireInventory.vehicle_link_control] || 'não informado') +
+        '. Histórico de movimentações: ' + (tireStatusLabels[data.tireInventory.movement_history_control] || 'não informado') +
+        '. Fluxos separados: ' + (tireStatusLabels[data.tireInventory.flow_separation] || 'não informado') +
+        '. Garantias: ' + (tireStatusLabels[data.tireInventory.warranty_control] || 'não informado') + '.',
+        { size: 8, color: COLORS.soft, after: 3 }
+      );
+      (data.tireInventory.vehicles || []).slice(0, 30).forEach(function (vehicle, index) {
+        paragraph(
+          String(index + 1).padStart(2, '0') + ' · ' + safeText(vehicle.identifier, 'Veículo sem identificação') +
+          ' (' + (tireVehicleIdentifierLabels[vehicle.identifier_type] || 'tipo não informado') + ')' +
+          ' — pneus identificados ' + formatPercent(vehicle.identification_percentage) + '; ' + formatNumber(vehicle.mileage, 3) + ' km; ' +
+          formatMoney(vehicle.total_cost) + '; fluxos ' + formatMoney(vehicle.flow_total) + '; ' +
+          formatMoney(vehicle.cost_per_km) + '/km; ' + formatNumber(vehicle.downtime_hours, 2) + ' horas parado.',
+          { size: 7.7, color: COLORS.text, after: 1.5 }
+        );
+      });
+      (data.tireInventory.warnings || []).forEach(function (warning) {
+        paragraph('Conferir: ' + safeText(warning), { size: 8, color: COLORS.gold, after: 2 });
+      });
+      if (safeText(data.tireInventory.unassigned_explanation)) {
+        paragraph('Explicação das diferenças: ' + safeText(data.tireInventory.unassigned_explanation), { size: 8, color: COLORS.soft, after: 5 });
       }
     }
 

@@ -26,9 +26,15 @@ No GitHub Pages, ela faz parte da mesma central do diagnóstico público:
   automática com os totais da Pergunta 01;
 - detalhamento interativo da Pergunta 01 de manutenção, com custo mensal,
   cobertura da frota, composição de peças, mão de obra e serviços, separação
-  entre preventiva, corretiva, preditiva e avarias, históricos de 6 e 12
-  meses, fontes, cadastro por veículo, custo por km, conciliação financeira e
-  alertas automáticos de inconsistência;
+  entre preventiva, corretiva, preditiva, sinistros, erros operacionais e
+  garantias, históricos de 6 e 12 meses, plano preventivo, tempo parado,
+  fontes, cadastro por veículo, custo por km, conciliação financeira e alertas
+  automáticos de inconsistência;
+- detalhamento interativo da Pergunta 01 de pneus, com identificação
+  individual, mapa por veículo, movimentações, custos de pneus novos,
+  recapagens, consertos, prevenção, sinistros, erros operacionais, garantias e
+  descartes, além de tempo parado, cadastro por veículo, custo por km,
+  conciliação financeira e alertas automáticos;
 - autosave, rascunho e retomada entre dispositivos;
 - conclusão preliminar, resumo em PDF e conversão em projeto;
 - estrutura privada para perfis, empresas, contatos, diagnósticos, respostas,
