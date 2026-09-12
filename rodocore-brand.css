@@ -1,0 +1,37 @@
+/* Identidade compartilhada: site, diagnóstico público e consultoria.
+   A escrita é uma janela sobre o PNG original (1280x1280), não uma fonte substituta. */
+.brand, .brand-lockup { gap: .65rem; min-width: 0; }
+.brand img, .brand-logo-img, .boot-screen img {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  border-radius: 0;
+  box-shadow: none;
+}
+.rodocore-wordmark {
+  display: block;
+  flex: 0 0 auto;
+  width: 160px;
+  height: 20px;
+  background-image: url("rodocore-brand-202609.png");
+  background-repeat: no-repeat;
+  background-size: 108% 875%;
+  background-position: 50% 67.8%;
+}
+.brand-row .rodocore-wordmark, .auth-brand .rodocore-wordmark {
+  width: clamp(160px, 18vw, 240px);
+  height: clamp(20px, 2.25vw, 30px);
+}
+.boot-screen img { width: 128px; height: 128px; }
+.header-inner { flex-wrap: wrap; padding-block: .5rem; }
+@media (max-width: 600px) {
+  .brand img, .brand-logo-img { width: 48px; height: 48px; }
+  .brand, .brand-lockup { gap: .5rem; }
+  .rodocore-wordmark, .brand-row .rodocore-wordmark, .auth-brand .rodocore-wordmark {
+    width: 144px;
+    height: 18px;
+  }
+  .header-inner { gap: .5rem; }
+}
+
