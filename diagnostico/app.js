@@ -338,7 +338,7 @@
     }).join(', ');
     var message = 'Olá! Concluí o check-up RodoCore (' + levels + ') e gostaria de conversar sobre o Diagnóstico Executivo.';
     document.getElementById('whatsapp-link').href =
-      'https://wa.me/5542998582489?text=' + encodeURIComponent(message);
+      'https://wa.me/5541997295836?text=' + encodeURIComponent(message);
 
     configureContactState();
   }
