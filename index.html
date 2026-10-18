@@ -131,6 +131,16 @@ h1,h2{text-transform:none;letter-spacing:-.025em}
 .service{display:grid;grid-template-columns:1fr 1fr;gap:40px;padding-block:36px 60px;border-top:1px solid var(--line)}
 .service h2{font-size:clamp(1.5rem,3vw,2.1rem);line-height:1.3;margin-top:12px}
 .service p{margin:0 0 16px;color:#b6c3d5}
+.offer-section{padding-block:44px 52px;border-top:1px solid var(--line);scroll-margin-top:24px}
+.offer-section h2{font-size:clamp(1.7rem,3.4vw,2.5rem);line-height:1.2;margin:12px 0 18px;max-width:800px}
+.offer-intro{max-width:760px;color:var(--text-soft);margin:0 0 28px}
+.offer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.offer-item{padding:24px;background:rgba(16,38,64,.45);border:1px solid #233d58;border-radius:10px}
+.offer-item h3{font-size:1.2rem;line-height:1.35;margin:0 0 10px;color:#edf5ff}
+.offer-item p{margin:0;color:var(--text-soft);font-size:1rem;line-height:1.65}
+.offer-item .offer-label{display:block;color:#70c3ff;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+.scope-note{font-size:.93rem;color:var(--text-soft);border-left:3px solid #279fff;padding-left:16px;margin:24px 0 0}
+@media(max-width:640px){.offer-grid{grid-template-columns:1fr;gap:16px}.offer-item{padding:20px}.offer-section{padding-block:32px 40px}}
 .about-strip{padding-top:48px;border-top:1px solid var(--line);scroll-margin-top:24px}
 .about-strip h2{max-width:860px;font-size:clamp(1.8rem,3.6vw,2.7rem)}
 .experience{display:flex;flex-wrap:wrap;gap:20px 40px;padding:20px 0 28px;margin-bottom:12px;border-bottom:1px solid var(--line);color:#b6c3d5}
@@ -180,6 +190,30 @@ h1,h2{text-transform:none;letter-spacing:-.025em}
   <section class="service wrap" aria-labelledby="service-title">
     <div><span class="eyebrow">Como trabalhamos</span><h2 id="service-title">90 dias de acompanhamento.<br>Um trabalho construído com você.</h2></div>
     <div><p>Conhecemos a realidade da operação, definimos prioridades e acompanhamos as melhorias e a evolução dos indicadores.</p><p><strong>As visitas presenciais e sua frequência são combinadas com o cliente, conforme a modalidade e o contrato.</strong></p><p>Veículo, carga, rota, rotina e condições de trabalho fazem parte da análise. O acompanhamento considera quem já tem sistema e quem ainda utiliza controles simples.</p></div>
+  </section>
+  <section class="offer-section wrap" id="entregas" aria-labelledby="entregas-title">
+    <span class="eyebrow">Da análise à ação</span>
+    <h2 id="entregas-title">O que você recebe nos 90 dias.</h2>
+    <p class="offer-intro">Clareza sobre a operação, prioridades para agir e acompanhamento para avaliar o que está mudando. O trabalho é definido com você, conforme o escopo contratado.</p>
+    <div class="offer-grid">
+      <article class="offer-item"><span class="offer-label">01 · Entender</span><h3>Diagnóstico da realidade</h3><p>Levantamento dos controles, custos e rotina da empresa, ouvindo quem acompanha a gestão e quem está na operação.</p></article>
+      <article class="offer-item"><span class="offer-label">02 · Priorizar</span><h3>Prioridades bem definidas</h3><p>Identificação dos pontos que merecem atenção, considerando impacto, segurança e capacidade de investimento do cliente.</p></article>
+      <article class="offer-item"><span class="offer-label">03 · Colocar em prática</span><h3>Plano de ação e apoio à implantação</h3><p>Ações possíveis de executar, com responsáveis e prazos combinados, para organizar controles e melhorar os processos previstos no contrato.</p></article>
+      <article class="offer-item"><span class="offer-label">04 · Acompanhar</span><h3>Indicadores para avaliar a evolução</h3><p>Acompanhamento dos registros disponíveis e dos indicadores definidos, para comparar períodos, investigar desvios e ajustar as ações com a empresa.</p></article>
+    </div>
+    <p class="scope-note">Entregas, visitas e frequência de acompanhamento são acordadas conforme a modalidade e o contrato. Os resultados dependem das condições da operação e da execução das ações; não há promessa de economia fixa.</p>
+  </section>
+  <section class="offer-section wrap" id="pilares" aria-labelledby="pilares-title">
+    <span class="eyebrow">Quatro pilares. Uma operação.</span>
+    <h2 id="pilares-title">Onde atuamos na sua operação.</h2>
+    <p class="offer-intro">Não basta saber quanto saiu do caixa. É preciso entender o motivo do gasto, o resultado de cada veículo e as condições de quem está ao volante.</p>
+    <div class="offer-grid">
+      <article class="offer-item"><span class="offer-label">Combustível</span><h3>Por que um caminhão consome mais que outro?</h3><p>Analisamos os registros considerando veículo, carga, rota e condições de trabalho, para investigar diferenças sem comparar operações como se fossem iguais.</p></article>
+      <article class="offer-item"><span class="offer-label">Manutenção</span><h3>Você separa prevenção, quebra, sinistro e investimento?</h3><p>Ajudamos a organizar os gastos e seus motivos, distinguindo preventiva, corretiva, sinistros e investimentos. A causa de uma ocorrência precisa ser investigada, não presumida.</p></article>
+      <article class="offer-item"><span class="offer-label">Pneus</span><h3>Você acompanha o resultado ou só o preço de compra?</h3><p>Aplicação, cuidados, vida útil, recapagem e histórico entram na análise para entender o custo dos pneus na realidade da sua frota.</p></article>
+      <article class="offer-item"><span class="offer-label">Motoristas</span><h3>As metas estão claras? Há condições para alcançá-las?</h3><p>Ouvimos os motoristas e a gestão para alinhar expectativas, rotina e condições de trabalho. Pessoas fazem parte da solução, não são culpadas antes da análise.</p></article>
+    </div>
+    <div class="actions"><a class="button" href="https://wa.me/5541997295836?text=Ol%C3%A1%2C%20Rafael!%20Quero%20conversar%20sobre%20minha%20opera%C3%A7%C3%A3o." target="_blank" rel="noopener">Conversar sobre minha operação ↗</a></div>
   </section>
   <section class="about-strip wrap" id="sobre-rafael" aria-labelledby="rafael-title">
     <span class="eyebrow">Quem está à frente da RodoCore</span>
