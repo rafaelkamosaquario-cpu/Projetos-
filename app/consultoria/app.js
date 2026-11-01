@@ -1287,6 +1287,7 @@
         (question.key === 'fuel_vehicle' ? renderFuelVehicleDetails(current) :
           (question.key === 'maintenance_cost' ? renderMaintenanceCostDetails(current) :
             (question.key === 'tires_inventory' ? renderTireInventoryDetails(current) : '')));
+      if (question.key === 'fuel_spend') detailPanel += current.classification ? window.RodoCoreAssessment.form(current.details && current.details.assessment, 'executive') : '<p>Responda a classificação acima para abrir a composição de custos e o plano de ação opcional.</p>';
       return '<fieldset class="question-card" data-question-card="' + escapeHtml(question.key) + '"><legend>' +
         String(questionIndex + 1).padStart(2, '0') + '. ' + escapeHtml(question.title) + '</legend><p class="question-help">' +
         escapeHtml(question.help) + '</p><div class="answer-options">' + options + '</div>' + detailPanel + '<details class="question-notes"' +
@@ -1328,6 +1329,11 @@
   async function saveDraft() {
     if (!state.diagnostic || state.diagnostic.status !== 'draft') return;
     clearTimeout(state.saveTimer);
+    var invalidCost = window.RodoCoreAssessment.invalidInput(elements.diagnosticForm);
+    if (invalidCost) {
+      setSaveStatus('error', 'Custo inválido: use valor sem separador de milhar e até duas casas decimais.');
+      throw new Error('Revise os valores na composição de custos antes de salvar.');
+    }
     setSaveStatus('saving', 'Sincronizando…');
     var metadata = await state.client.from('executive_diagnostics').update({
       current_step: state.pillarIndex,
@@ -1633,6 +1639,13 @@
         pillar.level + '/3</strong></div><div class="maturity-bar"><span style="width:' + ((pillar.level / 3) * 100) + '%"></span></div><p><strong>' +
         escapeHtml(pillar.label) + '</strong><br>' + escapeHtml(pillar.description) + '</p></article>';
     }).join('');
+    var assessmentResult = document.getElementById('cost-assessment-result');
+    if (!assessmentResult) {
+      assessmentResult = document.createElement('div');
+      assessmentResult.id = 'cost-assessment-result';
+      document.getElementById('result-disclaimer').insertAdjacentElement('beforebegin', assessmentResult);
+    }
+    assessmentResult.innerHTML = window.RodoCoreAssessment.render(summary.assessment || {});
     renderFuelSpendResult(summary.fuelSpend);
     renderFuelVehicleResult(summary.fuelVehicle);
     renderMaintenanceCostResult(summary.maintenanceCost);
@@ -1765,6 +1778,14 @@
       queueAutosave();
     });
     elements.diagnosticForm.addEventListener('input', function (event) {
+      if (event.target.dataset.assessmentField) {
+        var fuelAnswer = state.answers.fuel_spend = state.answers.fuel_spend || {classification:'',notes:'',details:{}};
+        fuelAnswer.details = fuelAnswer.details || {};
+        fuelAnswer.details.assessment = fuelAnswer.details.assessment || {};
+        fuelAnswer.details.assessment[event.target.dataset.assessmentField] = event.target.value;
+        queueAutosave();
+        return;
+      }
       var key = event.target.dataset.questionKey || event.target.dataset.questionNotes || event.target.dataset.questionDetail;
       if (!key) {
         if (event.target === elements.generalNotes) {
@@ -1856,3 +1877,4 @@
 
   initialize();
 }());
+

@@ -157,6 +157,11 @@
   }
 
   function validateStep(step) {
+    var invalidCost = window.RodoCoreAssessment.invalidInput(form);
+    if (step === 4 && invalidCost) {
+      invalidCost.closest('details').open = true;
+      return showFieldError(invalidCost, 'Revise o custo: use valor positivo ou zero, sem separador de milhar, com até duas casas decimais.');
+    }
     clearErrors();
     var section = form.querySelector('.form-step[data-step="' + step + '"]');
     var processedGroups = {};
@@ -286,6 +291,14 @@
   }
 
   function renderResult(result, answers) {
+    var costResult = document.getElementById('cost-assessment-result');
+    if (!costResult) {
+      costResult = document.createElement('div');
+      costResult.id = 'cost-assessment-result';
+      document.getElementById('result-disclaimer')?.insertAdjacentElement('beforebegin', costResult);
+      if (!costResult.isConnected) document.getElementById('maturity-grid').insertAdjacentElement('afterend', costResult);
+    }
+    costResult.innerHTML = window.RodoCoreAssessment.render(window.RodoCoreAssessment.fromAnswers(answers));
     document.getElementById('result-profile').textContent =
       (answers.fleet_type || 'Frota') + ' · ' +
       (answers.vehicle_count || '—') + ' veículos · ' +
@@ -509,6 +522,7 @@
     refreshDraftBanner();
   }
 
+  form.querySelector('[data-step="4"]').insertAdjacentHTML('beforeend', window.RodoCoreAssessment.form({}, 'public'));
   form.addEventListener('input', scheduleSave);
   form.addEventListener('change', function () {
     updateConditionalFields();
@@ -542,3 +556,4 @@
   configureContactState();
   refreshDraftBanner();
 }());
+

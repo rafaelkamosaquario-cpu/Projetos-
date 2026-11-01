@@ -11,6 +11,8 @@
 }(function () {
   'use strict';
 
+  var assessment = typeof module !== 'undefined' && module.exports ? require('../../shared/assessment.js') : window.RodoCoreAssessment;
+
   var COLORS = {
     navy: [6, 9, 17],
     panel: [16, 25, 39],
@@ -95,6 +97,7 @@
       consultantName: safeText(source.consultantName, 'Consultor RodoCore'),
       completedOn: formatDate(source.diagnostic && (source.diagnostic.completed_at || source.diagnostic.updated_at)),
       diagnosticTitle: safeText(source.diagnostic && source.diagnostic.title, 'Diagnóstico Executivo'),
+      assessment: summary.assessment ? assessment.normalize(summary.assessment) : null,
       generalNotes: safeText(source.diagnostic && source.diagnostic.general_notes),
       pillars: Array.isArray(summary.pillars) ? summary.pillars : [],
       fuelSpend: summary.fuelSpend && typeof summary.fuelSpend === 'object' ? summary.fuelSpend : {},
@@ -503,6 +506,15 @@
       data.strengths.forEach(function (strength) { paragraph('• ' + strength, { size: 8.5, after: 2 }); });
     }
 
+    if (data.assessment) {
+      newPage('CUSTOS E PLANO DE AÇÃO');
+      sectionLabel('Composição de custos e plano de ação');
+      assessment.reportLines(data.assessment).slice(1).forEach(function (line) {
+        paragraph(line, {size:8.5, after:3, pageLabel:'CUSTOS E PLANO DE AÇÃO'});
+      });
+      paragraph('Fonte ANTT: ' + assessment.sourceUrl, {size:7, after:5, pageLabel:'FONTES'});
+    }
+
     if (data.generalNotes) {
       sectionLabel('Observações gerais');
       paragraph(data.generalNotes, { size: 8.5, color: COLORS.soft, pageLabel: 'OBSERVAÇÕES' });
@@ -540,3 +552,4 @@
     fileSafe: fileSafe
   };
 }));
+

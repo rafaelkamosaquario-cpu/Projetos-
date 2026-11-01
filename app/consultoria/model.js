@@ -11,6 +11,8 @@
 }(function () {
   'use strict';
 
+  var assessment = typeof module !== 'undefined' && module.exports ? require('../../shared/assessment.js') : window.RodoCoreAssessment;
+
   var CLASSIFICATIONS = {
     D: { label: 'Documentado', short: 'D', score: 3, tone: 'documented' },
     E: { label: 'Estimado', short: 'E', score: 1, tone: 'estimated' },
@@ -151,6 +153,7 @@
   function normalizeFuelSpendDetails(value) {
     var source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
     var details = {};
+    if (source.assessment && typeof source.assessment === 'object') details.assessment = assessment.normalize(source.assessment);
 
     FUEL_SPEND_DETAIL_NUMBERS.forEach(function (key) {
       var number = safeDetailNumber(source[key]);
@@ -843,6 +846,7 @@
       },
       strengths: strengths,
       gaps: gaps,
+      assessment: assessment.normalize(normalized.fuel_spend && normalized.fuel_spend.details && normalized.fuel_spend.details.assessment),
       fuelSpend: fuelSpendSnapshot(normalized.fuel_spend && normalized.fuel_spend.details),
       fuelVehicle: fuelVehicleSnapshot(
         normalized.fuel_vehicle && normalized.fuel_vehicle.details,
@@ -912,3 +916,4 @@
     toRows: toRows
   };
 }));
+
